@@ -50,6 +50,7 @@
 		6ED47B8A183BF3E800859244 /* easy-move-resizeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "easy-move-resizeTests-Info.plist"; sourceTree = "<group>"; };
 		6ED47B8C183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = easy_move_resizeTests.m; sourceTree = "<group>"; };
+		F907A0E10208B2B4C63E46E3 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		F907AB0E17E61960C00A089F /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -82,6 +83,7 @@
 				6ED47B63183BF3E800859244 /* Frameworks */,
 				6ED47B62183BF3E800859244 /* Products */,
 				F907AB0E17E61960C00A089F /* .gitignore */,
+				F907A0E10208B2B4C63E46E3 /* LICENSE.txt */,
 			);
 			sourceTree = "<group>";
 		};

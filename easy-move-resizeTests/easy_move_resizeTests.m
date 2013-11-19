@@ -1,11 +1,3 @@
-//
-//  easy_move_resizeTests.m
-//  easy-move-resizeTests
-//
-//  Created by Daniel Marcotte on 11/19/13.
-//  Copyright (c) 2013 Daniel Marcotte. All rights reserved.
-//
-
 #import <XCTest/XCTest.h>
 
 @interface easy_move_resizeTests : XCTestCase
