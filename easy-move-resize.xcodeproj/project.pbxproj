@@ -1,0 +1,482 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
+		6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B6D183BF3E800859244 /* InfoPlist.strings */; };
+		6ED47B71183BF3E800859244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B70183BF3E800859244 /* main.m */; };
+		6ED47B75183BF3E800859244 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B73183BF3E800859244 /* Credits.rtf */; };
+		6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B77183BF3E800859244 /* EMRAppDelegate.m */; };
+		6ED47B7B183BF3E800859244 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B79183BF3E800859244 /* MainMenu.xib */; };
+		6ED47B7D183BF3E800859244 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B7C183BF3E800859244 /* Images.xcassets */; };
+		6ED47B84183BF3E800859244 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B83183BF3E800859244 /* XCTest.framework */; };
+		6ED47B85183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
+		6ED47B8D183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B8B183BF3E800859244 /* InfoPlist.strings */; };
+		6ED47B8F183BF3E800859244 /* easy_move_resizeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6ED47B86183BF3E800859244 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6ED47B59183BF3E800859244 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6ED47B60183BF3E800859244;
+			remoteInfo = "easy-move-resize";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6ED47B61183BF3E800859244 /* easy-move-resize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "easy-move-resize.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6ED47B64183BF3E800859244 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		6ED47B67183BF3E800859244 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		6ED47B68183BF3E800859244 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		6ED47B69183BF3E800859244 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		6ED47B6C183BF3E800859244 /* easy-move-resize-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "easy-move-resize-Info.plist"; sourceTree = "<group>"; };
+		6ED47B6E183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6ED47B70183BF3E800859244 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		6ED47B72183BF3E800859244 /* easy-move-resize-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "easy-move-resize-Prefix.pch"; sourceTree = "<group>"; };
+		6ED47B74183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		6ED47B76183BF3E800859244 /* EMRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRAppDelegate.h; sourceTree = "<group>"; };
+		6ED47B77183BF3E800859244 /* EMRAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRAppDelegate.m; sourceTree = "<group>"; };
+		6ED47B7A183BF3E800859244 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		6ED47B7C183BF3E800859244 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		6ED47B82183BF3E800859244 /* easy-move-resizeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "easy-move-resizeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6ED47B83183BF3E800859244 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		6ED47B8A183BF3E800859244 /* easy-move-resizeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "easy-move-resizeTests-Info.plist"; sourceTree = "<group>"; };
+		6ED47B8C183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = easy_move_resizeTests.m; sourceTree = "<group>"; };
+		F907AB0E17E61960C00A089F /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6ED47B5E183BF3E800859244 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6ED47B7F183BF3E800859244 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6ED47B85183BF3E800859244 /* Cocoa.framework in Frameworks */,
+				6ED47B84183BF3E800859244 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6ED47B58183BF3E800859244 = {
+			isa = PBXGroup;
+			children = (
+				6ED47B6A183BF3E800859244 /* easy-move-resize */,
+				6ED47B88183BF3E800859244 /* easy-move-resizeTests */,
+				6ED47B63183BF3E800859244 /* Frameworks */,
+				6ED47B62183BF3E800859244 /* Products */,
+				F907AB0E17E61960C00A089F /* .gitignore */,
+			);
+			sourceTree = "<group>";
+		};
+		6ED47B62183BF3E800859244 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6ED47B61183BF3E800859244 /* easy-move-resize.app */,
+				6ED47B82183BF3E800859244 /* easy-move-resizeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6ED47B63183BF3E800859244 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6ED47B64183BF3E800859244 /* Cocoa.framework */,
+				6ED47B83183BF3E800859244 /* XCTest.framework */,
+				6ED47B66183BF3E800859244 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6ED47B66183BF3E800859244 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6ED47B67183BF3E800859244 /* AppKit.framework */,
+				6ED47B68183BF3E800859244 /* CoreData.framework */,
+				6ED47B69183BF3E800859244 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		6ED47B6A183BF3E800859244 /* easy-move-resize */ = {
+			isa = PBXGroup;
+			children = (
+				6ED47B76183BF3E800859244 /* EMRAppDelegate.h */,
+				6ED47B77183BF3E800859244 /* EMRAppDelegate.m */,
+				6ED47B79183BF3E800859244 /* MainMenu.xib */,
+				6ED47B7C183BF3E800859244 /* Images.xcassets */,
+				6ED47B6B183BF3E800859244 /* Supporting Files */,
+			);
+			path = "easy-move-resize";
+			sourceTree = "<group>";
+		};
+		6ED47B6B183BF3E800859244 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6ED47B6C183BF3E800859244 /* easy-move-resize-Info.plist */,
+				6ED47B6D183BF3E800859244 /* InfoPlist.strings */,
+				6ED47B70183BF3E800859244 /* main.m */,
+				6ED47B72183BF3E800859244 /* easy-move-resize-Prefix.pch */,
+				6ED47B73183BF3E800859244 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6ED47B88183BF3E800859244 /* easy-move-resizeTests */ = {
+			isa = PBXGroup;
+			children = (
+				6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */,
+				6ED47B89183BF3E800859244 /* Supporting Files */,
+			);
+			path = "easy-move-resizeTests";
+			sourceTree = "<group>";
+		};
+		6ED47B89183BF3E800859244 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6ED47B8A183BF3E800859244 /* easy-move-resizeTests-Info.plist */,
+				6ED47B8B183BF3E800859244 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6ED47B60183BF3E800859244 /* easy-move-resize */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6ED47B92183BF3E800859244 /* Build configuration list for PBXNativeTarget "easy-move-resize" */;
+			buildPhases = (
+				6ED47B5D183BF3E800859244 /* Sources */,
+				6ED47B5E183BF3E800859244 /* Frameworks */,
+				6ED47B5F183BF3E800859244 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "easy-move-resize";
+			productName = "easy-move-resize";
+			productReference = 6ED47B61183BF3E800859244 /* easy-move-resize.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6ED47B81183BF3E800859244 /* easy-move-resizeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6ED47B95183BF3E800859244 /* Build configuration list for PBXNativeTarget "easy-move-resizeTests" */;
+			buildPhases = (
+				6ED47B7E183BF3E800859244 /* Sources */,
+				6ED47B7F183BF3E800859244 /* Frameworks */,
+				6ED47B80183BF3E800859244 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6ED47B87183BF3E800859244 /* PBXTargetDependency */,
+			);
+			name = "easy-move-resizeTests";
+			productName = "easy-move-resizeTests";
+			productReference = 6ED47B82183BF3E800859244 /* easy-move-resizeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6ED47B59183BF3E800859244 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = EMR;
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Daniel Marcotte";
+				TargetAttributes = {
+					6ED47B81183BF3E800859244 = {
+						TestTargetID = 6ED47B60183BF3E800859244 /* easy-move-resize */;
+					};
+				};
+			};
+			buildConfigurationList = 6ED47B5C183BF3E800859244 /* Build configuration list for PBXProject "easy-move-resize" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6ED47B58183BF3E800859244;
+			productRefGroup = 6ED47B62183BF3E800859244 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6ED47B60183BF3E800859244 /* easy-move-resize */,
+				6ED47B81183BF3E800859244 /* easy-move-resizeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6ED47B5F183BF3E800859244 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */,
+				6ED47B7D183BF3E800859244 /* Images.xcassets in Resources */,
+				6ED47B75183BF3E800859244 /* Credits.rtf in Resources */,
+				6ED47B7B183BF3E800859244 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6ED47B80183BF3E800859244 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6ED47B8D183BF3E800859244 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6ED47B5D183BF3E800859244 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6ED47B71183BF3E800859244 /* main.m in Sources */,
+				6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6ED47B7E183BF3E800859244 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6ED47B8F183BF3E800859244 /* easy_move_resizeTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6ED47B87183BF3E800859244 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6ED47B60183BF3E800859244 /* easy-move-resize */;
+			targetProxy = 6ED47B86183BF3E800859244 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		6ED47B6D183BF3E800859244 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6ED47B6E183BF3E800859244 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		6ED47B73183BF3E800859244 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6ED47B74183BF3E800859244 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		6ED47B79183BF3E800859244 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6ED47B7A183BF3E800859244 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		6ED47B8B183BF3E800859244 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6ED47B8C183BF3E800859244 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		6ED47B90183BF3E800859244 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6ED47B91183BF3E800859244 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		6ED47B93183BF3E800859244 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
+				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		6ED47B94183BF3E800859244 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
+				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		6ED47B96183BF3E800859244 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/easy-move-resize.app/Contents/MacOS/easy-move-resize";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "easy-move-resizeTests/easy-move-resizeTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		6ED47B97183BF3E800859244 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/easy-move-resize.app/Contents/MacOS/easy-move-resize";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
+				INFOPLIST_FILE = "easy-move-resizeTests/easy-move-resizeTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6ED47B5C183BF3E800859244 /* Build configuration list for PBXProject "easy-move-resize" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6ED47B90183BF3E800859244 /* Debug */,
+				6ED47B91183BF3E800859244 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6ED47B92183BF3E800859244 /* Build configuration list for PBXNativeTarget "easy-move-resize" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6ED47B93183BF3E800859244 /* Debug */,
+				6ED47B94183BF3E800859244 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		6ED47B95183BF3E800859244 /* Build configuration list for PBXNativeTarget "easy-move-resizeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6ED47B96183BF3E800859244 /* Debug */,
+				6ED47B97183BF3E800859244 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6ED47B59183BF3E800859244 /* Project object */;
+}
