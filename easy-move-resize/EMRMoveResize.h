@@ -18,6 +18,7 @@ struct ResizeSection {
 };
 
 @interface EMRMoveResize : NSObject {
+    CFMachPortRef _eventTap;
     struct ResizeSection _resizeSection;
     AXUIElementRef _window;
     int _tracking;
@@ -27,6 +28,7 @@ struct ResizeSection {
 
 + (id) instance;
 
+@property CFMachPortRef eventTap;
 @property struct ResizeSection resizeSection;
 @property AXUIElementRef window;
 @property int tracking;

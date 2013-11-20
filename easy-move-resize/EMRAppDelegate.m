@@ -5,6 +5,14 @@
 
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void __unused *refcon) {
 
+    EMRMoveResize* moveResize = [EMRMoveResize instance];
+
+    if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
+        // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
+        CGEventTapEnable([moveResize eventTap], true);
+        return event;
+    }
+
     CGEventFlags flags = CGEventGetFlags(event);
 
     if ((flags & (kCGEventFlagMaskCommand | kCGEventFlagMaskControl)) != (kCGEventFlagMaskCommand | kCGEventFlagMaskControl)) {
@@ -16,8 +24,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
         return event;
     }
-
-    EMRMoveResize* moveResize = [EMRMoveResize instance];
 
     if (type == kCGEventLeftMouseDown
             || type == kCGEventRightMouseDown) {
@@ -192,12 +198,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setTracking:0];
     }
 
-    if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
-        // todo re-init
-        NSLog(@"Event Taps Disabled!");
-        return event;
-    }
-
     // we took ownership of this event, don't pass it along
     return NULL;
 }
@@ -235,7 +235,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
 
-    CGEventTapEnable(eventTap, true);
+    EMRMoveResize *moveResize = [EMRMoveResize instance];
+    [moveResize setEventTap:eventTap];
+    CGEventTapEnable([moveResize eventTap], true);
 }
 
 @end

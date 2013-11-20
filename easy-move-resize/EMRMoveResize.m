@@ -1,6 +1,7 @@
 #import "EMRMoveResize.h"
 
 @implementation EMRMoveResize
+@synthesize eventTap = _eventTap;
 @synthesize resizeSection = _resizeSection;
 @synthesize window = _window;
 @synthesize tracking = _tracking;
