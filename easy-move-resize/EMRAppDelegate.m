@@ -10,6 +10,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
         // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
         CGEventTapEnable([moveResize eventTap], true);
+        NSLog(@"Re-enabling...");
         return event;
     }
 
