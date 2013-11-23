@@ -241,4 +241,11 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CGEventTapEnable([moveResize eventTap], true);
 }
 
+-(void)awakeFromNib{
+    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    [statusItem setMenu:statusMenu];
+    [statusItem setTitle:@"MR"];
+    [statusItem setHighlightMode:YES];
+}
+
 @end

@@ -19,7 +19,6 @@
 		6ED47B8D183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B8B183BF3E800859244 /* InfoPlist.strings */; };
 		6ED47B8F183BF3E800859244 /* easy_move_resizeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */; };
 		F907A25928093AED2C89550E /* EMRMoveResize.m in Sources */ = {isa = PBXBuildFile; fileRef = F907AEB04B0AF90540F6EF00 /* EMRMoveResize.m */; };
-		F907A6D59CCB673B724D018F /* PBXBuildFile */ = {isa = PBXBuildFile; fileRef = F907A681C4ED52F1E3C1A54C /* EMRMoveResize.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,8 +52,6 @@
 		6ED47B8C183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = easy_move_resizeTests.m; sourceTree = "<group>"; };
 		F907A0E10208B2B4C63E46E3 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
-		F907A681C4ED52F1E3C1A54C /* EMRMoveResize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMRMoveResize.m; sourceTree = "<group>"; };
-		F907AA95AA70C77F6FA53404 /* EMRMoveResize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMRMoveResize.h; sourceTree = "<group>"; };
 		F907AB0E17E61960C00A089F /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 		F907ACD4ED7B8961880D12BD /* EMRMoveResize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMRMoveResize.h; sourceTree = "<group>"; };
 		F907AEB04B0AF90540F6EF00 /* EMRMoveResize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMRMoveResize.m; sourceTree = "<group>"; };
@@ -401,7 +398,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -414,7 +413,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -478,6 +479,7 @@
 				6ED47B94183BF3E800859244 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6ED47B95183BF3E800859244 /* Build configuration list for PBXNativeTarget "easy-move-resizeTests" */ = {
 			isa = XCConfigurationList;
@@ -486,6 +488,7 @@
 				6ED47B97183BF3E800859244 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
