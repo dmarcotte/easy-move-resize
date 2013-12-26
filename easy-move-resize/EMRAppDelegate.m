@@ -242,9 +242,11 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 }
 
 -(void)awakeFromNib{
+    NSImage * image = [NSImage imageNamed:@"AppIcon"];
     statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [statusItem setMenu:statusMenu];
-    [statusItem setTitle:@"MR"];
+    [statusItem setImage:image];
+    [statusItem setAlternateImage:image];
     [statusItem setHighlightMode:YES];
 }
 

@@ -10,7 +10,6 @@
 		6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
 		6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B6D183BF3E800859244 /* InfoPlist.strings */; };
 		6ED47B71183BF3E800859244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B70183BF3E800859244 /* main.m */; };
-		6ED47B75183BF3E800859244 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B73183BF3E800859244 /* Credits.rtf */; };
 		6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B77183BF3E800859244 /* EMRAppDelegate.m */; };
 		6ED47B7B183BF3E800859244 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B79183BF3E800859244 /* MainMenu.xib */; };
 		6ED47B7D183BF3E800859244 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B7C183BF3E800859244 /* Images.xcassets */; };
@@ -32,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6E238EE0184504BC00E47948 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6ED47B61183BF3E800859244 /* easy-move-resize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "easy-move-resize.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ED47B64183BF3E800859244 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6ED47B67183BF3E800859244 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -41,10 +41,8 @@
 		6ED47B6E183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6ED47B70183BF3E800859244 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6ED47B72183BF3E800859244 /* easy-move-resize-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "easy-move-resize-Prefix.pch"; sourceTree = "<group>"; };
-		6ED47B74183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		6ED47B76183BF3E800859244 /* EMRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRAppDelegate.h; sourceTree = "<group>"; };
 		6ED47B77183BF3E800859244 /* EMRAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRAppDelegate.m; sourceTree = "<group>"; };
-		6ED47B7A183BF3E800859244 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6ED47B7C183BF3E800859244 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		6ED47B82183BF3E800859244 /* easy-move-resizeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "easy-move-resizeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ED47B83183BF3E800859244 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -140,7 +138,6 @@
 				6ED47B6D183BF3E800859244 /* InfoPlist.strings */,
 				6ED47B70183BF3E800859244 /* main.m */,
 				6ED47B72183BF3E800859244 /* easy-move-resize-Prefix.pch */,
-				6ED47B73183BF3E800859244 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -242,7 +239,6 @@
 			files = (
 				6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */,
 				6ED47B7D183BF3E800859244 /* Images.xcassets in Resources */,
-				6ED47B75183BF3E800859244 /* Credits.rtf in Resources */,
 				6ED47B7B183BF3E800859244 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -295,18 +291,10 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		6ED47B73183BF3E800859244 /* Credits.rtf */ = {
-			isa = PBXVariantGroup;
-			children = (
-				6ED47B74183BF3E800859244 /* en */,
-			);
-			name = Credits.rtf;
-			sourceTree = "<group>";
-		};
 		6ED47B79183BF3E800859244 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				6ED47B7A183BF3E800859244 /* Base */,
+				6E238EE0184504BC00E47948 /* en */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -398,7 +386,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
@@ -413,7 +401,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
