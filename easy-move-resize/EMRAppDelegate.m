@@ -206,8 +206,11 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     if (!AXAPIEnabled()) {
-        NSLog(@"ERROR: AXAPI must be enabled!");
-        return;
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"Cannot start Easy Move+Resize!\n\nTo fix this problem, please select\n\"Enable access for assistive devices\" in\nSystem Preferences -> Accessibility"];
+        [alert addButtonWithTitle:@"OK"];
+        [alert runModal];
+        exit(1);
     }
 
     CFRunLoopSourceRef runLoopSource;
