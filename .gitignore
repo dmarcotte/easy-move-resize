@@ -24,3 +24,6 @@ profile
 DerivedData
 *.hmap
 *.xccheckout
+
+# mardown previews
+*.md.html
