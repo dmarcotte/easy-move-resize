@@ -10,11 +10,10 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
 
 ## Installation
 * Grab the latest version from the [Releases page](https://github.com/dmarcotte/easy-move-resize/releases)
-* Unzip and run!  You will get an application icon in your menu bar showing it is running
+* Unzip and run!
+* Select **Exit** from the application icon to quit
 
     ![Icon](asset-sources/doc-img/running-icon.png)
-
-* Select **Exit** from the application icon to quit
 
     ![Icon Exit](asset-sources/doc-img/running-icon-exit.png)
 
