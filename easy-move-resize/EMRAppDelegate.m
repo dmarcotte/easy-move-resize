@@ -207,7 +207,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 {
     if (!AXAPIEnabled()) {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Cannot start Easy Move+Resize!\n\nTo fix this problem, please select\n\"Enable access for assistive devices\" in\nSystem Preferences -> Accessibility"];
+        [alert setMessageText:@"Cannot start Easy Move+Resize!\n\nOS X 10.9 (Mavericks): visit\nSystem Preferences->Security & Privacy,\nand check \"Easy Move+Resize\" in the\nPrivacy tab\n\nOS X 10.8 (Mountain Lion): visit\nSystem Preferences->Accessibility\nand check \"Enable access for assistive devices\""];
         [alert addButtonWithTitle:@"OK"];
         [alert runModal];
         exit(1);
