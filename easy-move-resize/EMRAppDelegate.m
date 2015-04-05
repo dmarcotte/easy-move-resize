@@ -16,12 +16,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     CGEventFlags flags = CGEventGetFlags(event);
 
-    if ((flags & (kCGEventFlagMaskCommand | kCGEventFlagMaskControl)) != (kCGEventFlagMaskCommand | kCGEventFlagMaskControl)) {
-        // didn't find our Cmd+Ctrl modifiers; this event isn't for us
+    if ((flags & (kCGEventFlagMaskCommand)) != (kCGEventFlagMaskCommand)) {
+        // didn't find our Cmd modifier; this event isn't for us
         return event;
     }
 
-    if (flags & (kCGEventFlagMaskShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskAlphaShift)) {
+    if (flags & (kCGEventFlagMaskShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskControl)) {
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
         return event;
     }
@@ -94,8 +94,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setTracking:true];
         AXUIElementRef _clickedWindow = [moveResize window];
 
-        // on right click, record which direction we should resize in on the drag
-        struct ResizeSection resizeSection;
 
         CGPoint clickPoint = CGEventGetLocation(event);
 
@@ -114,24 +112,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
         NSSize wndSize = cSize;
 
-        if (clickPoint.x < wndSize.width/3) {
-            resizeSection.xResizeDirection = left;
-        } else if (clickPoint.x > 2*wndSize.width/3) {
-            resizeSection.xResizeDirection = right;
-        } else {
-            resizeSection.xResizeDirection = noX;
-        }
-
-        if (clickPoint.y < wndSize.height/3) {
-            resizeSection.yResizeDirection = bottom;
-        } else  if (clickPoint.y > 2*wndSize.height/3) {
-            resizeSection.yResizeDirection = top;
-        } else {
-            resizeSection.yResizeDirection = noY;
-        }
 
         [moveResize setWndSize:wndSize];
-        [moveResize setResizeSection:resizeSection];
     }
 
     if (type == kCGEventRightMouseDragged
@@ -139,56 +121,23 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setTracking:[moveResize tracking] + 1];
 
         AXUIElementRef _clickedWindow = [moveResize window];
-        struct ResizeSection resizeSection = [moveResize resizeSection];
         int deltaX = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
         int deltaY = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
         CFTypeRef _size;
-        CFTypeRef _position;
 
         NSPoint cTopLeft = [moveResize wndPosition];
         NSSize wndSize = [moveResize wndSize];
 
-        switch (resizeSection.xResizeDirection) {
-            case right:
-                wndSize.width += deltaX;
-                break;
-            case left:
-                wndSize.width -= deltaX;
-                cTopLeft.x += deltaX;
-                break;
-            case noX:
-                // nothing to do
-                break;
-            default:
-                [NSException raise:@"Unknown xResizeSection" format:@"No case for %d", resizeSection.xResizeDirection];
-        }
+  
+        wndSize.width += deltaX;
+        wndSize.height += deltaY;
 
-        switch (resizeSection.yResizeDirection) {
-            case top:
-                wndSize.height += deltaY;
-                break;
-            case bottom:
-                wndSize.height -= deltaY;
-                cTopLeft.y += deltaY;
-                break;
-            case noY:
-                // nothing to do
-                break;
-            default:
-                [NSException raise:@"Unknown yResizeSection" format:@"No case for %d", resizeSection.yResizeDirection];
-        }
 
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWndSize:wndSize];
 
         // actually applying the change is expensive, so only do it every kResizeFilterInterval events
         if ([moveResize tracking] % kResizeFilterInterval == 0) {
-            // only make a call to update the position if we need to
-            if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
-                _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
-                AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
-            }
-
             _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
             AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
         }

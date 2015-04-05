@@ -7,16 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
 		6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B6D183BF3E800859244 /* InfoPlist.strings */; };
 		6ED47B71183BF3E800859244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B70183BF3E800859244 /* main.m */; };
 		6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B77183BF3E800859244 /* EMRAppDelegate.m */; };
 		6ED47B7B183BF3E800859244 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B79183BF3E800859244 /* MainMenu.xib */; };
 		6ED47B7D183BF3E800859244 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B7C183BF3E800859244 /* Images.xcassets */; };
 		6ED47B84183BF3E800859244 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B83183BF3E800859244 /* XCTest.framework */; };
-		6ED47B85183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
 		6ED47B8D183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B8B183BF3E800859244 /* InfoPlist.strings */; };
 		6ED47B8F183BF3E800859244 /* easy_move_resizeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */; };
+		A01F94F51AD0A31100D4882A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A01F94F41AD0A31100D4882A /* Cocoa.framework */; };
 		F907A25928093AED2C89550E /* EMRMoveResize.m in Sources */ = {isa = PBXBuildFile; fileRef = F907AEB04B0AF90540F6EF00 /* EMRMoveResize.m */; };
 		F907A53FB2CAEBEB31895CD2 /* contributing.md in Resources */ = {isa = PBXBuildFile; fileRef = F907A3568D9301F4E6A9736F /* contributing.md */; };
 		F907ABDDEEAF5BF83F0AF9EA /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = F907A4D20267246716869421 /* readme.md */; };
@@ -35,7 +34,6 @@
 /* Begin PBXFileReference section */
 		6E238EE0184504BC00E47948 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6ED47B61183BF3E800859244 /* Easy Move+Resize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Easy Move+Resize.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6ED47B64183BF3E800859244 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6ED47B67183BF3E800859244 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6ED47B68183BF3E800859244 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		6ED47B69183BF3E800859244 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -51,6 +49,7 @@
 		6ED47B8A183BF3E800859244 /* easy-move-resizeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "easy-move-resizeTests-Info.plist"; sourceTree = "<group>"; };
 		6ED47B8C183BF3E800859244 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6ED47B8E183BF3E800859244 /* easy_move_resizeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = easy_move_resizeTests.m; sourceTree = "<group>"; };
+		A01F94F41AD0A31100D4882A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		F907A0E10208B2B4C63E46E3 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		F907A3568D9301F4E6A9736F /* contributing.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = contributing.md; sourceTree = "<group>"; };
 		F907A4D20267246716869421 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = readme.md; sourceTree = "<group>"; };
@@ -64,7 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */,
+				A01F94F51AD0A31100D4882A /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,7 +71,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6ED47B85183BF3E800859244 /* Cocoa.framework in Frameworks */,
 				6ED47B84183BF3E800859244 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -106,7 +104,7 @@
 		6ED47B63183BF3E800859244 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6ED47B64183BF3E800859244 /* Cocoa.framework */,
+				A01F94F41AD0A31100D4882A /* Cocoa.framework */,
 				6ED47B83183BF3E800859244 /* XCTest.framework */,
 				6ED47B66183BF3E800859244 /* Other Frameworks */,
 			);
@@ -211,11 +209,11 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = EMR;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = "Daniel Marcotte";
 				TargetAttributes = {
 					6ED47B81183BF3E800859244 = {
-						TestTargetID = 6ED47B60183BF3E800859244 /* easy-move-resize */;
+						TestTargetID = 6ED47B60183BF3E800859244;
 					};
 				};
 			};
@@ -351,7 +349,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -382,7 +380,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -396,7 +394,7 @@
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "Easy Move+Resize";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -411,7 +409,7 @@
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "Easy Move+Resize";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

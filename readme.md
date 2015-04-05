@@ -1,3 +1,5 @@
+> Forked to change modifier to simply `Cmd` (and eventually, to make all resizing happen in the bottom right corner like DWM.
+
 # ![icon](easy-move-resize/Images.xcassets/AppIcon.appiconset/icon_32x32.png) Easy Move+Resize
 
 Adds easy `modifier key + mouse drag` move and resize to OSX
