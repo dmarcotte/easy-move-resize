@@ -83,9 +83,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         // actually applying the change is expensive, so only do it every kMoveFilterInterval events
         if ([moveResize tracking] % kMoveFilterInterval == 0) {
             _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
-            if (AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position) != kAXErrorSuccess) {
-                if (_position != NULL) CFRelease(_position);
-            }
+            AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
             if (_position != NULL) CFRelease(_position);
         }
     }
