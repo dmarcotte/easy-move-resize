@@ -27,6 +27,9 @@
 // Store a modifier flag string in the preferences. (e.g. "CTRL,CMD"
 + (void) setModifierFlagString:(NSString*)flagString;
 
++ (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled;
++ (NSSet*) getFlagStringSet;
+
 @end
 
 #endif /* EMRPreferences_h */

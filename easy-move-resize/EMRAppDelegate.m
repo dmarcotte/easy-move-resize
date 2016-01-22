@@ -7,6 +7,11 @@
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
 
     int keyModifierFlags = *((int*)refcon);
+    if (keyModifierFlags == 0) {
+        // No modifier keys set. Disable behaviour.
+        return event;
+    }
+    
     EMRMoveResize* moveResize = [EMRMoveResize instance];
 
     if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
@@ -15,7 +20,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         NSLog(@"Re-enabling...");
         return event;
     }
-
+    
     CGEventFlags flags = CGEventGetFlags(event);
     if ((flags & (keyModifierFlags)) != (keyModifierFlags)) {
         // didn't find our expected modifiers; this event isn't for us
@@ -213,6 +218,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [alert runModal];
         exit(1);
     }
+    
+    [self initModifierMenuItems];
 
     // Retrieve the Key press modifier flags to activate move/resize actions.
     keyModifierFlags = [EMRPreferences modifierFlags];
@@ -258,4 +265,27 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [statusItem setHighlightMode:YES];
 }
 
+- (void)initModifierMenuItems {
+    NSSet* flags = [EMRPreferences getFlagStringSet];
+    if ([flags containsObject:ALT_KEY]) {
+        [_altMenu setState:1];
+    }
+    if ([flags containsObject:CMD_KEY]) {
+        [_cmdMenu setState:1];
+    }
+    if ([flags containsObject:CTRL_KEY]) {
+        [_ctrlMenu setState:1];
+    }
+    if ([flags containsObject:SHIFT_KEY]) {
+        [_shiftMenu setState:1];
+    }
+}
+
+- (IBAction)modifierToggle:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    NSInteger newState = ![menu state];
+    [menu setState:newState];
+    [EMRPreferences setModifierKey:[menu title] enabled:newState];
+    keyModifierFlags = [EMRPreferences modifierFlags];
+}
 @end

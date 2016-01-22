@@ -9,4 +9,12 @@ static const int kResizeFilterInterval = 4;
     int keyModifierFlags;
 }
 
+- (void)initModifierMenuItems;
+- (IBAction)modifierToggle:(id)sender;
+
+@property (weak) IBOutlet NSMenuItem *altMenu;
+@property (weak) IBOutlet NSMenuItem *cmdMenu;
+@property (weak) IBOutlet NSMenuItem *ctrlMenu;
+@property (weak) IBOutlet NSMenuItem *shiftMenu;
+
 @end
