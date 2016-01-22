@@ -6,7 +6,8 @@
 
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
 
-    int keyModifierFlags = *((int*)refcon);
+    EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
+    int keyModifierFlags = [ourDelegate modifierFlags];
     if (keyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
         return event;
@@ -14,7 +15,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     
     EMRMoveResize* moveResize = [EMRMoveResize instance];
 
-    if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
+    if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) && ![ourDelegate disabled]) {
         // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
         CGEventTapEnable([moveResize eventTap], true);
         NSLog(@"Re-enabling...");
@@ -239,7 +240,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
                                               kCGEventTapOptionDefault,
                                               eventMask,
                                               myCGEventCallback,
-                                              &keyModifierFlags);
+                                              (__bridge void * _Nullable)self);
 
     if (!eventTap) {
         NSLog(@"Couldn't create event tap!");
@@ -263,6 +264,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [statusItem setImage:icon];
     [statusItem setAlternateImage:altIcon];
     [statusItem setHighlightMode:YES];
+    [statusMenu setAutoenablesItems:NO];
+    [[statusMenu itemAtIndex:0] setEnabled:NO];
 }
 
 - (void)initModifierMenuItems {
@@ -270,6 +273,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_cmdMenu setState:0];
     [_ctrlMenu setState:0];
     [_shiftMenu setState:0];
+    [_disabledMenu setState:0];
     NSSet* flags = [EMRPreferences getFlagStringSet];
     if ([flags containsObject:ALT_KEY]) {
         [_altMenu setState:1];
@@ -297,6 +301,38 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [EMRPreferences removeDefaults];
     [self initModifierMenuItems];
     keyModifierFlags = [EMRPreferences modifierFlags];
+}
+
+- (IBAction)toggleDisabled:(id)sender {
+    EMRMoveResize* moveResize = [EMRMoveResize instance];
+    if ([_disabledMenu state] == 0) {
+        // We are enabled. Disable...
+        [_disabledMenu setState:1];
+        CGEventTapEnable([moveResize eventTap], false);
+        [self setMenusEnabled:0];
+    }
+    else {
+        // We are disabled. Enable.
+        [_disabledMenu setState:0];
+        CGEventTapEnable([moveResize eventTap], true);
+        NSLog(@"User Enabled");
+        [self setMenusEnabled:1];
+    }
+}
+
+- (BOOL)disabled {
+    return [_disabledMenu state] != 0;
+}
+
+- (int)modifierFlags {
+    return keyModifierFlags;
+}
+
+- (void)setMenusEnabled:(NSInteger)enabled {
+    [_altMenu setEnabled:enabled];
+    [_cmdMenu setEnabled:enabled];
+    [_ctrlMenu setEnabled:enabled];
+    [_shiftMenu setEnabled:enabled];
 }
 
 @end

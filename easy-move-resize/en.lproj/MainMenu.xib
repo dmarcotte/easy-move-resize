@@ -652,6 +652,12 @@
                 <menuItem title="Easy Move+Resize" id="CjR-Hb-76H">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
+                <menuItem title="Disabled" id="Q0w-G0-Ppy">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleDisabled:" target="494" id="agH-Tw-ei0"/>
+                    </connections>
+                </menuItem>
                 <menuItem isSeparatorItem="YES" id="a5T-MQ-31B"/>
                 <menuItem title="Alt" id="toO-ef-6Sa">
                     <modifierMask key="keyEquivalentModifierMask"/>
@@ -699,6 +705,7 @@
                 <outlet property="altMenu" destination="toO-ef-6Sa" id="nQz-2m-M8b"/>
                 <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
                 <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
+                <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
                 <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>
