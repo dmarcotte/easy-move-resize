@@ -63,6 +63,11 @@
     return flagSet;
 }
 
++ (void) removeDefaults {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+}
+
+
 // --------------------------------------------------------------------
 // Private methods
 

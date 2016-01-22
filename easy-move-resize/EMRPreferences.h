@@ -30,6 +30,8 @@
 + (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled;
 + (NSSet*) getFlagStringSet;
 
++ (void) removeDefaults;
+
 @end
 
 #endif /* EMRPreferences_h */

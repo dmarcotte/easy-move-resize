@@ -678,6 +678,13 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="CnB-BD-kwb"/>
+                <menuItem title="Reset to Defaults" id="emi-it-fz4">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resetModifiersToDefaults:" target="494" id="6fR-bD-2t5"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="16Z-ZA-yWP"/>
                 <menuItem title="Exit" id="KM2-Wu-6qQ" userLabel="Exit">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>

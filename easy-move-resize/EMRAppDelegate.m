@@ -266,6 +266,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 }
 
 - (void)initModifierMenuItems {
+    [_altMenu setState:0];
+    [_cmdMenu setState:0];
+    [_ctrlMenu setState:0];
+    [_shiftMenu setState:0];
     NSSet* flags = [EMRPreferences getFlagStringSet];
     if ([flags containsObject:ALT_KEY]) {
         [_altMenu setState:1];
@@ -288,4 +292,11 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [EMRPreferences setModifierKey:[menu title] enabled:newState];
     keyModifierFlags = [EMRPreferences modifierFlags];
 }
+
+- (IBAction)resetModifiersToDefaults:(id)sender {
+    [EMRPreferences removeDefaults];
+    [self initModifierMenuItems];
+    keyModifierFlags = [EMRPreferences modifierFlags];
+}
+
 @end
