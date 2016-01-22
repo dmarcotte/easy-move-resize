@@ -1,10 +1,12 @@
 #import "EMRAppDelegate.h"
 #import "EMRMoveResize.h"
+#import "EMRPreferences.h"
 
 @implementation EMRAppDelegate
 
-CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void __unused *refcon) {
+CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
 
+    int keyModifierFlags = *((int*)refcon);
     EMRMoveResize* moveResize = [EMRMoveResize instance];
 
     if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
@@ -15,13 +17,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 
     CGEventFlags flags = CGEventGetFlags(event);
-
-    if ((flags & (kCGEventFlagMaskCommand | kCGEventFlagMaskControl)) != (kCGEventFlagMaskCommand | kCGEventFlagMaskControl)) {
-        // didn't find our Cmd+Ctrl modifiers; this event isn't for us
+    if ((flags & (keyModifierFlags)) != (keyModifierFlags)) {
+        // didn't find our expected modifiers; this event isn't for us
         return event;
     }
 
-    if (flags & (kCGEventFlagMaskShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskAlphaShift)) {
+    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl) ^ keyModifierFlags;
+    
+    if (flags & ignoredKeysMask) {
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
         return event;
     }
@@ -205,11 +208,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 {
     if (!AXAPIEnabled()) {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Cannot start Easy Move+Resize!\n\nOS X 10.9 (Mavericks): visit\nSystem Preferences->Security & Privacy,\nand check \"Easy Move+Resize\" in the\nPrivacy tab\n\nOS X 10.8 (Mountain Lion): visit\nSystem Preferences->Accessibility\nand check \"Enable access for assistive devices\""];
+        [alert setMessageText:@"Cannot start Easy Move+Resize!\n\nOS X 10.9 (Mavericks) or later: visit\nSystem Preferences->Security & Privacy,\nand check \"Easy Move+Resize\" in the\nPrivacy tab\n\nOS X 10.8 (Mountain Lion): visit\nSystem Preferences->Accessibility\nand check \"Enable access for assistive devices\""];
         [alert addButtonWithTitle:@"OK"];
         [alert runModal];
         exit(1);
     }
+
+    // Retrieve the Key press modifier flags to activate move/resize actions.
+    keyModifierFlags = [EMRPreferences modifierFlags];
 
     CFRunLoopSourceRef runLoopSource;
 
@@ -226,7 +232,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
                                               kCGEventTapOptionDefault,
                                               eventMask,
                                               myCGEventCallback,
-            NULL);
+                                              &keyModifierFlags);
 
     if (!eventTap) {
         NSLog(@"Couldn't create event tap!");

@@ -6,6 +6,7 @@ static const int kResizeFilterInterval = 4;
 @interface EMRAppDelegate : NSObject <NSApplicationDelegate> {
     IBOutlet NSMenu *statusMenu;
     NSStatusItem * statusItem;
+    int keyModifierFlags;
 }
 
 @end
