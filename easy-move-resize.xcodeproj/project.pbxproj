@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		52B5E8F61C513E3D0055C181 /* EMRPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 52B5E8F51C513E3D0055C181 /* EMRPreferences.m */; };
+		52B5E8F71C513E3D0055C181 /* EMRPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 52B5E8F51C513E3D0055C181 /* EMRPreferences.m */; };
 		6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
 		6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B6D183BF3E800859244 /* InfoPlist.strings */; };
 		6ED47B71183BF3E800859244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B70183BF3E800859244 /* main.m */; };
@@ -33,6 +35,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		52B5E8F51C513E3D0055C181 /* EMRPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMRPreferences.m; sourceTree = "<group>"; };
+		52B5E8F81C513E7A0055C181 /* EMRPreferences.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRPreferences.h; sourceTree = "<group>"; };
 		6E238EE0184504BC00E47948 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6ED47B61183BF3E800859244 /* Easy Move+Resize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Easy Move+Resize.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ED47B64183BF3E800859244 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -133,6 +137,8 @@
 				6ED47B6B183BF3E800859244 /* Supporting Files */,
 				F907ACD4ED7B8961880D12BD /* EMRMoveResize.h */,
 				F907AEB04B0AF90540F6EF00 /* EMRMoveResize.m */,
+				52B5E8F51C513E3D0055C181 /* EMRPreferences.m */,
+				52B5E8F81C513E7A0055C181 /* EMRPreferences.h */,
 			);
 			path = "easy-move-resize";
 			sourceTree = "<group>";
@@ -211,11 +217,11 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = EMR;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Daniel Marcotte";
 				TargetAttributes = {
 					6ED47B81183BF3E800859244 = {
-						TestTargetID = 6ED47B60183BF3E800859244 /* easy-move-resize */;
+						TestTargetID = 6ED47B60183BF3E800859244;
 					};
 				};
 			};
@@ -267,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6ED47B71183BF3E800859244 /* main.m in Sources */,
+				52B5E8F61C513E3D0055C181 /* EMRPreferences.m in Sources */,
 				6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */,
 				F907A25928093AED2C89550E /* EMRMoveResize.m in Sources */,
 			);
@@ -277,6 +284,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6ED47B8F183BF3E800859244 /* easy_move_resizeTests.m in Sources */,
+				52B5E8F71C513E3D0055C181 /* EMRPreferences.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +342,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -351,7 +360,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -382,7 +391,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -395,8 +404,9 @@
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.dmarcotte.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "Easy Move+Resize";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -410,8 +420,9 @@
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.dmarcotte.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "Easy Move+Resize";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -432,6 +443,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "easy-move-resizeTests/easy-move-resizeTests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.dmarcotte.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -450,6 +462,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resizeTests/easy-move-resizeTests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.dmarcotte.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
