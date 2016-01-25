@@ -18,4 +18,18 @@
     return instance;
 }
 
+- (AXUIElementRef)window {
+    return _window;
+}
+
+- (void)setWindow:(AXUIElementRef)window {
+    if (_window != nil) CFRelease(_window);
+    if (window != nil) CFRetain(window);
+    _window = window;
+}
+
+- (void)dealloc {
+    if (_window != nil) CFRelease(_window);
+}
+
 @end

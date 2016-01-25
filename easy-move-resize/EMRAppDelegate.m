@@ -59,6 +59,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
                 _clickedWindow = (AXUIElementRef)_window;
             }
         }
+        CFRelease(_systemWideElement);
 
         CFTypeRef _cPosition;
         NSPoint cTopLeft;
@@ -68,11 +69,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
                 cTopLeft = NSMakePoint(0, 0);
             }
         }
+        CFRelease(_cPosition);
+        
         cTopLeft.x = (int) cTopLeft.x;
         cTopLeft.y = (int) cTopLeft.y;
 
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWindow:_clickedWindow];
+        if (_clickedWindow != nil) CFRelease(_clickedWindow);
     }
 
     if (type == kCGEventLeftMouseDragged
@@ -118,6 +122,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             NSLog(@"ERROR: Could not decode size");
             return NULL;
         }
+        CFRelease(_cSize);
 
         NSSize wndSize = cSize;
 
@@ -149,8 +154,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         struct ResizeSection resizeSection = [moveResize resizeSection];
         int deltaX = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
         int deltaY = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
-        CFTypeRef _size;
-        CFTypeRef _position;
 
         NSPoint cTopLeft = [moveResize wndPosition];
         NSSize wndSize = [moveResize wndSize];
@@ -188,16 +191,20 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWndSize:wndSize];
 
+        CFTypeRef _size;
+        CFTypeRef _position;
         // actually applying the change is expensive, so only do it every kResizeFilterInterval events
         if ([moveResize tracking] % kResizeFilterInterval == 0) {
             // only make a call to update the position if we need to
             if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
                 _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
                 AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
+                CFRelease(_position);
             }
 
             _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
             AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
+            CFRelease(_size);
         }
     }
 
