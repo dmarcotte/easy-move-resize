@@ -61,15 +61,15 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         }
         CFRelease(_systemWideElement);
 
-        CFTypeRef _cPosition;
+        CFTypeRef _cPosition = nil;
         NSPoint cTopLeft;
         if (AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, &_cPosition) == kAXErrorSuccess) {
             if (!AXValueGetValue(_cPosition, kAXValueCGPointType, (void *)&cTopLeft)) {
                 NSLog(@"ERROR: Could not decode position");
                 cTopLeft = NSMakePoint(0, 0);
             }
+            CFRelease(_cPosition);
         }
-        CFRelease(_cPosition);
         
         cTopLeft.x = (int) cTopLeft.x;
         cTopLeft.y = (int) cTopLeft.y;
@@ -191,18 +191,16 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWndSize:wndSize];
 
-        CFTypeRef _size;
-        CFTypeRef _position;
         // actually applying the change is expensive, so only do it every kResizeFilterInterval events
         if ([moveResize tracking] % kResizeFilterInterval == 0) {
             // only make a call to update the position if we need to
             if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
-                _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
+                CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
                 AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
                 CFRelease(_position);
             }
 
-            _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
+            CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
             AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
             CFRelease(_size);
         }
