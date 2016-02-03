@@ -15,7 +15,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     
     EMRMoveResize* moveResize = [EMRMoveResize instance];
 
-    if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) && ![ourDelegate disabled]) {
+    if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput)) {
         // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
         CGEventTapEnable([moveResize eventTap], true);
         NSLog(@"Re-enabling...");
@@ -254,11 +254,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
 
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
 
     EMRMoveResize *moveResize = [EMRMoveResize instance];
     [moveResize setEventTap:eventTap];
-    CGEventTapEnable([moveResize eventTap], true);
+    [moveResize setRunLoopSource:runLoopSource];
+    [self enableRunLoopSource:moveResize];
+    CFRelease(runLoopSource);
 }
 
 -(void)awakeFromNib{
@@ -271,6 +272,16 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [statusItem setHighlightMode:YES];
     [statusMenu setAutoenablesItems:NO];
     [[statusMenu itemAtIndex:0] setEnabled:NO];
+}
+
+- (void)enableRunLoopSource:(EMRMoveResize*)moveResize {
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
+    CGEventTapEnable([moveResize eventTap], true);
+}
+
+- (void)disableRunLoopSource:(EMRMoveResize*)moveResize {
+    CGEventTapEnable([moveResize eventTap], false);
+    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
 }
 
 - (void)initModifierMenuItems {
@@ -313,20 +324,15 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if ([_disabledMenu state] == 0) {
         // We are enabled. Disable...
         [_disabledMenu setState:1];
-        CGEventTapEnable([moveResize eventTap], false);
         [self setMenusEnabled:0];
+        [self disableRunLoopSource:moveResize];
     }
     else {
         // We are disabled. Enable.
         [_disabledMenu setState:0];
-        CGEventTapEnable([moveResize eventTap], true);
-        NSLog(@"User Enabled");
         [self setMenusEnabled:1];
+        [self enableRunLoopSource:moveResize];
     }
-}
-
-- (BOOL)disabled {
-    return [_disabledMenu state] != 0;
 }
 
 - (int)modifierFlags {

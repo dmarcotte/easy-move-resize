@@ -10,7 +10,6 @@ static const int kResizeFilterInterval = 4;
 }
 
 - (int)modifierFlags;
-- (BOOL)disabled;
 
 - (void)initModifierMenuItems;
 - (IBAction)modifierToggle:(id)sender;
