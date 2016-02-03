@@ -6,16 +6,22 @@
 
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
 
-    int keyModifierFlags = *((int*)refcon);
+    EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
+    int keyModifierFlags = [ourDelegate modifierFlags];
+    if (keyModifierFlags == 0) {
+        // No modifier keys set. Disable behaviour.
+        return event;
+    }
+    
     EMRMoveResize* moveResize = [EMRMoveResize instance];
 
-    if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
+    if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) && ![ourDelegate disabled]) {
         // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
         CGEventTapEnable([moveResize eventTap], true);
         NSLog(@"Re-enabling...");
         return event;
     }
-
+    
     CGEventFlags flags = CGEventGetFlags(event);
     if ((flags & (keyModifierFlags)) != (keyModifierFlags)) {
         // didn't find our expected modifiers; this event isn't for us
@@ -213,6 +219,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [alert runModal];
         exit(1);
     }
+    
+    [self initModifierMenuItems];
 
     // Retrieve the Key press modifier flags to activate move/resize actions.
     keyModifierFlags = [EMRPreferences modifierFlags];
@@ -232,7 +240,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
                                               kCGEventTapOptionDefault,
                                               eventMask,
                                               myCGEventCallback,
-                                              &keyModifierFlags);
+                                              (__bridge void * _Nullable)self);
 
     if (!eventTap) {
         NSLog(@"Couldn't create event tap!");
@@ -256,6 +264,75 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [statusItem setImage:icon];
     [statusItem setAlternateImage:altIcon];
     [statusItem setHighlightMode:YES];
+    [statusMenu setAutoenablesItems:NO];
+    [[statusMenu itemAtIndex:0] setEnabled:NO];
+}
+
+- (void)initModifierMenuItems {
+    [_altMenu setState:0];
+    [_cmdMenu setState:0];
+    [_ctrlMenu setState:0];
+    [_shiftMenu setState:0];
+    [_disabledMenu setState:0];
+    NSSet* flags = [EMRPreferences getFlagStringSet];
+    if ([flags containsObject:ALT_KEY]) {
+        [_altMenu setState:1];
+    }
+    if ([flags containsObject:CMD_KEY]) {
+        [_cmdMenu setState:1];
+    }
+    if ([flags containsObject:CTRL_KEY]) {
+        [_ctrlMenu setState:1];
+    }
+    if ([flags containsObject:SHIFT_KEY]) {
+        [_shiftMenu setState:1];
+    }
+}
+
+- (IBAction)modifierToggle:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    NSInteger newState = ![menu state];
+    [menu setState:newState];
+    [EMRPreferences setModifierKey:[menu title] enabled:newState];
+    keyModifierFlags = [EMRPreferences modifierFlags];
+}
+
+- (IBAction)resetModifiersToDefaults:(id)sender {
+    [EMRPreferences removeDefaults];
+    [self initModifierMenuItems];
+    keyModifierFlags = [EMRPreferences modifierFlags];
+}
+
+- (IBAction)toggleDisabled:(id)sender {
+    EMRMoveResize* moveResize = [EMRMoveResize instance];
+    if ([_disabledMenu state] == 0) {
+        // We are enabled. Disable...
+        [_disabledMenu setState:1];
+        CGEventTapEnable([moveResize eventTap], false);
+        [self setMenusEnabled:0];
+    }
+    else {
+        // We are disabled. Enable.
+        [_disabledMenu setState:0];
+        CGEventTapEnable([moveResize eventTap], true);
+        NSLog(@"User Enabled");
+        [self setMenusEnabled:1];
+    }
+}
+
+- (BOOL)disabled {
+    return [_disabledMenu state] != 0;
+}
+
+- (int)modifierFlags {
+    return keyModifierFlags;
+}
+
+- (void)setMenusEnabled:(NSInteger)enabled {
+    [_altMenu setEnabled:enabled];
+    [_cmdMenu setEnabled:enabled];
+    [_ctrlMenu setEnabled:enabled];
+    [_shiftMenu setEnabled:enabled];
 }
 
 @end
