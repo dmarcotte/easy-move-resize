@@ -12,6 +12,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         // No modifier keys set. Disable behaviour.
         return event;
     }
+
+    BOOL useMouseMove = [ourDelegate useMouseMove];
     
     EMRMoveResize* moveResize = [EMRMoveResize instance];
 
@@ -24,19 +26,23 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     
     CGEventFlags flags = CGEventGetFlags(event);
     if ((flags & (keyModifierFlags)) != (keyModifierFlags)) {
-        // didn't find our expected modifiers; this event isn't for us
+        // Disable tracking if enabled - modifiers are not pressed.
+        if ([moveResize tracking] > 0) {
+            [moveResize setTracking:0];
+        }
         return event;
     }
 
     int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl) ^ keyModifierFlags;
     
     if (flags & ignoredKeysMask) {
+        NSLog(@"flags & ignoredKeysMask");
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
         return event;
     }
 
-    if (type == kCGEventLeftMouseDown
-            || type == kCGEventRightMouseDown) {
+    if ((useMouseMove && type == kCGEventMouseMoved && [moveResize tracking] == 0) // With mouse move
+     || (type == kCGEventLeftMouseDown || type == kCGEventRightMouseDown)) {  // With click
         CGPoint mouseLocation = CGEventGetLocation(event);
         [moveResize setTracking:1];
 
@@ -79,8 +85,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         if (_clickedWindow != nil) CFRelease(_clickedWindow);
     }
 
-    if (type == kCGEventLeftMouseDragged
-            && [moveResize tracking] > 0) {
+    if ((useMouseMove && type == kCGEventMouseMoved && [moveResize tracking] > 0)  // With move
+        || (type == kCGEventLeftMouseDragged && [moveResize tracking] > 0)) {      // With clicks
+
         [moveResize setTracking:[moveResize tracking] + 1];
         AXUIElementRef _clickedWindow = [moveResize window];
         double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
@@ -147,7 +154,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 
     if (type == kCGEventRightMouseDragged
-            && [moveResize tracking] > 0) {
+        && [moveResize tracking] > 0) {
         [moveResize setTracking:[moveResize tracking] + 1];
 
         AXUIElementRef _clickedWindow = [moveResize window];
@@ -224,7 +231,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [alert runModal];
         exit(1);
     }
-    
+
     [self initModifierMenuItems];
 
     // Retrieve the Key press modifier flags to activate move/resize actions.
@@ -237,6 +244,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
                     | CGEventMaskBit( kCGEventRightMouseDown )
                     | CGEventMaskBit( kCGEventRightMouseDragged )
                     | CGEventMaskBit( kCGEventLeftMouseUp )
+                    | CGEventMaskBit( kCGEventMouseMoved)
                     | CGEventMaskBit( kCGEventRightMouseUp )
     ;
 
@@ -290,6 +298,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_ctrlMenu setState:0];
     [_shiftMenu setState:0];
     [_disabledMenu setState:0];
+    [_useMouseMoveMenu setState: 0];
     NSSet* flags = [EMRPreferences getFlagStringSet];
     if ([flags containsObject:ALT_KEY]) {
         [_altMenu setState:1];
@@ -303,6 +312,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if ([flags containsObject:SHIFT_KEY]) {
         [_shiftMenu setState:1];
     }
+    if ([EMRPreferences useMouseMove]) {
+        [_useMouseMoveMenu setState: 1];
+    }
 }
 
 - (IBAction)modifierToggle:(id)sender {
@@ -311,6 +323,13 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [menu setState:newState];
     [EMRPreferences setModifierKey:[menu title] enabled:newState];
     keyModifierFlags = [EMRPreferences modifierFlags];
+}
+
+- (IBAction)useMouseMoveToggle:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    NSInteger newState = ![menu state];
+    [menu setState:newState];
+    [EMRPreferences setUseMouseMove: newState];
 }
 
 - (IBAction)resetModifiersToDefaults:(id)sender {
@@ -337,6 +356,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 - (int)modifierFlags {
     return keyModifierFlags;
+}
+
+- (BOOL)useMouseMove {
+    return [_useMouseMoveMenu state];
 }
 
 - (void)setMenusEnabled:(NSInteger)enabled {

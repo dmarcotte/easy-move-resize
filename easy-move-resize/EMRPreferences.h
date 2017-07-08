@@ -12,6 +12,7 @@
 #define EMRPreferences_h
 
 #define MODIFIER_FLAGS_DEFAULTS_KEY @"ModifierFlags"
+#define USE_MOUSE_MOVE_DEFAULTS_KEY @"UseMouseMove"
 #define CTRL_KEY @"CTRL"
 #define SHIFT_KEY @"SHIFT"
 #define CAPS_KEY @"CAPS" // CAPS lock
@@ -24,8 +25,10 @@
 
 // Get the modifier flags from the standard preferences
 + (int) modifierFlags;
++ (BOOL) useMouseMove;
 // Store a modifier flag string in the preferences. (e.g. "CTRL,CMD"
 + (void) setModifierFlagString:(NSString*)flagString;
++ (void) setUseMouseMove:(BOOL)enabled;
 
 + (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled;
 + (NSSet*) getFlagStringSet;

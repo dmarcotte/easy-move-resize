@@ -33,6 +33,15 @@
     [[NSUserDefaults standardUserDefaults] setObject:flagString forKey:MODIFIER_FLAGS_DEFAULTS_KEY];
 }
 
++ (BOOL) useMouseMove {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults boolForKey:USE_MOUSE_MOVE_DEFAULTS_KEY];
+}
+
++ (void)setUseMouseMove:(BOOL)enabled {
+    [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:USE_MOUSE_MOVE_DEFAULTS_KEY];
+}
+
 
 + (void)setModifierKey:(NSString *)singleFlagString enabled:(BOOL)enabled {
     singleFlagString = [singleFlagString uppercaseString];

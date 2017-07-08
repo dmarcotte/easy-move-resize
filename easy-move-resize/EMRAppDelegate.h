@@ -10,6 +10,7 @@ static const int kResizeFilterInterval = 4;
 }
 
 - (int)modifierFlags;
+- (BOOL)useMouseMove;
 
 - (void)initModifierMenuItems;
 - (IBAction)modifierToggle:(id)sender;
@@ -21,5 +22,6 @@ static const int kResizeFilterInterval = 4;
 @property (weak) IBOutlet NSMenuItem *ctrlMenu;
 @property (weak) IBOutlet NSMenuItem *shiftMenu;
 @property (weak) IBOutlet NSMenuItem *disabledMenu;
+@property (weak) IBOutlet NSMenuItem *useMouseMoveMenu;
 
 @end
