@@ -659,7 +659,7 @@
                         <action selector="toggleDisabled:" target="494" id="agH-Tw-ei0"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Move without press" id="8dc-ly-gU1" userLabel="Use Mouse Move Menu">
+                <menuItem title="Hover move" id="8dc-ly-gU1" userLabel="Use Mouse Move Menu">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="useMouseMoveToggle:" target="494" id="sWH-Wa-hyw"/>
