@@ -117,7 +117,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
         CFTypeRef _cSize;
         NSSize cSize;
-        if (!AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess
+        if (!(AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess)
                 || !AXValueGetValue(_cSize, kAXValueCGSizeType, (void *)&cSize)) {
             NSLog(@"ERROR: Could not decode size");
             return NULL;
