@@ -2,14 +2,35 @@
 
 #define DEFAULT_MODIFIER_FLAGS kCGEventFlagMaskCommand | kCGEventFlagMaskControl
 
-@implementation EMRPreferences
+@implementation EMRPreferences {
+@private
+    NSUserDefaults *userDefaults;
+}
 
-+ (int)modifierFlags {
+- (id)init {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:@"Must initialize with a NSUserDefaults pointer in -initWithUserDefaults"
+                                 userInfo:nil];
+    return nil;
+}
+
+- (id)initWithUserDefaults:(NSUserDefaults *)defaults {
+    self = [super init];
+    if (self) {
+        userDefaults = defaults;
+        NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+        if (modifierFlagString == nil) {
+            // ensure our defaults are initialized
+            [self setToDefaults];
+        }
+    }
+    return self;
+}
+
+- (int)modifierFlags {
     int modifierFlags = 0;
     
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    
-    NSString *modifierFlagString = [defaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
     if (modifierFlagString == nil) {
         return DEFAULT_MODIFIER_FLAGS;
     }
@@ -19,21 +40,18 @@
     return modifierFlags;
 }
 
-+ (void)setModifierFlagString:(NSString *)flagString {
+- (void)setModifierFlagString:(NSString *)flagString {
     flagString = [[flagString stringByReplacingOccurrencesOfString:@" " withString:@""] uppercaseString];
-    [[NSUserDefaults standardUserDefaults] setObject:flagString forKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+    [userDefaults setObject:flagString forKey:MODIFIER_FLAGS_DEFAULTS_KEY];
 }
 
 
-+ (void)setModifierKey:(NSString *)singleFlagString enabled:(BOOL)enabled {
+- (void)setModifierKey:(NSString *)singleFlagString enabled:(BOOL)enabled {
     singleFlagString = [singleFlagString uppercaseString];
-    NSString *modifierFlagString = [[NSUserDefaults standardUserDefaults] stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
     if (modifierFlagString == nil) {
-        // No prior value set. Set if enabled.
-        if (enabled) {
-            [self setModifierFlagString:singleFlagString];
-            return;
-        }
+        NSLog(@"Unexpected null... this should always have a value");
+        [self setToDefaults];
     }
     NSMutableSet *flagSet = [self createSetFromFlagString:modifierFlagString];
     if (enabled) {
@@ -45,24 +63,21 @@
     [self setModifierFlagString:[[flagSet allObjects] componentsJoinedByString:@","]];
 }
 
-+ (NSSet*)getFlagStringSet {
-    NSString *modifierFlagString = [[NSUserDefaults standardUserDefaults] stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+- (NSSet*)getFlagStringSet {
+    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
     if (modifierFlagString == nil) {
-        return [NSSet setWithObjects:CTRL_KEY, CMD_KEY, nil];
+        NSLog(@"Unexpected null... this should always have a value");
+        [self setToDefaults];
     }
     NSMutableSet *flagSet = [self createSetFromFlagString:modifierFlagString];
     return flagSet;
 }
 
-+ (void) removeDefaults {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+- (void)setToDefaults {
+    [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","]];
 }
 
-
-// --------------------------------------------------------------------
-// Private methods
-
-+ (NSMutableSet*)createSetFromFlagString:(NSString*)modifierFlagString {
+- (NSMutableSet*)createSetFromFlagString:(NSString*)modifierFlagString {
     modifierFlagString = [[modifierFlagString stringByReplacingOccurrencesOfString:@" " withString:@""] uppercaseString];
     if ([modifierFlagString length] == 0) {
         return [[NSMutableSet alloc] initWithCapacity:0];
@@ -72,8 +87,7 @@
     return flagSet;
 }
 
-
-+ (int)flagsFromFlagString:(NSString*)modifierFlagString {
+- (int)flagsFromFlagString:(NSString*)modifierFlagString {
     int modifierFlags = 0;
     if (modifierFlagString == nil || [modifierFlagString length] == 0) {
         return 0;
