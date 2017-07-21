@@ -217,11 +217,20 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    if (!AXAPIEnabled()) {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Cannot start Easy Move+Resize!\n\nOS X 10.9 (Mavericks) or later: visit\nSystem Preferences->Security & Privacy,\nand check \"Easy Move+Resize\" in the\nPrivacy tab\n\nOS X 10.8 (Mountain Lion): visit\nSystem Preferences->Accessibility\nand check \"Enable access for assistive devices\""];
-        [alert addButtonWithTitle:@"OK"];
-        [alert runModal];
+    const void * keys[] = { kAXTrustedCheckOptionPrompt };
+    const void * values[] = { kCFBooleanTrue };
+
+    CFDictionaryRef options = CFDictionaryCreate(
+            kCFAllocatorDefault,
+            keys,
+            values,
+            sizeof(keys) / sizeof(*keys),
+            &kCFCopyStringDictionaryKeyCallBacks,
+            &kCFTypeDictionaryValueCallBacks);
+
+    if (!AXIsProcessTrustedWithOptions(options)) {
+        // don't have permission to do our thing right now... AXIsProcessTrustedWithOptions prompted the user to fix
+        // this, so hopefully on next launch we'll be good to go
         exit(1);
     }
     
