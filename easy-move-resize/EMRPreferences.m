@@ -1,12 +1,3 @@
-//
-//  EMRPreferences.m
-//  easy-move-resize
-//
-//  Created by Rajpaul Bagga on 2016-01-21.
-//
-
-#import <Foundation/Foundation.h>
-#import <Cocoa/Cocoa.h>
 #import "EMRPreferences.h"
 
 #define DEFAULT_MODIFIER_FLAGS kCGEventFlagMaskCommand | kCGEventFlagMaskControl
