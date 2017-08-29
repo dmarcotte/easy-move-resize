@@ -2,7 +2,18 @@
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
 
-@implementation EMRAppDelegate
+@implementation EMRAppDelegate {
+    EMRPreferences *preferences;
+}
+
+- (id) init  {
+    self = [super init];
+    if (self) {
+        NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"userPrefs"];
+        preferences = [[EMRPreferences alloc] initWithUserDefaults:userDefaults];
+    }
+    return self;
+}
 
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
 
@@ -237,7 +248,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [self initModifierMenuItems];
 
     // Retrieve the Key press modifier flags to activate move/resize actions.
-    keyModifierFlags = [EMRPreferences modifierFlags];
+    keyModifierFlags = [preferences modifierFlags];
 
     CFRunLoopSourceRef runLoopSource;
 
@@ -299,7 +310,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_ctrlMenu setState:0];
     [_shiftMenu setState:0];
     [_disabledMenu setState:0];
-    NSSet* flags = [EMRPreferences getFlagStringSet];
+    NSSet* flags = [preferences getFlagStringSet];
     if ([flags containsObject:ALT_KEY]) {
         [_altMenu setState:1];
     }
@@ -318,14 +329,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     NSMenuItem *menu = (NSMenuItem*)sender;
     BOOL newState = ![menu state];
     [menu setState:newState];
-    [EMRPreferences setModifierKey:[menu title] enabled:newState];
-    keyModifierFlags = [EMRPreferences modifierFlags];
+    [preferences setModifierKey:[menu title] enabled:newState];
+    keyModifierFlags = [preferences modifierFlags];
 }
 
 - (IBAction)resetModifiersToDefaults:(id)sender {
-    [EMRPreferences removeDefaults];
+    [preferences setToDefaults];
     [self initModifierMenuItems];
-    keyModifierFlags = [EMRPreferences modifierFlags];
+    keyModifierFlags = [preferences modifierFlags];
 }
 
 - (IBAction)toggleDisabled:(id)sender {

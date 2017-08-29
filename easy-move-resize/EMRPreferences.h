@@ -1,13 +1,10 @@
-//
-//  EMRPreferences.h
-//  easy-move-resize
-//
-//  Created by Rajpaul Bagga on 2016-01-21.
-//
-// Preferences can be stored manually by running from Terminal a command like:
-// defaults write org.dmarcotte.Easy-Move-Resize ModifierFlags CMD,CTRL
-
-
+// Preferences can alternativevly be managed from the Terminal:
+//   Read:
+//     `defaults write org.dmarcotte.Easy-Move-Resize ModifierFlags CMD,CTRL`
+//   Write:
+//     `defaults write org.dmarcotte.Easy-Move-Resize ModifierFlags CMD,CTRL`
+//   Note that deleting this preference or writing invalid keys may cause trouble and require that
+//     you choose "Reset to Defaults from the app menu.
 #ifndef EMRPreferences_h
 #define EMRPreferences_h
 
@@ -22,15 +19,20 @@
     
 }
 
+// Initialize an EMRPreferences, persisting settings to the given userDefaults
+- (id)initWithUserDefaults:(NSUserDefaults *)defaults;
+
 // Get the modifier flags from the standard preferences
-+ (int) modifierFlags;
-// Store a modifier flag string in the preferences. (e.g. "CTRL,CMD"
-+ (void) setModifierFlagString:(NSString*)flagString;
+- (int) modifierFlags;
 
-+ (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled;
-+ (NSSet*) getFlagStringSet;
+// Set or unset the given modifier key in the preferences
+- (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled;
 
-+ (void) removeDefaults;
+// returns a set of the currently persisted key constants
+- (NSSet*) getFlagStringSet;
+
+// reset preferences to the defaults
+- (void)setToDefaults;
 
 @end
 
