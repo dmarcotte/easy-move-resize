@@ -117,7 +117,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
         CFTypeRef _cSize;
         NSSize cSize;
-        if (!AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess
+        if (!(AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess)
                 || !AXValueGetValue(_cSize, kAXValueCGSizeType, (void *)&cSize)) {
             NSLog(@"ERROR: Could not decode size");
             return NULL;
@@ -316,7 +316,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 - (IBAction)modifierToggle:(id)sender {
     NSMenuItem *menu = (NSMenuItem*)sender;
-    NSInteger newState = ![menu state];
+    BOOL newState = ![menu state];
     [menu setState:newState];
     [EMRPreferences setModifierKey:[menu title] enabled:newState];
     keyModifierFlags = [EMRPreferences modifierFlags];
@@ -332,14 +332,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     EMRMoveResize* moveResize = [EMRMoveResize instance];
     if ([_disabledMenu state] == 0) {
         // We are enabled. Disable...
-        [_disabledMenu setState:1];
-        [self setMenusEnabled:0];
+        [_disabledMenu setState:YES];
+        [self setMenusEnabled:YES];
         [self disableRunLoopSource:moveResize];
     }
     else {
         // We are disabled. Enable.
-        [_disabledMenu setState:0];
-        [self setMenusEnabled:1];
+        [_disabledMenu setState:NO];
+        [self setMenusEnabled:YES];
         [self enableRunLoopSource:moveResize];
     }
 }
@@ -348,7 +348,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     return keyModifierFlags;
 }
 
-- (void)setMenusEnabled:(NSInteger)enabled {
+- (void)setMenusEnabled:(BOOL)enabled {
     [_altMenu setEnabled:enabled];
     [_cmdMenu setEnabled:enabled];
     [_ctrlMenu setEnabled:enabled];
