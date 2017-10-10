@@ -22,7 +22,7 @@ struct ResizeSection {
     CFRunLoopSourceRef _runLoopSource;
     struct ResizeSection _resizeSection;
     AXUIElementRef _window;
-    int _tracking;
+    CFTimeInterval _tracking;
     NSPoint _wndPosition;
     NSSize _wndSize;
 }
@@ -33,7 +33,7 @@ struct ResizeSection {
 @property CFRunLoopSourceRef runLoopSource;
 @property struct ResizeSection resizeSection;
 @property AXUIElementRef window;
-@property int tracking;
+@property CFTimeInterval tracking;
 @property NSPoint wndPosition;
 @property NSSize wndSize;
 
