@@ -15,6 +15,7 @@
 		6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B77183BF3E800859244 /* EMRAppDelegate.m */; };
 		6ED47B7B183BF3E800859244 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B79183BF3E800859244 /* MainMenu.xib */; };
 		6ED47B7D183BF3E800859244 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B7C183BF3E800859244 /* Images.xcassets */; };
+		B02F18934323BB42D8CCAB05 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B02F125CE1BC18D269C53372 /* QuartzCore.framework */; };
 		F907A25928093AED2C89550E /* EMRMoveResize.m in Sources */ = {isa = PBXBuildFile; fileRef = F907AEB04B0AF90540F6EF00 /* EMRMoveResize.m */; };
 		F907A53FB2CAEBEB31895CD2 /* contributing.md in Resources */ = {isa = PBXBuildFile; fileRef = F907A3568D9301F4E6A9736F /* contributing.md */; };
 		F907ABDDEEAF5BF83F0AF9EA /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = F907A4D20267246716869421 /* readme.md */; };
@@ -50,6 +51,7 @@
 		6ED47B77183BF3E800859244 /* EMRAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRAppDelegate.m; sourceTree = "<group>"; };
 		6ED47B7C183BF3E800859244 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		6ED47B83183BF3E800859244 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		B02F125CE1BC18D269C53372 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		F907A0E10208B2B4C63E46E3 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		F907A3568D9301F4E6A9736F /* contributing.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = contributing.md; sourceTree = "<group>"; };
 		F907A4D20267246716869421 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = readme.md; sourceTree = "<group>"; };
@@ -71,6 +73,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */,
+				B02F18934323BB42D8CCAB05 /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +118,7 @@
 				6ED47B64183BF3E800859244 /* Cocoa.framework */,
 				6ED47B83183BF3E800859244 /* XCTest.framework */,
 				6ED47B66183BF3E800859244 /* Other Frameworks */,
+				B02F125CE1BC18D269C53372 /* QuartzCore.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -278,7 +282,7 @@
 		65CF01681F229C34002259F2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 6ED47B60183BF3E800859244 /* easy-move-resize */;
-			targetProxy = 65CF01671F229C34002259F2 /* PBXContainerItemProxy */;
+			targetProxy = 65CF01671F229C34002259F2;
 		};
 /* End PBXTargetDependency section */
 
