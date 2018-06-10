@@ -1,6 +1,7 @@
 #import "EMRAppDelegate.h"
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
+#import "EMRHelper.h"
 
 typedef enum : NSUInteger {
     idle = 0,
@@ -236,9 +237,13 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 
     if (moveModifiersDown && resizeModifiersDown) {
-        // default to resize as the wider set
-        // TODO: check which one is wider
-        moveModifiersDown = false;
+        // if one mask is the super set of the other we want to disable the narrower mask
+        // otherwise it may steal the event from the other mode
+        if (compareMasks(moveKeyModifierFlags, resizeKeyModifierFlags) == wider) {
+            resizeModifiersDown = false;
+        } else if (compareMasks(moveKeyModifierFlags, resizeKeyModifierFlags) == smaller) {
+            moveModifiersDown = false;
+        }
     }
 
     if (! (moveModifiersDown || resizeModifiersDown) && state == idle) {
