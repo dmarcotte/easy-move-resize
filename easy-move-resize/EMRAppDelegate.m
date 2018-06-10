@@ -5,6 +5,7 @@
 typedef enum : NSUInteger {
     idle = 0,
     moving,
+    resizing
 } State;
 
 
@@ -66,7 +67,7 @@ void startMoving(CGEventRef event, EMRMoveResize *moveResize) {
 }
 
 
-void stopMoving(EMRMoveResize* moveResize) {
+void stop(EMRMoveResize* moveResize) {
     [moveResize setTracking:0];
 }
 
@@ -94,12 +95,121 @@ void keepMoving(CGEventRef event, EMRMoveResize* moveResize) {
 }
 
 
+bool startResizing(CGEventRef event, EMRMoveResize* moveResize) {
+    AXUIElementRef _clickedWindow = [moveResize window];
+
+    // on right click, record which direction we should resize in on the drag
+    struct ResizeSection resizeSection;
+
+    CGPoint clickPoint = CGEventGetLocation(event);
+
+    NSPoint cTopLeft = [moveResize wndPosition];
+
+    clickPoint.x -= cTopLeft.x;
+    clickPoint.y -= cTopLeft.y;
+
+    CFTypeRef _cSize;
+    NSSize cSize;
+    if (!(AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess)
+        || !AXValueGetValue(_cSize, kAXValueCGSizeType, (void *)&cSize)) {
+        NSLog(@"ERROR: Could not decode size");
+        return false;
+    }
+    CFRelease(_cSize);
+
+    NSSize wndSize = cSize;
+
+    if (clickPoint.x < wndSize.width/3) {
+        resizeSection.xResizeDirection = left;
+    } else if (clickPoint.x > 2*wndSize.width/3) {
+        resizeSection.xResizeDirection = right;
+    } else {
+        resizeSection.xResizeDirection = noX;
+    }
+
+    if (clickPoint.y < wndSize.height/3) {
+        resizeSection.yResizeDirection = bottom;
+    } else  if (clickPoint.y > 2*wndSize.height/3) {
+        resizeSection.yResizeDirection = top;
+    } else {
+        resizeSection.yResizeDirection = noY;
+    }
+
+    [moveResize setWndSize:wndSize];
+    [moveResize setResizeSection:resizeSection];
+
+    return true;
+}
+
+
+void keepResizing(CGEventRef event, EMRMoveResize* moveResize) {
+    AXUIElementRef _clickedWindow = [moveResize window];
+    struct ResizeSection resizeSection = [moveResize resizeSection];
+    int deltaX = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
+    int deltaY = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
+
+    NSPoint cTopLeft = [moveResize wndPosition];
+    NSSize wndSize = [moveResize wndSize];
+
+    switch (resizeSection.xResizeDirection) {
+        case right:
+            wndSize.width += deltaX;
+            break;
+        case left:
+            wndSize.width -= deltaX;
+            cTopLeft.x += deltaX;
+            break;
+        case noX:
+            // nothing to do
+            break;
+        default:
+            [NSException raise:@"Unknown xResizeSection" format:@"No case for %d", resizeSection.xResizeDirection];
+    }
+
+    switch (resizeSection.yResizeDirection) {
+        case top:
+            wndSize.height += deltaY;
+            break;
+        case bottom:
+            wndSize.height -= deltaY;
+            cTopLeft.y += deltaY;
+            break;
+        case noY:
+            // nothing to do
+            break;
+        default:
+            [NSException raise:@"Unknown yResizeSection" format:@"No case for %d", resizeSection.yResizeDirection];
+    }
+
+    [moveResize setWndPosition:cTopLeft];
+    [moveResize setWndSize:wndSize];
+
+    // actually applying the change is expensive, so only do it every kResizeFilterInterval events
+    if (CACurrentMediaTime() - [moveResize tracking] > kResizeFilterInterval) {
+        // only make a call to update the position if we need to
+        if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
+            CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
+            AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
+            CFRelease(_position);
+        }
+
+        CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
+        AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
+        CFRelease(_size);
+        [moveResize setTracking:CACurrentMediaTime()];
+    }
+}
+
+
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
     static State state = idle;
 
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
-    int keyModifierFlags = [ourDelegate modifierFlags];
-    if (keyModifierFlags == 0) {
+    int moveKeyModifierFlags = [ourDelegate modifierFlags];
+    // TODO expose UI to configure - right now we're just extending the move keys with option
+    int resizeKeyModifierFlags = (moveKeyModifierFlags | kCGEventFlagMaskAlternate);
+
+    if (moveKeyModifierFlags == 0 && resizeKeyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
         return event;
     }
@@ -115,133 +225,58 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     
     CGEventFlags flags = CGEventGetFlags(event);
 
-    bool moveModifiersDown = (flags & (keyModifierFlags)) == (keyModifierFlags);
+    bool moveModifiersDown = (flags & (moveKeyModifierFlags)) == (moveKeyModifierFlags);
+    bool resizeModifiersDown = (flags & (resizeKeyModifierFlags)) == (resizeKeyModifierFlags);
 
-    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl | kCGEventFlagMaskSecondaryFn) ^ keyModifierFlags;
+    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl | kCGEventFlagMaskSecondaryFn) ^ (moveKeyModifierFlags | resizeKeyModifierFlags);
     
     if (flags & ignoredKeysMask) {
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
         return event;
     }
 
-    if (! moveModifiersDown && state == idle) {
+    if (moveModifiersDown && resizeModifiersDown) {
+        // default to resize as the wider set
+        // TODO: check which one is wider
+        moveModifiersDown = false;
+    }
+
+    if (! (moveModifiersDown || resizeModifiersDown) && state == idle) {
         // event is not for us - stay idle
         return event;
     } else if (moveModifiersDown && state == idle) {
-        // idle -> tracking transition
+        // NSLog(@"idle -> tracking");
         state = moving;
         startMoving(event, moveResize);
     } else if (! moveModifiersDown && state == moving) {
-        // tracking -> idle transition
+        // NSLog(@"tracking -> idle");
         state = idle;
-        stopMoving(moveResize);
+        stop(moveResize);
         return event;
     } else if (moveModifiersDown && state == moving) {
+        // NSLog(@"moving");
         keepMoving(event, moveResize);
-    }
-
-    if (type == kCGEventRightMouseDown) {
-        AXUIElementRef _clickedWindow = [moveResize window];
-
-        // on right click, record which direction we should resize in on the drag
-        struct ResizeSection resizeSection;
-
-        CGPoint clickPoint = CGEventGetLocation(event);
-
-        NSPoint cTopLeft = [moveResize wndPosition];
-
-        clickPoint.x -= cTopLeft.x;
-        clickPoint.y -= cTopLeft.y;
-
-        CFTypeRef _cSize;
-        NSSize cSize;
-        if (!(AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess)
-                || !AXValueGetValue(_cSize, kAXValueCGSizeType, (void *)&cSize)) {
-            NSLog(@"ERROR: Could not decode size");
+    } else if (
+               (resizeModifiersDown && state == idle) ||
+               (resizeModifiersDown && state == moving)
+               ) {
+        // NSLog(@"idle/moving -> resizing");
+        state = resizing;
+        bool success = startResizing(event, moveResize);
+        if (! success) {
             return NULL;
         }
-        CFRelease(_cSize);
-
-        NSSize wndSize = cSize;
-
-        if (clickPoint.x < wndSize.width/3) {
-            resizeSection.xResizeDirection = left;
-        } else if (clickPoint.x > 2*wndSize.width/3) {
-            resizeSection.xResizeDirection = right;
-        } else {
-            resizeSection.xResizeDirection = noX;
-        }
-
-        if (clickPoint.y < wndSize.height/3) {
-            resizeSection.yResizeDirection = bottom;
-        } else  if (clickPoint.y > 2*wndSize.height/3) {
-            resizeSection.yResizeDirection = top;
-        } else {
-            resizeSection.yResizeDirection = noY;
-        }
-
-        [moveResize setWndSize:wndSize];
-        [moveResize setResizeSection:resizeSection];
+    } else if (! resizeModifiersDown && state == resizing) {
+        // NSLog(@"resizing -> idle");
+        state = idle;
+        stop(moveResize);
+        return event;
+    } else if (resizeModifiersDown && state == resizing) {
+        // NSLog(@"resizing");
+        keepResizing(event, moveResize);
     }
 
-    if (type == kCGEventRightMouseDragged
-            && [moveResize tracking] > 0) {
-        AXUIElementRef _clickedWindow = [moveResize window];
-        struct ResizeSection resizeSection = [moveResize resizeSection];
-        int deltaX = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
-        int deltaY = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
-
-        NSPoint cTopLeft = [moveResize wndPosition];
-        NSSize wndSize = [moveResize wndSize];
-
-        switch (resizeSection.xResizeDirection) {
-            case right:
-                wndSize.width += deltaX;
-                break;
-            case left:
-                wndSize.width -= deltaX;
-                cTopLeft.x += deltaX;
-                break;
-            case noX:
-                // nothing to do
-                break;
-            default:
-                [NSException raise:@"Unknown xResizeSection" format:@"No case for %d", resizeSection.xResizeDirection];
-        }
-
-        switch (resizeSection.yResizeDirection) {
-            case top:
-                wndSize.height += deltaY;
-                break;
-            case bottom:
-                wndSize.height -= deltaY;
-                cTopLeft.y += deltaY;
-                break;
-            case noY:
-                // nothing to do
-                break;
-            default:
-                [NSException raise:@"Unknown yResizeSection" format:@"No case for %d", resizeSection.yResizeDirection];
-        }
-
-        [moveResize setWndPosition:cTopLeft];
-        [moveResize setWndSize:wndSize];
-
-        // actually applying the change is expensive, so only do it every kResizeFilterInterval events
-        if (CACurrentMediaTime() - [moveResize tracking] > kResizeFilterInterval) {
-            // only make a call to update the position if we need to
-            if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
-                CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
-                AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
-                CFRelease(_position);
-            }
-
-            CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
-            AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
-            CFRelease(_size);
-            [moveResize setTracking:CACurrentMediaTime()];
-        }
-    }
+    // TODO: do we need to handle resizing -> moving?
 
     // we took ownership of this event, don't pass it along
     return NULL;
