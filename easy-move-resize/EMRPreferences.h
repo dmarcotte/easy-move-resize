@@ -14,6 +14,7 @@
 #define CAPS_KEY @"CAPS" // CAPS lock
 #define ALT_KEY @"ALT" // Alternate or Option key
 #define CMD_KEY @"CMD"
+#define FN_KEY @"FN"
 
 @interface EMRPreferences : NSObject {
     

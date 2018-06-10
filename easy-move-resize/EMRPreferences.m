@@ -109,7 +109,10 @@
     if ([flagList containsObject:CMD_KEY]) {
         modifierFlags |= kCGEventFlagMaskCommand;
     }
-    
+    if ([flagList containsObject:FN_KEY]) {
+        modifierFlags |= kCGEventFlagMaskSecondaryFn;
+    }
+
     return modifierFlags;
 }
 @end

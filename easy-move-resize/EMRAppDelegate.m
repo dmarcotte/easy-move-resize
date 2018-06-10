@@ -310,6 +310,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_altMenu setState:0];
     [_cmdMenu setState:0];
     [_ctrlMenu setState:0];
+    [_fnMenu setState:0];
     [_shiftMenu setState:0];
     [_disabledMenu setState:0];
     NSSet* flags = [preferences getFlagStringSet];
@@ -321,6 +322,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
     if ([flags containsObject:CTRL_KEY]) {
         [_ctrlMenu setState:1];
+    }
+    if ([flags containsObject:FN_KEY]) {
+        [_fnMenu setState:1];
     }
     if ([flags containsObject:SHIFT_KEY]) {
         [_shiftMenu setState:1];
@@ -365,6 +369,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_altMenu setEnabled:enabled];
     [_cmdMenu setEnabled:enabled];
     [_ctrlMenu setEnabled:enabled];
+    [_fnMenu setEnabled:enabled];
     [_shiftMenu setEnabled:enabled];
 }
 
