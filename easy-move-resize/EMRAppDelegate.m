@@ -4,7 +4,7 @@
 
 typedef enum : NSUInteger {
     idle = 0,
-    tracking,
+    moving,
 } State;
 
 
@@ -20,6 +20,56 @@ typedef enum : NSUInteger {
     }
     return self;
 }
+
+
+void startMoving(CGEventRef event, EMRMoveResize *moveResize) {
+    CGPoint mouseLocation = CGEventGetLocation(event);
+    [moveResize setTracking:CACurrentMediaTime()];
+
+    AXUIElementRef _systemWideElement;
+    AXUIElementRef _clickedWindow = NULL;
+    _systemWideElement = AXUIElementCreateSystemWide();
+
+    AXUIElementRef _element;
+    if ((AXUIElementCopyElementAtPosition(_systemWideElement, (float) mouseLocation.x, (float) mouseLocation.y, &_element) == kAXErrorSuccess) && _element) {
+        CFTypeRef _role;
+        if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityRoleAttribute, &_role) == kAXErrorSuccess) {
+            if ([(__bridge NSString *)_role isEqualToString:NSAccessibilityWindowRole]) {
+                _clickedWindow = _element;
+            }
+            if (_role != NULL) CFRelease(_role);
+        }
+        CFTypeRef _window;
+        if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityWindowAttribute, &_window) == kAXErrorSuccess) {
+            if (_element != NULL) CFRelease(_element);
+            _clickedWindow = (AXUIElementRef)_window;
+        }
+    }
+    CFRelease(_systemWideElement);
+
+    CFTypeRef _cPosition = nil;
+    NSPoint cTopLeft;
+    if (AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, &_cPosition) == kAXErrorSuccess) {
+        if (!AXValueGetValue(_cPosition, kAXValueCGPointType, (void *)&cTopLeft)) {
+            NSLog(@"ERROR: Could not decode position");
+            cTopLeft = NSMakePoint(0, 0);
+        }
+        CFRelease(_cPosition);
+    }
+
+    cTopLeft.x = (int) cTopLeft.x;
+    cTopLeft.y = (int) cTopLeft.y;
+
+    [moveResize setWndPosition:cTopLeft];
+    [moveResize setWindow:_clickedWindow];
+    if (_clickedWindow != nil) CFRelease(_clickedWindow);
+}
+
+
+void stopMoving(EMRMoveResize* moveResize) {
+    [moveResize setTracking:0];
+}
+
 
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
     static State state = idle;
@@ -42,7 +92,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     
     CGEventFlags flags = CGEventGetFlags(event);
 
-    bool modifiersDown = (flags & (keyModifierFlags)) == (keyModifierFlags);
+    bool moveModifiersDown = (flags & (keyModifierFlags)) == (keyModifierFlags);
 
     int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl | kCGEventFlagMaskSecondaryFn) ^ keyModifierFlags;
     
@@ -51,60 +101,19 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         return event;
     }
 
-    if (! modifiersDown && state == idle) {
+    if (! moveModifiersDown && state == idle) {
         // event is not for us - stay idle
         return event;
-    } else if (modifiersDown && state == idle) {
+    } else if (moveModifiersDown && state == idle) {
         // idle -> tracking transition
-        state = tracking;
-        {
-            CGPoint mouseLocation = CGEventGetLocation(event);
-            [moveResize setTracking:CACurrentMediaTime()];
-
-            AXUIElementRef _systemWideElement;
-            AXUIElementRef _clickedWindow = NULL;
-            _systemWideElement = AXUIElementCreateSystemWide();
-
-            AXUIElementRef _element;
-            if ((AXUIElementCopyElementAtPosition(_systemWideElement, (float) mouseLocation.x, (float) mouseLocation.y, &_element) == kAXErrorSuccess) && _element) {
-                CFTypeRef _role;
-                if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityRoleAttribute, &_role) == kAXErrorSuccess) {
-                    if ([(__bridge NSString *)_role isEqualToString:NSAccessibilityWindowRole]) {
-                        _clickedWindow = _element;
-                    }
-                    if (_role != NULL) CFRelease(_role);
-                }
-                CFTypeRef _window;
-                if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityWindowAttribute, &_window) == kAXErrorSuccess) {
-                    if (_element != NULL) CFRelease(_element);
-                    _clickedWindow = (AXUIElementRef)_window;
-                }
-            }
-            CFRelease(_systemWideElement);
-
-            CFTypeRef _cPosition = nil;
-            NSPoint cTopLeft;
-            if (AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, &_cPosition) == kAXErrorSuccess) {
-                if (!AXValueGetValue(_cPosition, kAXValueCGPointType, (void *)&cTopLeft)) {
-                    NSLog(@"ERROR: Could not decode position");
-                    cTopLeft = NSMakePoint(0, 0);
-                }
-                CFRelease(_cPosition);
-            }
-
-            cTopLeft.x = (int) cTopLeft.x;
-            cTopLeft.y = (int) cTopLeft.y;
-
-            [moveResize setWndPosition:cTopLeft];
-            [moveResize setWindow:_clickedWindow];
-            if (_clickedWindow != nil) CFRelease(_clickedWindow);
-        }
-    } else if (! modifiersDown && state == tracking) {
+        state = moving;
+        startMoving(event, moveResize);
+    } else if (! moveModifiersDown && state == moving) {
         // tracking -> idle transition
         state = idle;
-        [moveResize setTracking:0];
+        stopMoving(moveResize);
         return event;
-    } else if (modifiersDown && state == tracking) {
+    } else if (moveModifiersDown && state == moving) {
         AXUIElementRef _clickedWindow = [moveResize window];
         double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
         double deltaY = CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
