@@ -119,17 +119,17 @@ bool startResizing(CGEventRef event, EMRMoveResize* moveResize) {
 
     NSSize wndSize = cSize;
 
-    if (clickPoint.x < wndSize.width/3) {
+    if (clickPoint.x < wndSize.width/2) {
         resizeSection.xResizeDirection = left;
-    } else if (clickPoint.x > 2*wndSize.width/3) {
+    } else if (clickPoint.x > wndSize.width/2) {
         resizeSection.xResizeDirection = right;
     } else {
         resizeSection.xResizeDirection = noX;
     }
 
-    if (clickPoint.y < wndSize.height/3) {
+    if (clickPoint.y < wndSize.height/2) {
         resizeSection.yResizeDirection = bottom;
-    } else  if (clickPoint.y > 2*wndSize.height/3) {
+    } else  if (clickPoint.y > wndSize.height/2) {
         resizeSection.yResizeDirection = top;
     } else {
         resizeSection.yResizeDirection = noY;
