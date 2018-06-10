@@ -44,7 +44,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     bool modifiersDown = (flags & (keyModifierFlags)) == (keyModifierFlags);
 
-    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl) ^ keyModifierFlags;
+    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl | kCGEventFlagMaskSecondaryFn) ^ keyModifierFlags;
     
     if (flags & ignoredKeysMask) {
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
