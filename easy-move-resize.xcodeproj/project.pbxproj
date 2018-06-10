@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		52B5E8F61C513E3D0055C181 /* EMRPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 52B5E8F51C513E3D0055C181 /* EMRPreferences.m */; };
+		5ABC799320CD78C100B22173 /* EMRHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABC799220CD78C100B22173 /* EMRHelper.m */; };
+		5ABC799620CD78D900B22173 /* EMRHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABC799020CD6D0E00B22173 /* EMRHelperTest.m */; };
+		5ABC799820CD79BD00B22173 /* EMRHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABC799220CD78C100B22173 /* EMRHelper.m */; };
 		65CF01651F229C34002259F2 /* EMRPreferencesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CF01641F229C34002259F2 /* EMRPreferencesTest.m */; };
 		6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
 		6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B6D183BF3E800859244 /* InfoPlist.strings */; };
@@ -34,6 +37,9 @@
 /* Begin PBXFileReference section */
 		52B5E8F51C513E3D0055C181 /* EMRPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMRPreferences.m; sourceTree = "<group>"; };
 		52B5E8F81C513E7A0055C181 /* EMRPreferences.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRPreferences.h; sourceTree = "<group>"; };
+		5ABC799020CD6D0E00B22173 /* EMRHelperTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRHelperTest.m; sourceTree = "<group>"; };
+		5ABC799220CD78C100B22173 /* EMRHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRHelper.m; sourceTree = "<group>"; };
+		5ABC799720CD78F000B22173 /* EMRHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRHelper.h; sourceTree = "<group>"; };
 		65CF01621F229C34002259F2 /* easy-move-resizeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "easy-move-resizeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		65CF01641F229C34002259F2 /* EMRPreferencesTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRPreferencesTest.m; sourceTree = "<group>"; };
 		65CF01661F229C34002259F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -84,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				65CF01641F229C34002259F2 /* EMRPreferencesTest.m */,
+				5ABC799020CD6D0E00B22173 /* EMRHelperTest.m */,
 				65CF01661F229C34002259F2 /* Info.plist */,
 			);
 			path = "easy-move-resizeTests";
@@ -145,6 +152,8 @@
 				F907AEB04B0AF90540F6EF00 /* EMRMoveResize.m */,
 				52B5E8F51C513E3D0055C181 /* EMRPreferences.m */,
 				52B5E8F81C513E7A0055C181 /* EMRPreferences.h */,
+				5ABC799220CD78C100B22173 /* EMRHelper.m */,
+				5ABC799720CD78F000B22173 /* EMRHelper.h */,
 			);
 			path = "easy-move-resize";
 			sourceTree = "<group>";
@@ -261,6 +270,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5ABC799620CD78D900B22173 /* EMRHelperTest.m in Sources */,
+				5ABC799820CD79BD00B22173 /* EMRHelper.m in Sources */,
 				65CF01651F229C34002259F2 /* EMRPreferencesTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -270,6 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6ED47B71183BF3E800859244 /* main.m in Sources */,
+				5ABC799320CD78C100B22173 /* EMRHelper.m in Sources */,
 				52B5E8F61C513E3D0055C181 /* EMRPreferences.m in Sources */,
 				6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */,
 				F907A25928093AED2C89550E /* EMRMoveResize.m in Sources */,
