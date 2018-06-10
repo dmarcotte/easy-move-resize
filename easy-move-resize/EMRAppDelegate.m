@@ -236,55 +236,109 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         return event;
     }
 
+    State nextState = idle;
     if (moveModifiersDown && resizeModifiersDown) {
         // if one mask is the super set of the other we want to disable the narrower mask
         // otherwise it may steal the event from the other mode
         if (compareMasks(moveKeyModifierFlags, resizeKeyModifierFlags) == wider) {
-            resizeModifiersDown = false;
+            nextState = moving;
         } else if (compareMasks(moveKeyModifierFlags, resizeKeyModifierFlags) == smaller) {
-            moveModifiersDown = false;
+            nextState = resizing;
         }
+    } else if (moveModifiersDown) {
+        nextState = moving;
+    } else if (resizeModifiersDown) {
+        nextState = resizing;
     }
 
-    if (! (moveModifiersDown || resizeModifiersDown) && state == idle) {
-        // event is not for us - stay idle
-        return event;
-    } else if (moveModifiersDown && state == idle) {
-        // NSLog(@"idle -> tracking");
-        state = moving;
-        startMoving(event, moveResize);
-    } else if (! moveModifiersDown && state == moving) {
-        // NSLog(@"tracking -> idle");
-        state = idle;
-        stop(moveResize);
-        return event;
-    } else if (moveModifiersDown && state == moving) {
-        // NSLog(@"moving");
-        keepMoving(event, moveResize);
-    } else if (
-               (resizeModifiersDown && state == idle) ||
-               (resizeModifiersDown && state == moving)
-               ) {
-        // NSLog(@"idle/moving -> resizing");
-        state = resizing;
-        bool success = startResizing(event, moveResize);
-        if (! success) {
-            return NULL;
-        }
-    } else if (! resizeModifiersDown && state == resizing) {
-        // NSLog(@"resizing -> idle");
-        state = idle;
-        stop(moveResize);
-        return event;
-    } else if (resizeModifiersDown && state == resizing) {
-        // NSLog(@"resizing");
-        keepResizing(event, moveResize);
+    bool absorbEvent = false;
+
+    switch (state) {
+        case idle:
+            switch (nextState) {
+                case idle:
+                    // event is not for us - just stay idle
+                    break;
+
+                case moving:
+                    // NSLog(@"idle -> moving");
+                    startMoving(event, moveResize);
+                    absorbEvent = true;
+                    break;
+
+                case resizing:
+                    // NSLog(@"resizing -> idle");
+                    stop(moveResize);
+                    break;
+
+                default:
+                    // invalid transition
+                    assert(false);
+                    break;
+            }
+            break;
+
+        case moving:
+            switch (nextState) {
+                case moving:
+                    // NSLog(@"moving");
+                    keepMoving(event, moveResize);
+                    break;
+
+                case idle:
+                    // NSLog(@"moving -> idle");
+                    stop(moveResize);
+                    break;
+
+                case resizing:
+                    // NSLog(@"moving -> resizing");
+                    absorbEvent = startResizing(event, moveResize);
+                    break;
+
+                default:
+                    // invalid transition
+                    assert(false);
+                    break;
+            }
+            break;
+
+        case resizing:
+            switch (nextState) {
+                case resizing:
+                    // NSLog(@"resizing");
+                    keepResizing(event, moveResize);
+                    break;
+
+                case idle:
+                    // NSLog(@"resizing -> idle");
+                    stop(moveResize);
+                    break;
+
+                case moving:
+                    // NSLog(@"resizing -> moving");
+                    startMoving(event, moveResize);
+                    absorbEvent = true;
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        default:
+            // invalid transition
+            assert(false);
+            break;
     }
+    state = nextState;
 
-    // TODO: do we need to handle resizing -> moving?
 
-    // we took ownership of this event, don't pass it along
-    return NULL;
+    // absorb event if necessary
+    if (absorbEvent) {
+        return NULL;
+    } else {
+        return event;
+    }
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
