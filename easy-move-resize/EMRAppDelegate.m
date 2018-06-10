@@ -71,6 +71,29 @@ void stopMoving(EMRMoveResize* moveResize) {
 }
 
 
+void keepMoving(CGEventRef event, EMRMoveResize* moveResize) {
+    AXUIElementRef _clickedWindow = [moveResize window];
+    double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
+    double deltaY = CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
+
+    NSPoint cTopLeft = [moveResize wndPosition];
+    NSPoint thePoint;
+    thePoint.x = cTopLeft.x + deltaX;
+    thePoint.y = cTopLeft.y + deltaY;
+    [moveResize setWndPosition:thePoint];
+    CFTypeRef _position;
+
+    // actually applying the change is expensive, so only do it every kMoveFilterInterval seconds
+    if (CACurrentMediaTime() - [moveResize tracking] > kMoveFilterInterval) {
+        _position = (CFTypeRef) (AXValueCreate(kAXValueCGPointType, (const void *) &thePoint));
+        //            NSLog(@"applying change (delta %.1f, %.1f)", deltaX, deltaY);
+        AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef) NSAccessibilityPositionAttribute, (CFTypeRef *) _position);
+        if (_position != NULL) CFRelease(_position);
+        [moveResize setTracking:CACurrentMediaTime()];
+    }
+}
+
+
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
     static State state = idle;
 
@@ -114,25 +137,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         stopMoving(moveResize);
         return event;
     } else if (moveModifiersDown && state == moving) {
-        AXUIElementRef _clickedWindow = [moveResize window];
-        double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
-        double deltaY = CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
-
-        NSPoint cTopLeft = [moveResize wndPosition];
-        NSPoint thePoint;
-        thePoint.x = cTopLeft.x + deltaX;
-        thePoint.y = cTopLeft.y + deltaY;
-        [moveResize setWndPosition:thePoint];
-        CFTypeRef _position;
-
-        // actually applying the change is expensive, so only do it every kMoveFilterInterval seconds
-        if (CACurrentMediaTime() - [moveResize tracking] > kMoveFilterInterval) {
-            _position = (CFTypeRef) (AXValueCreate(kAXValueCGPointType, (const void *) &thePoint));
-            //            NSLog(@"applying change (delta %.1f, %.1f)", deltaX, deltaY);
-            AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef) NSAccessibilityPositionAttribute, (CFTypeRef *) _position);
-            if (_position != NULL) CFRelease(_position);
-            [moveResize setTracking:CACurrentMediaTime()];
-        }
+        keepMoving(event, moveResize);
     }
 
     if (type == kCGEventRightMouseDown) {
