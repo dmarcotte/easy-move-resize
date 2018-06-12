@@ -36,5 +36,6 @@ struct ResizeSection {
 @property CFTimeInterval tracking;
 @property NSPoint wndPosition;
 @property NSSize wndSize;
+@property bool alwaysResizeBottomRight;
 
 @end
