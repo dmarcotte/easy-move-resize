@@ -24,7 +24,7 @@ typedef enum : NSUInteger {
 }
 
 
-void startMoving(CGEventRef event, EMRMoveResize *moveResize) {
+void startTracking(CGEventRef event, EMRMoveResize *moveResize) {
     CGPoint mouseLocation = CGEventGetLocation(event);
     [moveResize setTracking:CACurrentMediaTime()];
 
@@ -68,7 +68,7 @@ void startMoving(CGEventRef event, EMRMoveResize *moveResize) {
 }
 
 
-void stop(EMRMoveResize* moveResize) {
+void stopTracking(EMRMoveResize* moveResize) {
     [moveResize setTracking:0];
 }
 
@@ -96,7 +96,7 @@ void keepMoving(CGEventRef event, EMRMoveResize* moveResize) {
 }
 
 
-bool startResizing(CGEventRef event, EMRMoveResize* moveResize) {
+bool determineResizeDirection(CGEventRef event, EMRMoveResize* moveResize) {
     AXUIElementRef _clickedWindow = [moveResize window];
 
     // on right click, record which direction we should resize in on the drag
@@ -262,13 +262,15 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
                 case moving:
                     // NSLog(@"idle -> moving");
-                    startMoving(event, moveResize);
+                    startTracking(event, moveResize);
                     absorbEvent = true;
                     break;
 
                 case resizing:
-                    // NSLog(@"resizing -> idle");
-                    stop(moveResize);
+                    // NSLog(@"idle -> moving/resizing");
+                    startTracking(event, moveResize);
+                    determineResizeDirection(event, moveResize);
+                    absorbEvent = true;
                     break;
 
                 default:
@@ -287,12 +289,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
                 case idle:
                     // NSLog(@"moving -> idle");
-                    stop(moveResize);
+                    stopTracking(moveResize);
                     break;
 
                 case resizing:
                     // NSLog(@"moving -> resizing");
-                    absorbEvent = startResizing(event, moveResize);
+                    absorbEvent = determineResizeDirection(event, moveResize);
                     break;
 
                 default:
@@ -311,12 +313,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
                 case idle:
                     // NSLog(@"resizing -> idle");
-                    stop(moveResize);
+                    stopTracking(moveResize);
                     break;
 
                 case moving:
                     // NSLog(@"resizing -> moving");
-                    startMoving(event, moveResize);
+                    startTracking(event, moveResize);
                     absorbEvent = true;
                     break;
 
