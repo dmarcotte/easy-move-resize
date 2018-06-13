@@ -17,6 +17,7 @@ static const double kResizeFilterInterval = 0.02;
 - (IBAction)modifierToggle:(id)sender;
 - (IBAction)resetModifiersToDefaults:(id)sender;
 - (IBAction)toggleDisabled:(id)sender;
+- (IBAction)showPreferences:(id)sender;
 
 @property (weak) IBOutlet NSMenuItem *altMenu;
 @property (weak) IBOutlet NSMenuItem *cmdMenu;

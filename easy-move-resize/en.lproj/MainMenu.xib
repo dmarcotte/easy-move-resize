@@ -690,6 +690,12 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="CnB-BD-kwb"/>
+                <menuItem title="Preferences..." id="XfF-1V-Bsx">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="showPreferences:" target="494" id="mfm-f2-Mgw"/>
+                    </connections>
+                </menuItem>
                 <menuItem title="Reset to Defaults" id="emi-it-fz4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>

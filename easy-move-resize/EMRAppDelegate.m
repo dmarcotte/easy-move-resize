@@ -2,6 +2,7 @@
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
 #import "EMRHelper.h"
+#import "EMRPreferencesController.h"
 
 typedef enum : NSUInteger {
     idle = 0,
@@ -12,6 +13,7 @@ typedef enum : NSUInteger {
 
 @implementation EMRAppDelegate {
     EMRPreferences *preferences;
+    EMRPreferencesController *_prefs;
 }
 
 - (id) init  {
@@ -482,6 +484,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [self setMenusEnabled:YES];
         [self enableRunLoopSource:moveResize];
     }
+}
+
+- (IBAction)showPreferences:(id)sender {
+    _prefs = [[EMRPreferencesController alloc] initWithWindowNibName:@"EMRPreferencesController"];
+    _prefs.prefs = preferences;
+    [_prefs.window makeKeyAndOrderFront:nil];
 }
 
 - (int)modifierFlags {
