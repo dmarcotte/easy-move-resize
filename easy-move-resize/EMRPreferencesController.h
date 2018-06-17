@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak) IBOutlet NSButton *clickModeButton;
 @property (weak) IBOutlet NSButton *hoverModeButton;
 
+- (IBAction)modifierClicked:(NSButton *)sender;
+
 - (IBAction)clickModeClicked:(id)sender;
 - (IBAction)hoverModeClicked:(id)sender;
 

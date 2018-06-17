@@ -12,7 +12,7 @@
                 <outlet property="altClickButton" destination="FcM-NA-7cC" id="Ndt-lf-5c7"/>
                 <outlet property="altHoverMoveButton" destination="Sj9-Rc-bDN" id="eVv-G2-wrH"/>
                 <outlet property="altHoverResizeButton" destination="frh-8a-H0z" id="Fnb-mx-fD2"/>
-                <outlet property="clickModeButton" destination="gqw-BY-sZk" id="feB-Dl-yTo"/>
+                <outlet property="clickModeButton" destination="gqw-BY-sZk" id="BO7-Ye-I8r"/>
                 <outlet property="commandClickButton" destination="czb-Ol-s2L" id="qew-vw-lOp"/>
                 <outlet property="commandHoverMoveButton" destination="ihP-uA-QNF" id="7Fw-g1-Nws"/>
                 <outlet property="commandHoverResizeButton" destination="IHA-Hv-cF2" id="d2O-xb-JzB"/>
@@ -22,8 +22,7 @@
                 <outlet property="fnClickButton" destination="waA-tt-wsa" id="CuZ-dD-5uu"/>
                 <outlet property="fnHoverMoveButton" destination="RzX-et-TGM" id="96d-iQ-LTh"/>
                 <outlet property="fnHoverResizeButton" destination="ZoB-Ah-hDB" id="sRf-XB-Zj9"/>
-                <outlet property="hoverModeButton" destination="bTi-3J-FVd" id="csU-ah-hne"/>
-                <outlet property="hoverModeClicked" destination="bTi-3J-FVd" id="O4k-Fi-sZX"/>
+                <outlet property="hoverModeButton" destination="bTi-3J-FVd" id="il5-FY-FCn"/>
                 <outlet property="shiftClickButton" destination="Umr-4M-fJ5" id="zzc-i5-HcB"/>
                 <outlet property="shiftHoverMoveButton" destination="cBr-VD-5GB" id="V84-0c-rPe"/>
                 <outlet property="shiftHoverResizeButton" destination="t0H-b4-ute" id="KNa-cC-CXw"/>
@@ -49,7 +48,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="clickModeClicked:" target="-2" id="HT0-lf-cx3"/>
+                            <action selector="clickModeClicked:" target="-2" id="Lcg-QE-xAv"/>
                         </connections>
                     </button>
                     <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="TxY-jI-ujR">
@@ -64,7 +63,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="hoverModeClicked:" target="-2" id="qhR-ul-Bwl"/>
+                            <action selector="hoverModeClicked:" target="-2" id="ad6-vO-afa"/>
                         </connections>
                     </button>
                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="147" translatesAutoresizingMaskIntoConstraints="NO" id="GeX-Qx-8dF">
@@ -105,6 +104,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="PAQ-OB-11D"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RzX-et-TGM">
                                     <rect key="frame" x="18" y="37" width="37" height="18"/>
@@ -113,6 +115,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="aMK-0s-0PO"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cBr-VD-5GB">
                                     <rect key="frame" x="18" y="18" width="51" height="18"/>
@@ -121,6 +126,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="U2s-6f-0PA"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="f0u-93-rmH">
                                     <rect key="frame" x="18" y="57" width="44" height="18"/>
@@ -129,6 +137,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="Fgd-sn-TvK"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sj9-Rc-bDN">
                                     <rect key="frame" x="18" y="97" width="39" height="18"/>
@@ -137,6 +148,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="qob-fA-8Pz"/>
+                                    </connections>
                                 </button>
                             </subviews>
                         </view>
@@ -155,6 +169,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="g04-U6-ijT"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="frh-8a-H0z">
                                     <rect key="frame" x="18" y="97" width="39" height="18"/>
@@ -163,6 +180,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="u48-PV-uwQ"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vho-Wo-heQ">
                                     <rect key="frame" x="18" y="57" width="44" height="18"/>
@@ -171,6 +191,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="mfe-gl-dqc"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="t0H-b4-ute">
                                     <rect key="frame" x="18" y="18" width="51" height="18"/>
@@ -179,6 +202,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="DK8-EA-Rjc"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZoB-Ah-hDB">
                                     <rect key="frame" x="18" y="37" width="37" height="18"/>
@@ -187,6 +213,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="pAx-l1-Rm3"/>
+                                    </connections>
                                 </button>
                             </subviews>
                         </view>
@@ -205,6 +234,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="Swo-pZ-YDT"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="waA-tt-wsa">
                                     <rect key="frame" x="18" y="37" width="37" height="18"/>
@@ -213,6 +245,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="p1O-Kz-Uva"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Umr-4M-fJ5">
                                     <rect key="frame" x="18" y="18" width="51" height="18"/>
@@ -221,6 +256,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="VgW-R8-edr"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FS7-FE-wuk">
                                     <rect key="frame" x="18" y="57" width="44" height="18"/>
@@ -229,6 +267,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="Uj0-kX-wwY"/>
+                                    </connections>
                                 </button>
                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FcM-NA-7cC">
                                     <rect key="frame" x="18" y="97" width="39" height="18"/>
@@ -237,6 +278,9 @@ To resize windows press the keyboard modifiers and click and drag the right mous
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="modifierClicked:" target="-2" id="xbE-In-pGg"/>
+                                    </connections>
                                 </button>
                             </subviews>
                         </view>

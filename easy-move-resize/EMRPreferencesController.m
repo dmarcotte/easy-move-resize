@@ -73,6 +73,22 @@
     }
 }
 
+- (IBAction)modifierClicked:(NSButton *)sender {
+    bool enabled = sender.state == NSOnState;
+
+    NSSet *clickControls = [NSSet setWithObjects:_altClickButton, _commandClickButton, _controlClickButton, _fnClickButton, _shiftClickButton, nil];
+    NSSet *hoverMoveControls = [NSSet setWithObjects:_altHoverMoveButton, _commandHoverMoveButton, _controlHoverMoveButton, _fnHoverMoveButton, _shiftHoverMoveButton, nil];
+    NSSet *hoverResizeControls = [NSSet setWithObjects:_altHoverResizeButton, _commandHoverResizeButton, _controlHoverResizeButton, _fnHoverResizeButton, _shiftHoverResizeButton, nil];
+
+    if ([clickControls containsObject:sender]) {
+        [_prefs setModifierKey:sender.title enabled:enabled flagSet:clickFlags];
+    } else if ([hoverMoveControls containsObject:sender]) {
+        [_prefs setModifierKey:sender.title enabled:enabled flagSet:hoverMoveFlags];
+    } else if ([hoverResizeControls containsObject:sender]) {
+        [_prefs setModifierKey:sender.title enabled:enabled flagSet:hoverResizeFlags];
+    }
+}
+
 - (IBAction)clickModeClicked:(id)sender {
     if (_clickModeButton.state == NSOnState) {
         _hoverModeButton.state = NSOffState;
