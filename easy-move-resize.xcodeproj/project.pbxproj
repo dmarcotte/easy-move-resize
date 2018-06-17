@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		52B5E8F61C513E3D0055C181 /* EMRPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 52B5E8F51C513E3D0055C181 /* EMRPreferences.m */; };
+		5A6B5BCC20D1720000F7A36C /* EMRPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A6B5BCA20D1720000F7A36C /* EMRPreferencesController.m */; };
+		5A6B5BCD20D1720000F7A36C /* EMRPreferencesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A6B5BCB20D1720000F7A36C /* EMRPreferencesController.xib */; };
 		5ABC799320CD78C100B22173 /* EMRHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABC799220CD78C100B22173 /* EMRHelper.m */; };
 		5ABC799620CD78D900B22173 /* EMRHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABC799020CD6D0E00B22173 /* EMRHelperTest.m */; };
 		5ABC799820CD79BD00B22173 /* EMRHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABC799220CD78C100B22173 /* EMRHelper.m */; };
@@ -37,6 +39,9 @@
 /* Begin PBXFileReference section */
 		52B5E8F51C513E3D0055C181 /* EMRPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMRPreferences.m; sourceTree = "<group>"; };
 		52B5E8F81C513E7A0055C181 /* EMRPreferences.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRPreferences.h; sourceTree = "<group>"; };
+		5A6B5BC920D1720000F7A36C /* EMRPreferencesController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRPreferencesController.h; sourceTree = "<group>"; };
+		5A6B5BCA20D1720000F7A36C /* EMRPreferencesController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRPreferencesController.m; sourceTree = "<group>"; };
+		5A6B5BCB20D1720000F7A36C /* EMRPreferencesController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EMRPreferencesController.xib; sourceTree = "<group>"; };
 		5ABC799020CD6D0E00B22173 /* EMRHelperTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRHelperTest.m; sourceTree = "<group>"; };
 		5ABC799220CD78C100B22173 /* EMRHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRHelper.m; sourceTree = "<group>"; };
 		5ABC799720CD78F000B22173 /* EMRHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EMRHelper.h; sourceTree = "<group>"; };
@@ -154,6 +159,9 @@
 				52B5E8F81C513E7A0055C181 /* EMRPreferences.h */,
 				5ABC799220CD78C100B22173 /* EMRHelper.m */,
 				5ABC799720CD78F000B22173 /* EMRHelper.h */,
+				5A6B5BC920D1720000F7A36C /* EMRPreferencesController.h */,
+				5A6B5BCA20D1720000F7A36C /* EMRPreferencesController.m */,
+				5A6B5BCB20D1720000F7A36C /* EMRPreferencesController.xib */,
 			);
 			path = "easy-move-resize";
 			sourceTree = "<group>";
@@ -214,7 +222,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = EMR;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Daniel Marcotte";
 				TargetAttributes = {
 					65CF01611F229C34002259F2 = {
@@ -260,6 +268,7 @@
 				6ED47B7B183BF3E800859244 /* MainMenu.xib in Resources */,
 				F907ABDDEEAF5BF83F0AF9EA /* readme.md in Resources */,
 				F907A53FB2CAEBEB31895CD2 /* contributing.md in Resources */,
+				5A6B5BCD20D1720000F7A36C /* EMRPreferencesController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +294,7 @@
 				52B5E8F61C513E3D0055C181 /* EMRPreferences.m in Sources */,
 				6ED47B78183BF3E800859244 /* EMRAppDelegate.m in Sources */,
 				F907A25928093AED2C89550E /* EMRMoveResize.m in Sources */,
+				5A6B5BCC20D1720000F7A36C /* EMRPreferencesController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,12 +383,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -422,12 +434,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

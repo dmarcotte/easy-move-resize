@@ -2,6 +2,7 @@
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
 #import "EMRHelper.h"
+#import "EMRPreferencesController.h"
 
 typedef enum : NSUInteger {
     idle = 0,
@@ -12,6 +13,7 @@ typedef enum : NSUInteger {
 
 @implementation EMRAppDelegate {
     EMRPreferences *preferences;
+    EMRPreferencesController *_prefs;
 }
 
 - (id) init  {
@@ -217,10 +219,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     static State state = idle;
 
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
-    int moveKeyModifierFlags = [ourDelegate modifierFlags];
-    // TODO expose UI to configure - right now we're just extending the move keys with option
-    int resizeKeyModifierFlags = (moveKeyModifierFlags | kCGEventFlagMaskAlternate);
-    bool alwaysResizeBottomRight = true;  // TODO: make configurable
+
+    int moveKeyModifierFlags = [ourDelegate moveModifierFlags];
+    int resizeKeyModifierFlags = [ourDelegate resizeModifierFlags];
+    bool alwaysResizeBottomRight = (ourDelegate.mode == hoverMode);
 
     if (moveKeyModifierFlags == 0 && resizeKeyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
@@ -371,40 +373,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     if (!AXIsProcessTrustedWithOptions(options)) {
         // don't have permission to do our thing right now... AXIsProcessTrustedWithOptions prompted the user to fix
-        // this, so hopefully on next launch we'll be good to go
-        exit(1);
+        [_disabledMenu setState:YES];
+    } else {
+        [self enable];
     }
-    
-    [self initModifierMenuItems];
-
-    // Retrieve the Key press modifier flags to activate move/resize actions.
-    keyModifierFlags = [preferences modifierFlags];
-
-    CFRunLoopSourceRef runLoopSource;
-
-    CGEventMask eventMask = CGEventMaskBit( kCGEventMouseMoved )
-    ;
-
-    CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap,
-                                              kCGHeadInsertEventTap,
-                                              kCGEventTapOptionDefault,
-                                              eventMask,
-                                              myCGEventCallback,
-                                              (__bridge void * _Nullable)self);
-
-    if (!eventTap) {
-        NSLog(@"Couldn't create event tap!");
-        exit(1);
-    }
-
-    runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
-
-
-    EMRMoveResize *moveResize = [EMRMoveResize instance];
-    [moveResize setEventTap:eventTap];
-    [moveResize setRunLoopSource:runLoopSource];
-    [self enableRunLoopSource:moveResize];
-    CFRelease(runLoopSource);
 }
 
 -(void)awakeFromNib{
@@ -429,71 +401,77 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
 }
 
-- (void)initModifierMenuItems {
-    [_altMenu setState:0];
-    [_cmdMenu setState:0];
-    [_ctrlMenu setState:0];
-    [_fnMenu setState:0];
-    [_shiftMenu setState:0];
-    [_disabledMenu setState:0];
-    NSSet* flags = [preferences getFlagStringSet];
-    if ([flags containsObject:ALT_KEY]) {
-        [_altMenu setState:1];
+- (void)enable {
+    [_disabledMenu setState:NO];
+
+    CGEventMask eventMask = CGEventMaskBit( kCGEventMouseMoved );
+
+    CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap,
+                                              kCGHeadInsertEventTap,
+                                              kCGEventTapOptionDefault,
+                                              eventMask,
+                                              myCGEventCallback,
+                                              (__bridge void * _Nullable)self);
+
+    if (!eventTap) {
+        NSLog(@"Couldn't create event tap!");
+        exit(1);
     }
-    if ([flags containsObject:CMD_KEY]) {
-        [_cmdMenu setState:1];
-    }
-    if ([flags containsObject:CTRL_KEY]) {
-        [_ctrlMenu setState:1];
-    }
-    if ([flags containsObject:FN_KEY]) {
-        [_fnMenu setState:1];
-    }
-    if ([flags containsObject:SHIFT_KEY]) {
-        [_shiftMenu setState:1];
-    }
+
+    CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
+
+
+    EMRMoveResize *moveResize = [EMRMoveResize instance];
+    [moveResize setEventTap:eventTap];
+    [moveResize setRunLoopSource:runLoopSource];
+    [self enableRunLoopSource:moveResize];
+
+    CFRelease(runLoopSource);
 }
 
-- (IBAction)modifierToggle:(id)sender {
-    NSMenuItem *menu = (NSMenuItem*)sender;
-    BOOL newState = ![menu state];
-    [menu setState:newState];
-    [preferences setModifierKey:[menu title] enabled:newState];
-    keyModifierFlags = [preferences modifierFlags];
-}
-
-- (IBAction)resetModifiersToDefaults:(id)sender {
-    [preferences setToDefaults];
-    [self initModifierMenuItems];
-    keyModifierFlags = [preferences modifierFlags];
+- (void)disable {
+    [_disabledMenu setState:YES];
+    EMRMoveResize* moveResize = [EMRMoveResize instance];
+    [self disableRunLoopSource:moveResize];
 }
 
 - (IBAction)toggleDisabled:(id)sender {
-    EMRMoveResize* moveResize = [EMRMoveResize instance];
     if ([_disabledMenu state] == 0) {
         // We are enabled. Disable...
-        [_disabledMenu setState:YES];
-        [self setMenusEnabled:YES];
-        [self disableRunLoopSource:moveResize];
+        [self disable];
     }
     else {
         // We are disabled. Enable.
-        [_disabledMenu setState:NO];
-        [self setMenusEnabled:YES];
-        [self enableRunLoopSource:moveResize];
+        [self enable];
     }
 }
 
-- (int)modifierFlags {
-    return keyModifierFlags;
+- (IBAction)showPreferences:(id)sender {
+    _prefs = [[EMRPreferencesController alloc] initWithWindowNibName:@"EMRPreferencesController"];
+    _prefs.prefs = preferences;
+    [_prefs.window makeKeyAndOrderFront:nil];
 }
 
-- (void)setMenusEnabled:(BOOL)enabled {
-    [_altMenu setEnabled:enabled];
-    [_cmdMenu setEnabled:enabled];
-    [_ctrlMenu setEnabled:enabled];
-    [_fnMenu setEnabled:enabled];
-    [_shiftMenu setEnabled:enabled];
+- (EMRMode)mode {
+    return preferences.mode;
+}
+
+- (int)moveModifierFlags {
+    if (preferences.mode == clickMode) {
+        int flags = [preferences modifierFlagsForFlagSet:clickFlags];
+        return flags | kCGEventLeftMouseDown;
+    } else {
+        return [preferences modifierFlagsForFlagSet:hoverMoveFlags];
+    }
+}
+
+- (int)resizeModifierFlags {
+    if (preferences.mode == clickMode) {
+        int flags = [preferences modifierFlagsForFlagSet:clickFlags];
+        return flags | kCGEventRightMouseDown;
+    } else {
+        return [preferences modifierFlagsForFlagSet:hoverResizeFlags];
+    }
 }
 
 @end
