@@ -37,8 +37,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak) IBOutlet NSButton *shiftHoverResizeButton;
 
 
-@property (weak) IBOutlet NSButton *mouseClickModeButton;
+@property (weak) IBOutlet NSButton *clickModeButton;
 @property (weak) IBOutlet NSButton *hoverModeButton;
+
+- (IBAction)clickModeClicked:(id)sender;
+- (IBAction)hoverModeClicked:(id)sender;
 
 @end
 

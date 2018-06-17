@@ -11,6 +11,7 @@
 #define MODIFIER_CLICK_FLAGS_DEFAULTS_KEY @"ModifierFlags"
 #define MODIFIER_HOVER_MOVE_FLAGS_DEFAULTS_KEY @"HoverMoveModifierFlags"
 #define MODIFIER_HOVER_RESIZE_FLAGS_DEFAULTS_KEY @"HoverResizeModifierFlags"
+#define EMR_MODE_DEFAULTS_KEY @"EMRMode"
 #define CTRL_KEY @"CTRL"
 #define SHIFT_KEY @"SHIFT"
 #define CAPS_KEY @"CAPS" // CAPS lock
@@ -18,11 +19,18 @@
 #define CMD_KEY @"CMD"
 #define FN_KEY @"FN"
 
+
 typedef enum : NSUInteger {
-    click,
-    hoverMove,
-    hoverResize,
-} ModifierFlags;
+    clickMode,
+    hoverMode
+} EMRMode;
+
+
+typedef enum : NSUInteger {
+    clickFlags,
+    hoverMoveFlags,
+    hoverResizeFlags,
+} FlagSet;
 
 @interface EMRPreferences : NSObject {
     
@@ -32,13 +40,19 @@ typedef enum : NSUInteger {
 - (id)initWithUserDefaults:(NSUserDefaults *)defaults;
 
 // Get the modifier flags from the standard preferences for a given set
-- (int)modifierFlagsForFlagSet:(ModifierFlags)flagSet;
+- (int)modifierFlagsForFlagSet:(FlagSet)flagSet;
 
 // Set or unset the given modifier key in the preferences
-- (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled flagSet:(ModifierFlags)flagSet;
+- (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled flagSet:(FlagSet)flagSet;
 
 // returns a set of the currently persisted key constants
-- (NSSet*) getFlagStringSetForFlagSet:(ModifierFlags)flagSet;
+- (NSSet*) getFlagStringSetForFlagSet:(FlagSet)flagSet;
+
+// returns EMR mode - click or hover
+- (EMRMode)mode;
+
+// set EMR mode
+- (void)setMode:(EMRMode)mode;
 
 // reset preferences to the defaults
 - (void)setToDefaults;

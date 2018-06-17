@@ -405,7 +405,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_disabledMenu setState:NO];
 
     // Retrieve the Key press modifier flags to activate click mode move/resize actions.
-    keyModifierFlags = [preferences modifierFlagsForFlagSet:click];
+    keyModifierFlags = [preferences modifierFlagsForFlagSet:clickFlags];
 
     CFRunLoopSourceRef runLoopSource;
 

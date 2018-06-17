@@ -19,15 +19,14 @@
     
     if (_prefs) {
         // FIXME: handle click vs hover mode radio button
-
-        _altHoverMoveButton.state = NSOffState;
-        _commandHoverMoveButton.state = NSOffState;
-        _controlHoverMoveButton.state = NSOffState;
-        _fnHoverMoveButton.state = NSOffState;
-        _shiftHoverMoveButton.state = NSOffState;
+        {
+            EMRMode mode = _prefs.mode;
+            _clickModeButton.state = (mode == clickMode) ? NSOnState: NSOffState;
+            _hoverModeButton.state = (mode == hoverMode) ? NSOnState: NSOffState;
+        }
 
         {
-            NSSet* flags = [_prefs getFlagStringSetForFlagSet:click];
+            NSSet* flags = [_prefs getFlagStringSetForFlagSet:clickFlags];
             NSDictionary *keyButtonMap = @{
                                            ALT_KEY: _altClickButton,
                                            CMD_KEY: _commandClickButton,
@@ -42,7 +41,7 @@
         }
 
         {
-            NSSet* flags = [_prefs getFlagStringSetForFlagSet:hoverMove];
+            NSSet* flags = [_prefs getFlagStringSetForFlagSet:hoverMoveFlags];
             NSDictionary *keyButtonMap = @{
                                            ALT_KEY: _altHoverMoveButton,
                                            CMD_KEY: _commandHoverMoveButton,
@@ -57,7 +56,7 @@
         }
 
         {
-            NSSet* flags = [_prefs getFlagStringSetForFlagSet:hoverResize];
+            NSSet* flags = [_prefs getFlagStringSetForFlagSet:hoverResizeFlags];
             NSDictionary *keyButtonMap = @{
                                            ALT_KEY: _altHoverMoveButton,
                                            CMD_KEY: _commandHoverResizeButton,
@@ -71,6 +70,20 @@
             }
         }
 
+    }
+}
+
+- (IBAction)clickModeClicked:(id)sender {
+    if (_clickModeButton.state == NSOnState) {
+        _hoverModeButton.state = NSOffState;
+        [_prefs setMode:clickMode];
+    }
+}
+
+- (IBAction)hoverModeClicked:(id)sender {
+    if (_hoverModeButton.state == NSOnState) {
+        _clickModeButton.state = NSOffState;
+        [_prefs setMode:hoverMode];
     }
 }
 

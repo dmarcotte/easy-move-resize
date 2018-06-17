@@ -30,17 +30,17 @@
     return self;
 }
 
-- (NSString *)keyForFlagSet:(ModifierFlags)flagSet {
+- (NSString *)keyForFlagSet:(FlagSet)flagSet {
     switch (flagSet) {
-        case click:
+        case clickFlags:
             return MODIFIER_CLICK_FLAGS_DEFAULTS_KEY;
             break;
 
-        case hoverMove:
+        case hoverMoveFlags:
             return MODIFIER_HOVER_MOVE_FLAGS_DEFAULTS_KEY;
             break;
 
-        case hoverResize:
+        case hoverResizeFlags:
             return MODIFIER_HOVER_RESIZE_FLAGS_DEFAULTS_KEY;
             break;
 
@@ -64,7 +64,7 @@
     return [flags componentsJoinedByString:@","];
 }
 
-- (int)modifierFlagsForFlagSet:(ModifierFlags)flagSet {
+- (int)modifierFlagsForFlagSet:(FlagSet)flagSet {
     NSString *key = [self keyForFlagSet:flagSet];
     int modifierFlags = 0;
 
@@ -85,7 +85,7 @@
 }
 
 
-- (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled flagSet:(ModifierFlags)flagSet {
+- (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled flagSet:(FlagSet)flagSet {
     singleFlagString = [singleFlagString uppercaseString];
     NSString *key = [self keyForFlagSet:flagSet];
     NSString *modifierFlagString = [userDefaults stringForKey:key];
@@ -104,8 +104,7 @@
 }
 
 
-
-- (NSSet*)getFlagStringSetForFlagSet:(ModifierFlags)flagSet {
+- (NSSet*)getFlagStringSetForFlagSet:(FlagSet)flagSet {
     NSString *key = [self keyForFlagSet:flagSet];
     NSString *modifierFlagString = [userDefaults stringForKey:key];
     if (modifierFlagString == nil) {
@@ -116,17 +115,27 @@
     return flags;
 }
 
-//- (NSSet*)getClickFlagStringSet {
-//    return [self getFlagStringSetForFlagSet:click];
-//}
-//
-//- (NSSet*) getHoverMoveFlagStringSet {
-//    return [self getFlagStringSetForFlagSet:hoverMove];
-//}
-//
-//- (NSSet*) getHoverResizeFlagStringSet {
-//    return [self getFlagStringSetForFlagSet:hoverResize];
-//}
+
+- (EMRMode)defaultMode {
+    return clickMode;
+}
+
+
+// returns EMR mode - click or hover
+- (EMRMode)mode {
+    NSNumber *mode = [userDefaults objectForKey:EMR_MODE_DEFAULTS_KEY];
+    if (mode == nil) {
+        return [self defaultMode];
+    } else {
+        return mode.integerValue;
+    }
+}
+
+
+// set EMR mode
+- (void)setMode:(EMRMode)mode {
+    [userDefaults setInteger:mode forKey:EMR_MODE_DEFAULTS_KEY];
+}
 
 
 - (void)setToDefaultsForKey:(NSString *)key {
@@ -135,10 +144,14 @@
     [self setModifierFlagString:flagString forKey:key];
 }
 
+
 - (void)setToDefaults {
     for (NSString *key in @[MODIFIER_CLICK_FLAGS_DEFAULTS_KEY, MODIFIER_HOVER_MOVE_FLAGS_DEFAULTS_KEY, MODIFIER_HOVER_RESIZE_FLAGS_DEFAULTS_KEY]) {
-        [self setToDefaultsForKey:key];
+        NSArray *flags = [self modifierDefaultsForKey:key];
+        NSString *flagString = [self flagStringForFlags:flags];
+        [self setModifierFlagString:flagString forKey:key];
     }
+    [self setMode:[self defaultMode]];
 }
 
 

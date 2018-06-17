@@ -12,6 +12,7 @@
                 <outlet property="altClickButton" destination="FcM-NA-7cC" id="Ndt-lf-5c7"/>
                 <outlet property="altHoverMoveButton" destination="Sj9-Rc-bDN" id="eVv-G2-wrH"/>
                 <outlet property="altHoverResizeButton" destination="frh-8a-H0z" id="Fnb-mx-fD2"/>
+                <outlet property="clickModeButton" destination="gqw-BY-sZk" id="feB-Dl-yTo"/>
                 <outlet property="commandClickButton" destination="czb-Ol-s2L" id="qew-vw-lOp"/>
                 <outlet property="commandHoverMoveButton" destination="ihP-uA-QNF" id="7Fw-g1-Nws"/>
                 <outlet property="commandHoverResizeButton" destination="IHA-Hv-cF2" id="d2O-xb-JzB"/>
@@ -22,7 +23,7 @@
                 <outlet property="fnHoverMoveButton" destination="RzX-et-TGM" id="96d-iQ-LTh"/>
                 <outlet property="fnHoverResizeButton" destination="ZoB-Ah-hDB" id="sRf-XB-Zj9"/>
                 <outlet property="hoverModeButton" destination="bTi-3J-FVd" id="csU-ah-hne"/>
-                <outlet property="mouseClickModeButton" destination="gqw-BY-sZk" id="feB-Dl-yTo"/>
+                <outlet property="hoverModeClicked" destination="bTi-3J-FVd" id="O4k-Fi-sZX"/>
                 <outlet property="shiftClickButton" destination="Umr-4M-fJ5" id="zzc-i5-HcB"/>
                 <outlet property="shiftHoverMoveButton" destination="cBr-VD-5GB" id="V84-0c-rPe"/>
                 <outlet property="shiftHoverResizeButton" destination="t0H-b4-ute" id="KNa-cC-CXw"/>
@@ -31,7 +32,7 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="F0z-JX-Cv5">
+        <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" frameAutosaveName="EMRPreferencesWindow" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="503" height="477"/>
@@ -47,6 +48,9 @@
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="clickModeClicked:" target="-2" id="HT0-lf-cx3"/>
+                        </connections>
                     </button>
                     <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="TxY-jI-ujR">
                         <rect key="frame" x="12" y="243" width="479" height="5"/>
@@ -59,6 +63,9 @@
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="hoverModeClicked:" target="-2" id="qhR-ul-Bwl"/>
+                        </connections>
                     </button>
                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="147" translatesAutoresizingMaskIntoConstraints="NO" id="GeX-Qx-8dF">
                         <rect key="frame" x="301" y="66" width="151" height="154"/>

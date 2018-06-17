@@ -25,17 +25,17 @@
 
 - (void)testResetPreferences {
     [preferences setToDefaults];
-    NSSet *flagStringSet = [preferences getFlagStringSetForFlagSet:click];
+    NSSet *flagStringSet = [preferences getFlagStringSetForFlagSet:clickFlags];
     NSSet *expectedSet = [NSSet setWithArray:@[@"CTRL", @"CMD"]];
     XCTAssertEqualObjects(flagStringSet, expectedSet, "Should contain the expected defaults");
 
-    [preferences setModifierKey:@"CTRL" enabled:NO flagSet:click];
-    flagStringSet = [preferences getFlagStringSetForFlagSet:click];
+    [preferences setModifierKey:@"CTRL" enabled:NO flagSet:clickFlags];
+    flagStringSet = [preferences getFlagStringSetForFlagSet:clickFlags];
     expectedSet = [NSSet setWithArray:@[@"CMD"]];
     XCTAssertEqualObjects(flagStringSet, expectedSet, "Should contain the modified defaults");
 
     [preferences setToDefaults];
-    flagStringSet = [preferences getFlagStringSetForFlagSet:click];
+    flagStringSet = [preferences getFlagStringSetForFlagSet:clickFlags];
     expectedSet = [NSSet setWithArray:@[@"CMD", @"CTRL"]];
     XCTAssertEqualObjects(flagStringSet, expectedSet, "Should contain the restored defaults");
 }
