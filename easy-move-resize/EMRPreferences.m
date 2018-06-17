@@ -1,6 +1,7 @@
 #import "EMRPreferences.h"
 
-#define DEFAULT_MODIFIER_FLAGS kCGEventFlagMaskCommand | kCGEventFlagMaskControl
+#define DEFAULT_CLICK_MODIFIER_FLAGS kCGEventFlagMaskCommand | kCGEventFlagMaskControl
+
 
 @implementation EMRPreferences {
 @private
@@ -18,64 +19,128 @@
     self = [super init];
     if (self) {
         userDefaults = defaults;
-        NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
-        if (modifierFlagString == nil) {
-            // ensure our defaults are initialized
-            [self setToDefaults];
+        for (NSString *key in @[MODIFIER_CLICK_FLAGS_DEFAULTS_KEY, MODIFIER_HOVER_MOVE_FLAGS_DEFAULTS_KEY, MODIFIER_HOVER_RESIZE_FLAGS_DEFAULTS_KEY]) {
+            NSString *modifierFlagString = [userDefaults stringForKey:key];
+            if (modifierFlagString == nil) {
+                // ensure our defaults are initialized
+                [self setToDefaultsForKey:key];
+            }
         }
     }
     return self;
 }
 
-- (int)modifierFlags {
-    int modifierFlags = 0;
-    
-    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
-    if (modifierFlagString == nil) {
-        return DEFAULT_MODIFIER_FLAGS;
+- (NSString *)keyForFlagSet:(ModifierFlags)flagSet {
+    switch (flagSet) {
+        case click:
+            return MODIFIER_CLICK_FLAGS_DEFAULTS_KEY;
+            break;
+
+        case hoverMove:
+            return MODIFIER_HOVER_MOVE_FLAGS_DEFAULTS_KEY;
+            break;
+
+        case hoverResize:
+            return MODIFIER_HOVER_RESIZE_FLAGS_DEFAULTS_KEY;
+            break;
+
+        default:
+            // must not reach this
+            assert(false);
+            break;
     }
-    
+}
+
+- (NSArray *)modifierDefaultsForKey:(NSString *)key {
+    NSDictionary* modifierDefaults = @{
+                                       MODIFIER_CLICK_FLAGS_DEFAULTS_KEY: @[CTRL_KEY, CMD_KEY],
+                                       MODIFIER_HOVER_MOVE_FLAGS_DEFAULTS_KEY: @[CTRL_KEY, ALT_KEY],
+                                       MODIFIER_HOVER_RESIZE_FLAGS_DEFAULTS_KEY: @[CTRL_KEY, ALT_KEY, CMD_KEY]
+                                       };
+    return modifierDefaults[key];
+}
+
+- (NSString *)flagStringForFlags:(NSArray *)flags {
+    return [flags componentsJoinedByString:@","];
+}
+
+- (int)modifierFlagsForFlagSet:(ModifierFlags)flagSet {
+    NSString *key = [self keyForFlagSet:flagSet];
+    int modifierFlags = 0;
+
+    NSString *modifierFlagString = [userDefaults stringForKey:key];
+    if (modifierFlagString == nil) {
+        NSArray *defaults = [self modifierDefaultsForKey:key];
+        modifierFlagString = [self flagStringForFlags:defaults];
+    }
+
     modifierFlags = [self flagsFromFlagString:modifierFlagString];
-    
+
     return modifierFlags;
 }
 
-- (void)setModifierFlagString:(NSString *)flagString {
+- (void)setModifierFlagString:(NSString *)flagString forKey:(NSString *)key {
     flagString = [[flagString stringByReplacingOccurrencesOfString:@" " withString:@""] uppercaseString];
-    [userDefaults setObject:flagString forKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+    [userDefaults setObject:flagString forKey:key];
 }
 
 
-- (void)setModifierKey:(NSString *)singleFlagString enabled:(BOOL)enabled {
+- (void) setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled flagSet:(ModifierFlags)flagSet {
     singleFlagString = [singleFlagString uppercaseString];
-    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+    NSString *key = [self keyForFlagSet:flagSet];
+    NSString *modifierFlagString = [userDefaults stringForKey:key];
     if (modifierFlagString == nil) {
         NSLog(@"Unexpected null... this should always have a value");
-        [self setToDefaults];
+        [self setToDefaultsForKey:key];
     }
-    NSMutableSet *flagSet = [self createSetFromFlagString:modifierFlagString];
+    NSMutableSet *flags = [self createSetFromFlagString:modifierFlagString];
     if (enabled) {
-        [flagSet addObject:singleFlagString];
+        [flags addObject:singleFlagString];
     }
     else {
-        [flagSet removeObject:singleFlagString];
+        [flags removeObject:singleFlagString];
     }
-    [self setModifierFlagString:[[flagSet allObjects] componentsJoinedByString:@","]];
+    [self setModifierFlagString:[[flags allObjects] componentsJoinedByString:@","] forKey:key];
 }
 
-- (NSSet*)getFlagStringSet {
-    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+
+
+- (NSSet*)getFlagStringSetForFlagSet:(ModifierFlags)flagSet {
+    NSString *key = [self keyForFlagSet:flagSet];
+    NSString *modifierFlagString = [userDefaults stringForKey:key];
     if (modifierFlagString == nil) {
         NSLog(@"Unexpected null... this should always have a value");
-        [self setToDefaults];
+        [self setToDefaultsForKey:key];
     }
-    NSMutableSet *flagSet = [self createSetFromFlagString:modifierFlagString];
-    return flagSet;
+    NSMutableSet *flags = [self createSetFromFlagString:modifierFlagString];
+    return flags;
+}
+
+//- (NSSet*)getClickFlagStringSet {
+//    return [self getFlagStringSetForFlagSet:click];
+//}
+//
+//- (NSSet*) getHoverMoveFlagStringSet {
+//    return [self getFlagStringSetForFlagSet:hoverMove];
+//}
+//
+//- (NSSet*) getHoverResizeFlagStringSet {
+//    return [self getFlagStringSetForFlagSet:hoverResize];
+//}
+
+
+- (void)setToDefaultsForKey:(NSString *)key {
+    NSArray *flags = [self modifierDefaultsForKey:key];
+    NSString *flagString = [self flagStringForFlags:flags];
+    [self setModifierFlagString:flagString forKey:key];
 }
 
 - (void)setToDefaults {
-    [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","]];
+    for (NSString *key in @[MODIFIER_CLICK_FLAGS_DEFAULTS_KEY, MODIFIER_HOVER_MOVE_FLAGS_DEFAULTS_KEY, MODIFIER_HOVER_RESIZE_FLAGS_DEFAULTS_KEY]) {
+        [self setToDefaultsForKey:key];
+    }
 }
+
 
 - (NSMutableSet*)createSetFromFlagString:(NSString*)modifierFlagString {
     modifierFlagString = [[modifierFlagString stringByReplacingOccurrencesOfString:@" " withString:@""] uppercaseString];

@@ -373,14 +373,39 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     if (!AXIsProcessTrustedWithOptions(options)) {
         // don't have permission to do our thing right now... AXIsProcessTrustedWithOptions prompted the user to fix
-        // this, so hopefully on next launch we'll be good to go
-        exit(1);
+        [_disabledMenu setState:YES];
+    } else {
+        [self enable];
     }
-    
-    [self initModifierMenuItems];
+}
 
-    // Retrieve the Key press modifier flags to activate move/resize actions.
-    keyModifierFlags = [preferences modifierFlags];
+-(void)awakeFromNib{
+    NSImage *icon = [NSImage imageNamed:@"MenuIcon"];
+    NSImage *altIcon = [NSImage imageNamed:@"MenuIconHighlight"];
+    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    [statusItem setMenu:statusMenu];
+    [statusItem setImage:icon];
+    [statusItem setAlternateImage:altIcon];
+    [statusItem setHighlightMode:YES];
+    [statusMenu setAutoenablesItems:NO];
+    [[statusMenu itemAtIndex:0] setEnabled:NO];
+}
+
+- (void)enableRunLoopSource:(EMRMoveResize*)moveResize {
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
+    CGEventTapEnable([moveResize eventTap], true);
+}
+
+- (void)disableRunLoopSource:(EMRMoveResize*)moveResize {
+    CGEventTapEnable([moveResize eventTap], false);
+    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
+}
+
+- (void)enable {
+    [_disabledMenu setState:NO];
+
+    // Retrieve the Key press modifier flags to activate click mode move/resize actions.
+    keyModifierFlags = [preferences modifierFlagsForFlagSet:click];
 
     CFRunLoopSourceRef runLoopSource;
 
@@ -406,83 +431,24 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [moveResize setEventTap:eventTap];
     [moveResize setRunLoopSource:runLoopSource];
     [self enableRunLoopSource:moveResize];
+
     CFRelease(runLoopSource);
 }
 
--(void)awakeFromNib{
-    NSImage *icon = [NSImage imageNamed:@"MenuIcon"];
-    NSImage *altIcon = [NSImage imageNamed:@"MenuIconHighlight"];
-    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    [statusItem setMenu:statusMenu];
-    [statusItem setImage:icon];
-    [statusItem setAlternateImage:altIcon];
-    [statusItem setHighlightMode:YES];
-    [statusMenu setAutoenablesItems:NO];
-    [[statusMenu itemAtIndex:0] setEnabled:NO];
-}
-
-- (void)enableRunLoopSource:(EMRMoveResize*)moveResize {
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
-    CGEventTapEnable([moveResize eventTap], true);
-}
-
-- (void)disableRunLoopSource:(EMRMoveResize*)moveResize {
-    CGEventTapEnable([moveResize eventTap], false);
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
-}
-
-- (void)initModifierMenuItems {
-    [_altMenu setState:0];
-    [_cmdMenu setState:0];
-    [_ctrlMenu setState:0];
-    [_fnMenu setState:0];
-    [_shiftMenu setState:0];
-    [_disabledMenu setState:0];
-    NSSet* flags = [preferences getFlagStringSet];
-    if ([flags containsObject:ALT_KEY]) {
-        [_altMenu setState:1];
-    }
-    if ([flags containsObject:CMD_KEY]) {
-        [_cmdMenu setState:1];
-    }
-    if ([flags containsObject:CTRL_KEY]) {
-        [_ctrlMenu setState:1];
-    }
-    if ([flags containsObject:FN_KEY]) {
-        [_fnMenu setState:1];
-    }
-    if ([flags containsObject:SHIFT_KEY]) {
-        [_shiftMenu setState:1];
-    }
-}
-
-- (IBAction)modifierToggle:(id)sender {
-    NSMenuItem *menu = (NSMenuItem*)sender;
-    BOOL newState = ![menu state];
-    [menu setState:newState];
-    [preferences setModifierKey:[menu title] enabled:newState];
-    keyModifierFlags = [preferences modifierFlags];
-}
-
-- (IBAction)resetModifiersToDefaults:(id)sender {
-    [preferences setToDefaults];
-    [self initModifierMenuItems];
-    keyModifierFlags = [preferences modifierFlags];
+- (void)disable {
+    [_disabledMenu setState:YES];
+    EMRMoveResize* moveResize = [EMRMoveResize instance];
+    [self disableRunLoopSource:moveResize];
 }
 
 - (IBAction)toggleDisabled:(id)sender {
-    EMRMoveResize* moveResize = [EMRMoveResize instance];
     if ([_disabledMenu state] == 0) {
         // We are enabled. Disable...
-        [_disabledMenu setState:YES];
-        [self setMenusEnabled:YES];
-        [self disableRunLoopSource:moveResize];
+        [self disable];
     }
     else {
         // We are disabled. Enable.
-        [_disabledMenu setState:NO];
-        [self setMenusEnabled:YES];
-        [self enableRunLoopSource:moveResize];
+        [self enable];
     }
 }
 
@@ -494,14 +460,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 - (int)modifierFlags {
     return keyModifierFlags;
-}
-
-- (void)setMenusEnabled:(BOOL)enabled {
-    [_altMenu setEnabled:enabled];
-    [_cmdMenu setEnabled:enabled];
-    [_ctrlMenu setEnabled:enabled];
-    [_fnMenu setEnabled:enabled];
-    [_shiftMenu setEnabled:enabled];
 }
 
 @end

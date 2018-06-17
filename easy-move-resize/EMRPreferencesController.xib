@@ -9,11 +9,23 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="EMRPreferencesController">
             <connections>
-                <outlet property="altButton" destination="Sj9-Rc-bDN" id="eVv-G2-wrH"/>
-                <outlet property="commandButton" destination="ihP-uA-QNF" id="7Fw-g1-Nws"/>
-                <outlet property="controlButton" destination="f0u-93-rmH" id="VaT-d7-ckP"/>
-                <outlet property="fnButton" destination="RzX-et-TGM" id="96d-iQ-LTh"/>
-                <outlet property="shiftButton" destination="cBr-VD-5GB" id="V84-0c-rPe"/>
+                <outlet property="altClickButton" destination="FcM-NA-7cC" id="Ndt-lf-5c7"/>
+                <outlet property="altHoverMoveButton" destination="Sj9-Rc-bDN" id="eVv-G2-wrH"/>
+                <outlet property="altHoverResizeButton" destination="frh-8a-H0z" id="Fnb-mx-fD2"/>
+                <outlet property="commandClickButton" destination="czb-Ol-s2L" id="qew-vw-lOp"/>
+                <outlet property="commandHoverMoveButton" destination="ihP-uA-QNF" id="7Fw-g1-Nws"/>
+                <outlet property="commandHoverResizeButton" destination="IHA-Hv-cF2" id="d2O-xb-JzB"/>
+                <outlet property="controlClickButton" destination="FS7-FE-wuk" id="7bt-Au-gr8"/>
+                <outlet property="controlHoverMoveButton" destination="f0u-93-rmH" id="VaT-d7-ckP"/>
+                <outlet property="controlHoverResizeButton" destination="Vho-Wo-heQ" id="944-zB-rRg"/>
+                <outlet property="fnClickButton" destination="waA-tt-wsa" id="CuZ-dD-5uu"/>
+                <outlet property="fnHoverMoveButton" destination="RzX-et-TGM" id="96d-iQ-LTh"/>
+                <outlet property="fnHoverResizeButton" destination="ZoB-Ah-hDB" id="sRf-XB-Zj9"/>
+                <outlet property="hoverModeButton" destination="bTi-3J-FVd" id="csU-ah-hne"/>
+                <outlet property="mouseClickModeButton" destination="gqw-BY-sZk" id="feB-Dl-yTo"/>
+                <outlet property="shiftClickButton" destination="Umr-4M-fJ5" id="zzc-i5-HcB"/>
+                <outlet property="shiftHoverMoveButton" destination="cBr-VD-5GB" id="V84-0c-rPe"/>
+                <outlet property="shiftHoverResizeButton" destination="t0H-b4-ute" id="KNa-cC-CXw"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -22,14 +34,14 @@
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="479" height="453"/>
+            <rect key="contentRect" x="196" y="240" width="503" height="477"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
             <view key="contentView" wantsLayer="YES" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="479" height="453"/>
+                <rect key="frame" x="0.0" y="0.0" width="503" height="477"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gqw-BY-sZk">
-                        <rect key="frame" x="36" y="416" width="132" height="18"/>
+                        <rect key="frame" x="36" y="440" width="132" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="radio" title="Mouse click mode" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1DG-Ke-H5d">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -37,69 +49,19 @@
                         </buttonCell>
                     </button>
                     <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="TxY-jI-ujR">
-                        <rect key="frame" x="11" y="233" width="456" height="5"/>
+                        <rect key="frame" x="12" y="243" width="479" height="5"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </box>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bTi-3J-FVd">
-                        <rect key="frame" x="35" y="197" width="96" height="18"/>
+                        <rect key="frame" x="36" y="203" width="96" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="radio" title="Hover mode" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="kzA-Zs-qXO">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
-                    <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" title="Modifiers" translatesAutoresizingMaskIntoConstraints="NO" id="2Wx-fS-JVJ">
-                        <rect key="frame" x="67" y="246" width="93" height="151"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <view key="contentView" id="4JH-79-euL">
-                            <rect key="frame" x="3" y="3" width="87" height="133"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="czb-Ol-s2L">
-                                    <rect key="frame" x="18" y="77" width="51" height="18"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="check" title="Cmd" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Hkf-4x-y0K">
-                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="waA-tt-wsa">
-                                    <rect key="frame" x="18" y="37" width="37" height="18"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="check" title="Fn" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="jbh-Mb-fJJ">
-                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Umr-4M-fJ5">
-                                    <rect key="frame" x="18" y="18" width="51" height="18"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="check" title="Shift" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="9G5-j8-uQp">
-                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FS7-FE-wuk">
-                                    <rect key="frame" x="18" y="57" width="44" height="18"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="check" title="Ctrl" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="IVV-T7-t8h">
-                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FcM-NA-7cC">
-                                    <rect key="frame" x="18" y="97" width="39" height="18"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="check" title="Alt" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Rrh-FJ-qDV">
-                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                            </subviews>
-                        </view>
-                    </box>
                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="147" translatesAutoresizingMaskIntoConstraints="NO" id="GeX-Qx-8dF">
-                        <rect key="frame" x="300" y="60" width="151" height="154"/>
+                        <rect key="frame" x="301" y="66" width="151" height="154"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="iR5-Jr-TWa">
                             <font key="font" metaFont="smallSystem"/>
@@ -110,8 +72,20 @@ Resizing will act on the lower right corner of the window</string>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="147" translatesAutoresizingMaskIntoConstraints="NO" id="uLx-ab-t6M">
+                        <rect key="frame" x="300" y="289" width="151" height="168"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="iaS-2d-jGP">
+                            <font key="font" metaFont="smallSystem"/>
+                            <string key="title">In ‘mouse click mode’, windows are moved by clicking the left mouse button and holding the defined keyboard modifiers.
+
+To resize windows press the keyboard modifiers and click and drag the right mouse button. Resizing will act on the nearest window corner.</string>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" title="Move" translatesAutoresizingMaskIntoConstraints="NO" id="7aw-kd-4Fq">
-                        <rect key="frame" x="67" y="16" width="93" height="151"/>
+                        <rect key="frame" x="52" y="23" width="93" height="151"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="Xtr-41-rxU">
                             <rect key="frame" x="3" y="3" width="87" height="133"/>
@@ -161,7 +135,7 @@ Resizing will act on the lower right corner of the window</string>
                         </view>
                     </box>
                     <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" title="Resize" translatesAutoresizingMaskIntoConstraints="NO" id="fRg-Ig-lQz">
-                        <rect key="frame" x="176" y="16" width="93" height="151"/>
+                        <rect key="frame" x="161" y="23" width="93" height="151"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="PNo-mj-ccR">
                             <rect key="frame" x="3" y="3" width="87" height="133"/>
@@ -210,24 +184,62 @@ Resizing will act on the lower right corner of the window</string>
                             </subviews>
                         </view>
                     </box>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="147" translatesAutoresizingMaskIntoConstraints="NO" id="uLx-ab-t6M">
-                        <rect key="frame" x="300" y="265" width="151" height="168"/>
+                    <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" title="Modifiers" translatesAutoresizingMaskIntoConstraints="NO" id="2Wx-fS-JVJ">
+                        <rect key="frame" x="52" y="262" width="93" height="151"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="iaS-2d-jGP">
-                            <font key="font" metaFont="smallSystem"/>
-                            <string key="title">In ‘mouse click mode’, windows are moved by clicking the left mouse button and holding the defined keyboard modifiers.
-
-To resize windows press the keyboard modifiers and click and drag the right mouse button. Resizing will act on the nearest window corner.</string>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
+                        <view key="contentView" id="4JH-79-euL">
+                            <rect key="frame" x="3" y="3" width="87" height="133"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="czb-Ol-s2L">
+                                    <rect key="frame" x="18" y="77" width="51" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="check" title="Cmd" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Hkf-4x-y0K">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                </button>
+                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="waA-tt-wsa">
+                                    <rect key="frame" x="18" y="37" width="37" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="check" title="Fn" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="jbh-Mb-fJJ">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                </button>
+                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Umr-4M-fJ5">
+                                    <rect key="frame" x="18" y="18" width="51" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="check" title="Shift" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="9G5-j8-uQp">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                </button>
+                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FS7-FE-wuk">
+                                    <rect key="frame" x="18" y="57" width="44" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="check" title="Ctrl" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="IVV-T7-t8h">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                </button>
+                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FcM-NA-7cC">
+                                    <rect key="frame" x="18" y="97" width="39" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="check" title="Alt" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Rrh-FJ-qDV">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                </button>
+                            </subviews>
+                        </view>
+                    </box>
                 </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
-            <point key="canvasLocation" x="-123" y="-66"/>
+            <point key="canvasLocation" x="-111.5" y="-54.5"/>
         </window>
     </objects>
 </document>

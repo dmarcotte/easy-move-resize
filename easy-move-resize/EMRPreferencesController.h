@@ -18,11 +18,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property EMRPreferences *prefs;
 
-@property (weak) IBOutlet NSButton *altButton;
-@property (weak) IBOutlet NSButton *commandButton;
-@property (weak) IBOutlet NSButton *controlButton;
-@property (weak) IBOutlet NSButton *fnButton;
-@property (weak) IBOutlet NSButton *shiftButton;
+@property (weak) IBOutlet NSButton *altClickButton;
+@property (weak) IBOutlet NSButton *commandClickButton;
+@property (weak) IBOutlet NSButton *controlClickButton;
+@property (weak) IBOutlet NSButton *fnClickButton;
+@property (weak) IBOutlet NSButton *shiftClickButton;
+
+@property (weak) IBOutlet NSButton *altHoverMoveButton;
+@property (weak) IBOutlet NSButton *commandHoverMoveButton;
+@property (weak) IBOutlet NSButton *controlHoverMoveButton;
+@property (weak) IBOutlet NSButton *fnHoverMoveButton;
+@property (weak) IBOutlet NSButton *shiftHoverMoveButton;
+
+@property (weak) IBOutlet NSButton *altHoverResizeButton;
+@property (weak) IBOutlet NSButton *commandHoverResizeButton;
+@property (weak) IBOutlet NSButton *controlHoverResizeButton;
+@property (weak) IBOutlet NSButton *fnHoverResizeButton;
+@property (weak) IBOutlet NSButton *shiftHoverResizeButton;
+
+
+@property (weak) IBOutlet NSButton *mouseClickModeButton;
+@property (weak) IBOutlet NSButton *hoverModeButton;
 
 @end
 

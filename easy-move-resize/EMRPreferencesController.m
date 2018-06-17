@@ -18,27 +18,57 @@
     [super windowDidLoad];
     
     if (_prefs) {
-        _altButton.state = NSOffState;
-        _commandButton.state = NSOffState;
-        _controlButton.state = NSOffState;
-        _fnButton.state = NSOffState;
-        _shiftButton.state = NSOffState;
+        // FIXME: handle click vs hover mode radio button
 
-        NSSet* flags = [_prefs getFlagStringSet];
-        if ([flags containsObject:ALT_KEY]) {
-            _altButton.state = NSOnState;
+        _altHoverMoveButton.state = NSOffState;
+        _commandHoverMoveButton.state = NSOffState;
+        _controlHoverMoveButton.state = NSOffState;
+        _fnHoverMoveButton.state = NSOffState;
+        _shiftHoverMoveButton.state = NSOffState;
+
+        {
+            NSSet* flags = [_prefs getFlagStringSetForFlagSet:click];
+            NSDictionary *keyButtonMap = @{
+                                           ALT_KEY: _altClickButton,
+                                           CMD_KEY: _commandClickButton,
+                                           CTRL_KEY: _controlClickButton,
+                                           FN_KEY: _fnClickButton,
+                                           SHIFT_KEY: _shiftClickButton
+                                  };
+            for (NSString *key in keyButtonMap) {
+                NSButton *button = keyButtonMap[key];
+                button.state = [flags containsObject:key] ? NSOnState : NSOffState;
+            }
         }
-        if ([flags containsObject:CMD_KEY]) {
-            _commandButton.state = NSOnState;
+
+        {
+            NSSet* flags = [_prefs getFlagStringSetForFlagSet:hoverMove];
+            NSDictionary *keyButtonMap = @{
+                                           ALT_KEY: _altHoverMoveButton,
+                                           CMD_KEY: _commandHoverMoveButton,
+                                           CTRL_KEY: _controlHoverMoveButton,
+                                           FN_KEY: _fnHoverMoveButton,
+                                           SHIFT_KEY: _shiftHoverMoveButton
+                                           };
+            for (NSString *key in keyButtonMap) {
+                NSButton *button = keyButtonMap[key];
+                button.state = [flags containsObject:key] ? NSOnState : NSOffState;
+            }
         }
-        if ([flags containsObject:CTRL_KEY]) {
-            _controlButton.state = NSOnState;
-        }
-        if ([flags containsObject:FN_KEY]) {
-            _fnButton.state = NSOnState;
-        }
-        if ([flags containsObject:SHIFT_KEY]) {
-            _shiftButton.state = NSOnState;
+
+        {
+            NSSet* flags = [_prefs getFlagStringSetForFlagSet:hoverResize];
+            NSDictionary *keyButtonMap = @{
+                                           ALT_KEY: _altHoverMoveButton,
+                                           CMD_KEY: _commandHoverResizeButton,
+                                           CTRL_KEY: _controlHoverResizeButton,
+                                           FN_KEY: _fnHoverResizeButton,
+                                           SHIFT_KEY: _shiftHoverResizeButton
+                                           };
+            for (NSString *key in keyButtonMap) {
+                NSButton *button = keyButtonMap[key];
+                button.state = [flags containsObject:key] ? NSOnState : NSOffState;
+            }
         }
 
     }

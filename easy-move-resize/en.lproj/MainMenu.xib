@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14269.12" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14269.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -659,47 +659,10 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="a5T-MQ-31B"/>
-                <menuItem title="Alt" id="toO-ef-6Sa">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="gvG-0m-DpJ"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Cmd" id="yMO-nW-fjN">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="HrM-v0-sYh"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Ctrl" id="cOd-3Z-1Py">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="niS-3l-sN2"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Fn" id="yTr-4R-8Jm">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="qB1-v2-3aI"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Shift" id="SZL-bI-dng">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="tw0-HJ-yQk"/>
-                    </connections>
-                </menuItem>
-                <menuItem isSeparatorItem="YES" id="CnB-BD-kwb"/>
                 <menuItem title="Preferences..." id="XfF-1V-Bsx">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="showPreferences:" target="494" id="mfm-f2-Mgw"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Reset to Defaults" id="emi-it-fz4">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="resetModifiersToDefaults:" target="494" id="6fR-bD-2t5"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="16Z-ZA-yWP"/>
@@ -714,12 +677,7 @@
         </menu>
         <customObject id="494" customClass="EMRAppDelegate">
             <connections>
-                <outlet property="altMenu" destination="toO-ef-6Sa" id="nQz-2m-M8b"/>
-                <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
-                <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
-                <outlet property="fnMenu" destination="yTr-4R-8Jm" id="rZv-AR-2eF"/>
-                <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>
         </customObject>
