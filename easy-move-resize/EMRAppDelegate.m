@@ -219,10 +219,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     static State state = idle;
 
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
-    int moveKeyModifierFlags = [ourDelegate modifierFlags];
-    // TODO expose UI to configure - right now we're just extending the move keys with option
-    int resizeKeyModifierFlags = (moveKeyModifierFlags | kCGEventFlagMaskAlternate);
-    bool alwaysResizeBottomRight = true;  // TODO: make configurable
+
+    int moveKeyModifierFlags = [ourDelegate moveModifierFlags];
+    int resizeKeyModifierFlags = [ourDelegate resizeModifierFlags];
+    bool alwaysResizeBottomRight = (ourDelegate.mode == hoverMode);
 
     if (moveKeyModifierFlags == 0 && resizeKeyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
@@ -404,13 +404,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 - (void)enable {
     [_disabledMenu setState:NO];
 
-    // Retrieve the Key press modifier flags to activate click mode move/resize actions.
-    keyModifierFlags = [preferences modifierFlagsForFlagSet:clickFlags];
-
-    CFRunLoopSourceRef runLoopSource;
-
-    CGEventMask eventMask = CGEventMaskBit( kCGEventMouseMoved )
-    ;
+    CGEventMask eventMask = CGEventMaskBit( kCGEventMouseMoved );
 
     CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap,
                                               kCGHeadInsertEventTap,
@@ -424,7 +418,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         exit(1);
     }
 
-    runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
+    CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
 
 
     EMRMoveResize *moveResize = [EMRMoveResize instance];
@@ -458,8 +452,26 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_prefs.window makeKeyAndOrderFront:nil];
 }
 
-- (int)modifierFlags {
-    return keyModifierFlags;
+- (EMRMode)mode {
+    return preferences.mode;
+}
+
+- (int)moveModifierFlags {
+    if (preferences.mode == clickMode) {
+        int flags = [preferences modifierFlagsForFlagSet:clickFlags];
+        return flags | kCGEventLeftMouseDown;
+    } else {
+        return [preferences modifierFlagsForFlagSet:hoverMoveFlags];
+    }
+}
+
+- (int)resizeModifierFlags {
+    if (preferences.mode == clickMode) {
+        int flags = [preferences modifierFlagsForFlagSet:clickFlags];
+        return flags | kCGEventRightMouseDown;
+    } else {
+        return [preferences modifierFlagsForFlagSet:hoverResizeFlags];
+    }
 }
 
 @end

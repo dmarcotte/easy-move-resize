@@ -18,7 +18,6 @@
     [super windowDidLoad];
     
     if (_prefs) {
-        // FIXME: handle click vs hover mode radio button
         {
             EMRMode mode = _prefs.mode;
             _clickModeButton.state = (mode == clickMode) ? NSOnState: NSOffState;
@@ -58,7 +57,7 @@
         {
             NSSet* flags = [_prefs getFlagStringSetForFlagSet:hoverResizeFlags];
             NSDictionary *keyButtonMap = @{
-                                           ALT_KEY: _altHoverMoveButton,
+                                           ALT_KEY: _altHoverResizeButton,
                                            CMD_KEY: _commandHoverResizeButton,
                                            CTRL_KEY: _controlHoverResizeButton,
                                            FN_KEY: _fnHoverResizeButton,

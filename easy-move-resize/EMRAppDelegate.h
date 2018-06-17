@@ -8,10 +8,10 @@ static const double kResizeFilterInterval = 0.02;
 @interface EMRAppDelegate : NSObject <NSApplicationDelegate> {
     IBOutlet NSMenu *statusMenu;
     NSStatusItem * statusItem;
-    int keyModifierFlags;
 }
 
-- (int)modifierFlags;
+- (int)moveModifierFlags;
+- (int)resizeModifierFlags;
 
 - (IBAction)toggleDisabled:(id)sender;
 - (IBAction)showPreferences:(id)sender;
