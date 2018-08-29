@@ -15,6 +15,15 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
 * Behavior can be disabled by toggling the `Disabled` item in the application icon menu.
 
 ## Installation
+
+### brew
+
+```
+brew cask install easy-move-plus-resize
+```
+
+### manually
+
 * Grab the latest version from the [Releases page](https://github.com/dmarcotte/easy-move-resize/releases)
 * Unzip and run!
 * Select **Exit** from the application icon to quit
@@ -22,7 +31,6 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
     ![Icon](asset-sources/doc-img/running-icon.png)
 
     ![Icon Exit](asset-sources/doc-img/running-icon-exit.png)
-
 
 ## Contributing
 
