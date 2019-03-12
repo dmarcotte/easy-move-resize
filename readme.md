@@ -11,7 +11,7 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
 * The choice of modifier keys to hold down to activate dragging or resizing can be customized by toggling the appropriate modifier key name in the application icon menu.
     * Click the menu item to toggle it.
     * All keys toggled to selected must be held down for activation.
-    * To restore the modifiers to the default `Cmd + Ctrl` select the `Rest to Defaults` menu item.
+    * To restore the modifiers to the default `Cmd + Ctrl` select the `Reset to Defaults` menu item.
 * Behavior can be disabled by toggling the `Disabled` item in the application icon menu.
 
 ## Installation
