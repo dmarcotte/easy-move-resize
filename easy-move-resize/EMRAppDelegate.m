@@ -81,7 +81,17 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             }
             CFRelease(_cPosition);
         }
-        
+
+        /// Make window topmost in the app
+        AXUIElementPerformAction(_clickedWindow, kAXRaiseAction);
+
+        /// Get application and activate it to go above others
+        pid_t pid = 0;
+        if (AXUIElementGetPid(_clickedWindow, &pid) == kAXErrorSuccess) {
+            NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+            [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+        }
+
         cTopLeft.x = (int) cTopLeft.x;
         cTopLeft.y = (int) cTopLeft.y;
 
