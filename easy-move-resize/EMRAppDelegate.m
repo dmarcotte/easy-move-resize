@@ -72,6 +72,15 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         }
         CFRelease(_systemWideElement);
 
+        if([ourDelegate shouldBringWindowToFront]){
+            pid_t PID;
+            if(!AXUIElementGetPid(_clickedWindow, &PID)) {
+                NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
+                [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+            }
+            AXUIElementPerformAction(_clickedWindow, kAXRaiseAction);
+        }
+        
         CFTypeRef _cPosition = nil;
         NSPoint cTopLeft;
         if (AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, &_cPosition) == kAXErrorSuccess) {
@@ -337,6 +346,13 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     keyModifierFlags = [preferences modifierFlags];
 }
 
+- (IBAction)toggleBringWindowToFront:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setShouldBringWindowToFront:newState];
+}
+
 - (IBAction)toggleDisabled:(id)sender {
     EMRMoveResize* moveResize = [EMRMoveResize instance];
     if ([_disabledMenu state] == 0) {
@@ -355,6 +371,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 - (int)modifierFlags {
     return keyModifierFlags;
+}
+-(BOOL)shouldBringWindowToFront {
+    return [preferences shouldBringWindowToFront];
 }
 
 - (void)setMenusEnabled:(BOOL)enabled {
