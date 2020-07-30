@@ -8,6 +8,7 @@
 #ifndef EMRPreferences_h
 #define EMRPreferences_h
 
+#define SHOULD_BRING_WINDOW_TO_FRONT_KEY @"BringToFront"
 #define MODIFIER_FLAGS_DEFAULTS_KEY @"ModifierFlags"
 #define CTRL_KEY @"CTRL"
 #define SHIFT_KEY @"SHIFT"
@@ -18,6 +19,8 @@
 @interface EMRPreferences : NSObject {
     
 }
+
+@property (nonatomic) BOOL shouldBringWindowToFront;
 
 // Initialize an EMRPreferences, persisting settings to the given userDefaults
 - (id)initWithUserDefaults:(NSUserDefaults *)defaults;

@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1509" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17140" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17140"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -155,8 +155,7 @@
                                     <action selector="paste:" target="-1" id="226"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Paste and Match Style" keyEquivalent="V" id="485">
-                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                            <menuItem title="Paste and Match Style" keyEquivalent="v" id="485">
                                 <connections>
                                     <action selector="pasteAsPlainText:" target="-1" id="486"/>
                                 </connections>
@@ -646,6 +645,7 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="74" y="36"/>
         </menu>
         <menu id="obP-gH-pam">
             <items>
@@ -684,6 +684,13 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="CnB-BD-kwb"/>
+                <menuItem title="Bring Window to Front" id="gtC-wv-5bN">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleBringWindowToFront:" target="494" id="2Lw-Fr-h3a"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="XPE-bb-yrs"/>
                 <menuItem title="Reset to Defaults" id="emi-it-fz4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
@@ -698,11 +705,12 @@
                     </connections>
                 </menuItem>
             </items>
-            <point key="canvasLocation" x="-156" y="484.5"/>
+            <point key="canvasLocation" x="-156.5" y="494"/>
         </menu>
         <customObject id="494" customClass="EMRAppDelegate">
             <connections>
                 <outlet property="altMenu" destination="toO-ef-6Sa" id="nQz-2m-M8b"/>
+                <outlet property="bringWindowFrontMenu" destination="gtC-wv-5bN" id="TDw-e0-RDR"/>
                 <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
                 <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>

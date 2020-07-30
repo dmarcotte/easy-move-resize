@@ -112,5 +112,13 @@
     
     return modifierFlags;
 }
+
+-(BOOL)shouldBringWindowToFront {
+    return [userDefaults boolForKey:SHOULD_BRING_WINDOW_TO_FRONT_KEY];
+}
+-(void)setShouldBringWindowToFront:(BOOL)bringToFront {
+    [userDefaults setBool:bringToFront forKey:SHOULD_BRING_WINDOW_TO_FRONT_KEY];
+}
+
 @end
 
