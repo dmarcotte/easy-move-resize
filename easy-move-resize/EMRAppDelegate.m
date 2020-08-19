@@ -353,6 +353,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 }
 
+- (IBAction)hideMenu:(id)sender {
+    statusItem = nil;
+}
+
 - (int)modifierFlags {
     return keyModifierFlags;
 }

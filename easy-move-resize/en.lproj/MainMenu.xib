@@ -691,6 +691,13 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="16Z-ZA-yWP"/>
+                <menuItem title="Hide icon" id="icY-DW-Dzm">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="hideMenu:" target="494" id="61Y-Za-SvV"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="Iph-MU-JWt"/>
                 <menuItem title="Exit" id="KM2-Wu-6qQ" userLabel="Exit">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
@@ -706,6 +713,7 @@
                 <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
                 <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
+                <outlet property="hideMenu" destination="icY-DW-Dzm" id="ApE-60-Sdj"/>
                 <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>
