@@ -13,9 +13,9 @@ static const double kResizeFilterInterval = 0.04;
 
 - (int)modifierFlags;
 
-- (void)initModifierMenuItems;
+- (void)initMenuItems;
 - (IBAction)modifierToggle:(id)sender;
-- (IBAction)resetModifiersToDefaults:(id)sender;
+- (IBAction)resetToDefaults:(id)sender;
 - (IBAction)toggleDisabled:(id)sender;
 - (IBAction)toggleBringWindowToFront:(id)sender;
 
@@ -25,5 +25,6 @@ static const double kResizeFilterInterval = 0.04;
 @property (weak) IBOutlet NSMenuItem *shiftMenu;
 @property (weak) IBOutlet NSMenuItem *disabledMenu;
 @property (weak) IBOutlet NSMenuItem *bringWindowFrontMenu;
+@property (weak) IBOutlet NSMenuItem *middleClickResizeMenu;
 
 @end
