@@ -28,12 +28,9 @@ brew cask install easy-move-plus-resize
 
 * Grab the latest version from the [Releases page](https://github.com/dmarcotte/easy-move-resize/releases)
 * Unzip and run!
-* Select **Exit** from the application icon to quit
 
-    ![Icon](asset-sources/doc-img/running-icon.png)
-
-    ![Icon Exit](asset-sources/doc-img/running-icon-exit.png)
+## Screenshots
+![Menu](asset-sources/doc-img/menu.png)
 
 ## Contributing
-
 [Contributions](contributing.md) welcome!
