@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17140" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17156" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17140"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17156"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -687,14 +687,20 @@
                 <menuItem title="Bring Window to Front" id="gtC-wv-5bN">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="toggleBringWindowToFront:" target="494" id="2Lw-Fr-h3a"/>
+                        <action selector="toggleBringWindowToFront:" target="494" id="utG-yc-4A0"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Middle Click resize" id="S2R-bI-Azo">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleMiddleClickResize:" target="494" id="gAe-qW-XIr"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="XPE-bb-yrs"/>
                 <menuItem title="Reset to Defaults" id="emi-it-fz4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="resetModifiersToDefaults:" target="494" id="6fR-bD-2t5"/>
+                        <action selector="resetToDefaults:" target="494" id="ajL-er-YeU"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="16Z-ZA-yWP"/>
@@ -705,7 +711,7 @@
                     </connections>
                 </menuItem>
             </items>
-            <point key="canvasLocation" x="-156.5" y="494"/>
+            <point key="canvasLocation" x="-372" y="46"/>
         </menu>
         <customObject id="494" customClass="EMRAppDelegate">
             <connections>
@@ -714,6 +720,7 @@
                 <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
                 <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
+                <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
                 <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>

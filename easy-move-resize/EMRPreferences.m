@@ -75,6 +75,8 @@
 
 - (void)setToDefaults {
     [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","]];
+    [userDefaults setBool:NO forKey:SHOULD_BRING_WINDOW_TO_FRONT];
+    [userDefaults setBool:NO forKey:SHOULD_MIDDLE_CLICK_RESIZE];
 }
 
 - (NSMutableSet*)createSetFromFlagString:(NSString*)modifierFlagString {
@@ -114,10 +116,17 @@
 }
 
 -(BOOL)shouldBringWindowToFront {
-    return [userDefaults boolForKey:SHOULD_BRING_WINDOW_TO_FRONT_KEY];
+    return [userDefaults boolForKey:SHOULD_BRING_WINDOW_TO_FRONT];
 }
 -(void)setShouldBringWindowToFront:(BOOL)bringToFront {
-    [userDefaults setBool:bringToFront forKey:SHOULD_BRING_WINDOW_TO_FRONT_KEY];
+    [userDefaults setBool:bringToFront forKey:SHOULD_BRING_WINDOW_TO_FRONT];
+}
+
+-(BOOL)shouldMiddleClickResize {
+    return [userDefaults boolForKey:SHOULD_MIDDLE_CLICK_RESIZE];
+}
+-(void)setShouldMiddleClickResize:(BOOL)middleClickResize {
+    [userDefaults setBool:middleClickResize forKey:SHOULD_MIDDLE_CLICK_RESIZE];
 }
 
 @end

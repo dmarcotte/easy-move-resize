@@ -19,9 +19,20 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
     int keyModifierFlags = [ourDelegate modifierFlags];
+    bool shouldMiddleClickResize = [ourDelegate shouldMiddleClickResize];
+    CGEventType resizeModifierDown = kCGEventRightMouseDown;
+    CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
+    CGEventType resizeModifierUp = kCGEventRightMouseUp;
+
     if (keyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
         return event;
+    }
+    
+    if (shouldMiddleClickResize){
+        resizeModifierDown = kCGEventOtherMouseDown;
+        resizeModifierDragged = kCGEventOtherMouseDragged;
+        resizeModifierUp = kCGEventOtherMouseUp;
     }
     
     EMRMoveResize* moveResize = [EMRMoveResize instance];
@@ -29,7 +40,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput)) {
         // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
         CGEventTapEnable([moveResize eventTap], true);
-        NSLog(@"Re-enabling...");
         return event;
     }
     
@@ -47,7 +57,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 
     if (type == kCGEventLeftMouseDown
-            || type == kCGEventRightMouseDown) {
+            || type == resizeModifierDown) {
         CGPoint mouseLocation = CGEventGetLocation(event);
         [moveResize setTracking:CACurrentMediaTime()];
 
@@ -121,10 +131,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         }
     }
 
-    if (type == kCGEventRightMouseDown) {
+    if (type == resizeModifierDown) {
         AXUIElementRef _clickedWindow = [moveResize window];
 
-        // on right click, record which direction we should resize in on the drag
+        // on resizeModifierDown click, record which direction we should resize in on the drag
         struct ResizeSection resizeSection;
 
         CGPoint clickPoint = CGEventGetLocation(event);
@@ -165,7 +175,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setResizeSection:resizeSection];
     }
 
-    if (type == kCGEventRightMouseDragged
+    if (type == resizeModifierDragged
             && [moveResize tracking] > 0) {
         AXUIElementRef _clickedWindow = [moveResize window];
         struct ResizeSection resizeSection = [moveResize resizeSection];
@@ -225,7 +235,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 
     if (type == kCGEventLeftMouseUp
-            || type == kCGEventRightMouseUp) {
+            || type == resizeModifierUp) {
         [moveResize setTracking:0];
     }
 
@@ -252,19 +262,22 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         exit(1);
     }
     
-    [self initModifierMenuItems];
+    [self initMenuItems];
 
     // Retrieve the Key press modifier flags to activate move/resize actions.
     keyModifierFlags = [preferences modifierFlags];
-
+    
     CFRunLoopSourceRef runLoopSource;
 
     CGEventMask eventMask = CGEventMaskBit( kCGEventLeftMouseDown )
-                    | CGEventMaskBit( kCGEventLeftMouseDragged )
                     | CGEventMaskBit( kCGEventRightMouseDown )
+                    | CGEventMaskBit( kCGEventOtherMouseDown )
+                    | CGEventMaskBit( kCGEventLeftMouseDragged )
                     | CGEventMaskBit( kCGEventRightMouseDragged )
+                    | CGEventMaskBit( kCGEventOtherMouseDragged )
                     | CGEventMaskBit( kCGEventLeftMouseUp )
                     | CGEventMaskBit( kCGEventRightMouseUp )
+                    | CGEventMaskBit( kCGEventOtherMouseUp )
     ;
 
     CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap,
@@ -311,12 +324,25 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
 }
 
-- (void)initModifierMenuItems {
+- (void)initMenuItems {
     [_altMenu setState:0];
     [_cmdMenu setState:0];
     [_ctrlMenu setState:0];
     [_shiftMenu setState:0];
     [_disabledMenu setState:0];
+    [_bringWindowFrontMenu setState:0];
+    [_middleClickResizeMenu setState:0];
+
+    bool shouldBringWindowToFront = [preferences shouldBringWindowToFront];
+    bool shouldMiddleClickResize = [preferences shouldMiddleClickResize];
+
+    if(shouldBringWindowToFront){
+        [_bringWindowFrontMenu setState:1];
+    }
+    if(shouldMiddleClickResize){
+        [_middleClickResizeMenu setState:1];
+    }
+    
     NSSet* flags = [preferences getFlagStringSet];
     if ([flags containsObject:ALT_KEY]) {
         [_altMenu setState:1];
@@ -340,9 +366,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     keyModifierFlags = [preferences modifierFlags];
 }
 
-- (IBAction)resetModifiersToDefaults:(id)sender {
+- (IBAction)resetToDefaults:(id)sender {
+    EMRMoveResize* moveResize = [EMRMoveResize instance];
     [preferences setToDefaults];
-    [self initModifierMenuItems];
+    [self initMenuItems];
+    [self setMenusEnabled:YES];
+    [self enableRunLoopSource:moveResize];
     keyModifierFlags = [preferences modifierFlags];
 }
 
@@ -353,16 +382,23 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [preferences setShouldBringWindowToFront:newState];
 }
 
+- (IBAction)toggleMiddleClickResize:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setShouldMiddleClickResize:newState];
+}
+
 - (IBAction)toggleDisabled:(id)sender {
     EMRMoveResize* moveResize = [EMRMoveResize instance];
     if ([_disabledMenu state] == 0) {
-        // We are enabled. Disable...
+        // We are enabled, disable
         [_disabledMenu setState:YES];
-        [self setMenusEnabled:YES];
+        [self setMenusEnabled:NO];
         [self disableRunLoopSource:moveResize];
     }
     else {
-        // We are disabled. Enable.
+        // We are disabled, enable
         [_disabledMenu setState:NO];
         [self setMenusEnabled:YES];
         [self enableRunLoopSource:moveResize];
@@ -375,12 +411,17 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 -(BOOL)shouldBringWindowToFront {
     return [preferences shouldBringWindowToFront];
 }
+-(BOOL)shouldMiddleClickResize {
+    return [preferences shouldMiddleClickResize];
+}
 
 - (void)setMenusEnabled:(BOOL)enabled {
     [_altMenu setEnabled:enabled];
     [_cmdMenu setEnabled:enabled];
     [_ctrlMenu setEnabled:enabled];
     [_shiftMenu setEnabled:enabled];
+    [_bringWindowFrontMenu setEnabled:enabled];
+    [_middleClickResizeMenu setEnabled:enabled];
 }
 
 @end
