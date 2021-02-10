@@ -24,6 +24,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
 
+    if (![ourDelegate sessionActive]) {
+        return event;
+    }
+
     if (keyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
         return event;
@@ -300,6 +304,27 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [moveResize setRunLoopSource:runLoopSource];
     [self enableRunLoopSource:moveResize];
     CFRelease(runLoopSource);
+
+    _sessionActive = true;
+    [[[NSWorkspace sharedWorkspace] notificationCenter]
+            addObserver:self
+            selector:@selector(becameActive:)
+            name:NSWorkspaceSessionDidBecomeActiveNotification
+            object:nil];
+
+    [[[NSWorkspace sharedWorkspace] notificationCenter]
+            addObserver:self
+            selector:@selector(becameInactive:)
+            name:NSWorkspaceSessionDidResignActiveNotification
+            object:nil];
+}
+
+- (void)becameActive:(NSNotification*) notification {
+    _sessionActive = true;
+}
+
+- (void)becameInactive:(NSNotification*) notification {
+    _sessionActive = false;
 }
 
 -(void)awakeFromNib{

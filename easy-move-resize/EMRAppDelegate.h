@@ -26,5 +26,6 @@ static const double kResizeFilterInterval = 0.04;
 @property (weak) IBOutlet NSMenuItem *disabledMenu;
 @property (weak) IBOutlet NSMenuItem *bringWindowFrontMenu;
 @property (weak) IBOutlet NSMenuItem *middleClickResizeMenu;
+@property (nonatomic) BOOL sessionActive;
 
 @end
