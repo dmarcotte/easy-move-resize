@@ -304,12 +304,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 -(void)awakeFromNib{
     NSImage *icon = [NSImage imageNamed:@"MenuIcon"];
-    NSImage *altIcon = [NSImage imageNamed:@"MenuIconHighlight"];
     statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [statusItem setMenu:statusMenu];
     [statusItem setImage:icon];
-    [statusItem setAlternateImage:altIcon];
-    [statusItem setHighlightMode:YES];
     [statusMenu setAutoenablesItems:NO];
     [[statusMenu itemAtIndex:0] setEnabled:NO];
 }
