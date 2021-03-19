@@ -21,7 +21,7 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
 ### brew
 
 ```
-brew cask install easy-move-plus-resize
+brew install --cask easy-move-plus-resize
 ```
 
 ### manually
