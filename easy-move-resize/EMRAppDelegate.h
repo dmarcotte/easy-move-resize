@@ -9,6 +9,7 @@ static const double kResizeFilterInterval = 0.04;
     IBOutlet NSMenu *statusMenu;
     NSStatusItem * statusItem;
     int keyModifierFlags;
+    NSRunningApplication *lastApp;
 }
 
 - (int)modifierFlags;
@@ -18,6 +19,8 @@ static const double kResizeFilterInterval = 0.04;
 - (IBAction)resetToDefaults:(id)sender;
 - (IBAction)toggleDisabled:(id)sender;
 - (IBAction)toggleBringWindowToFront:(id)sender;
+- (IBAction)disableLastApp:(id)sender;
+- (IBAction)enableDisabledApp:(id)sender;
 
 @property (weak) IBOutlet NSMenuItem *altMenu;
 @property (weak) IBOutlet NSMenuItem *cmdMenu;
@@ -26,6 +29,8 @@ static const double kResizeFilterInterval = 0.04;
 @property (weak) IBOutlet NSMenuItem *disabledMenu;
 @property (weak) IBOutlet NSMenuItem *bringWindowFrontMenu;
 @property (weak) IBOutlet NSMenuItem *middleClickResizeMenu;
+@property (weak) IBOutlet NSMenuItem *disabledAppsMenu;
+@property (weak) IBOutlet NSMenuItem *lastAppMenu;
 @property (nonatomic) BOOL sessionActive;
 
 @end

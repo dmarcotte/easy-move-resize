@@ -23,6 +23,13 @@
             // ensure our defaults are initialized
             [self setToDefaults];
         }
+        else {
+            // disabledApps was added in an update, need to set if the app has been updated
+            NSDictionary *disabledApps = [userDefaults dictionaryForKey:DISABLED_APPS_DEFAULTS_KEY];
+            if (disabledApps == nil) {
+                [userDefaults setObject:[NSDictionary dictionary] forKey:DISABLED_APPS_DEFAULTS_KEY];
+            }
+        }
     }
     return self;
 }
@@ -73,10 +80,25 @@
     return flagSet;
 }
 
+- (NSDictionary*) getDisabledApps {
+    return [userDefaults dictionaryForKey:DISABLED_APPS_DEFAULTS_KEY];
+}
+
+- (void) setDisabledForApp:(NSString*)bundleIdentifier withLocalizedName:(NSString*)localizedName disabled:(BOOL)disabled {    NSMutableDictionary *disabledApps = [[self getDisabledApps] mutableCopy];
+    if (disabled) {
+        [disabledApps setObject:localizedName forKey:bundleIdentifier];
+    }
+    else {
+        [disabledApps removeObjectForKey:bundleIdentifier];
+    }
+    [userDefaults setObject:disabledApps forKey:DISABLED_APPS_DEFAULTS_KEY];
+}
+
 - (void)setToDefaults {
     [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","]];
     [userDefaults setBool:NO forKey:SHOULD_BRING_WINDOW_TO_FRONT];
     [userDefaults setBool:NO forKey:SHOULD_MIDDLE_CLICK_RESIZE];
+    [userDefaults setObject:[NSDictionary dictionary] forKey:DISABLED_APPS_DEFAULTS_KEY];
 }
 
 - (NSMutableSet*)createSetFromFlagString:(NSString*)modifierFlagString {
