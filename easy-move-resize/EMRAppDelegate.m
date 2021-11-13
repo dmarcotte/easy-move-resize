@@ -23,6 +23,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CGEventType resizeModifierDown = kCGEventRightMouseDown;
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
+    bool handled = NO;
 
     if (![ourDelegate sessionActive]) {
         return event;
@@ -120,7 +121,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWindow:_clickedWindow];
         if (_clickedWindow != nil) CFRelease(_clickedWindow);
-        return NULL;
+        handled = YES;
     }
 
     if (type == kCGEventLeftMouseDragged
@@ -143,7 +144,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             if (_position != NULL) CFRelease(_position);
             [moveResize setTracking:CACurrentMediaTime()];
         }
-        return NULL;
+        handled = YES;
     }
 
     if (type == resizeModifierDown) {
@@ -188,7 +189,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
         [moveResize setWndSize:wndSize];
         [moveResize setResizeSection:resizeSection];
-        return NULL;
+        handled = YES;
     }
 
     if (type == resizeModifierDragged
@@ -248,16 +249,21 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             CFRelease(_size);
             [moveResize setTracking:CACurrentMediaTime()];
         }
-        return NULL;
+        handled = YES;
     }
 
     if ((type == kCGEventLeftMouseUp || type == resizeModifierUp)
         && [moveResize tracking] > 0) {
         [moveResize setTracking:0];
-        return NULL;
+        handled = YES;
     }
     
-    return event;
+    if (handled) {
+        return NULL;
+    }
+    else {
+        return event;
+    }
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
