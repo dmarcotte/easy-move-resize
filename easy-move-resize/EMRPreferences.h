@@ -11,6 +11,7 @@
 #define SHOULD_BRING_WINDOW_TO_FRONT @"BringToFront"
 #define SHOULD_MIDDLE_CLICK_RESIZE @"MiddleClickResize"
 #define MODIFIER_FLAGS_DEFAULTS_KEY @"ModifierFlags"
+#define DISABLED_APPS_DEFAULTS_KEY @"DisabledApps"
 #define CTRL_KEY @"CTRL"
 #define SHIFT_KEY @"SHIFT"
 #define CAPS_KEY @"CAPS" // CAPS lock
@@ -35,6 +36,12 @@
 
 // returns a set of the currently persisted key constants
 - (NSSet*) getFlagStringSet;
+
+// returns a dict of disabled apps
+- (NSDictionary*) getDisabledApps;
+
+// add or remove an app from the disabled apps list
+- (void) setDisabledForApp:(NSString*)bundleIdentifier withLocalizedName:(NSString*)localizedName disabled:(BOOL)disabled;
 
 // reset preferences to the defaults
 - (void)setToDefaults;

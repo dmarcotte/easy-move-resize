@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="19455" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19455"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -697,6 +697,17 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="XPE-bb-yrs"/>
+                <menuItem title="Disable for" enabled="NO" id="ZKn-HI-Yq4">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="disableLastApp:" target="494" id="Mw9-fT-m8S"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Re-enable for" enabled="NO" id="trL-IE-A9o">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Re-enable for" id="yAl-5D-6Ba"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="VPq-PN-NFG"/>
                 <menuItem title="Reset to Defaults" id="emi-it-fz4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
@@ -719,7 +730,9 @@
                 <outlet property="bringWindowFrontMenu" destination="gtC-wv-5bN" id="TDw-e0-RDR"/>
                 <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
                 <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
+                <outlet property="disabledAppsMenu" destination="trL-IE-A9o" id="a5e-LQ-P3b"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
+                <outlet property="lastAppMenu" destination="ZKn-HI-Yq4" id="aO7-eG-bLr"/>
                 <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
                 <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>

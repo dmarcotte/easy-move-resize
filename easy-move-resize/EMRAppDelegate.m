@@ -23,6 +23,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CGEventType resizeModifierDown = kCGEventRightMouseDown;
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
+    bool handled = NO;
 
     if (![ourDelegate sessionActive]) {
         return event;
@@ -85,11 +86,20 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             }
         }
         CFRelease(_systemWideElement);
+        
+        pid_t PID;
+        NSRunningApplication* app;
+        if(!AXUIElementGetPid(_clickedWindow, &PID)) {
+            app = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
+            if ([[ourDelegate getDisabledApps] objectForKey:[app bundleIdentifier]] != nil) {
+                [moveResize setTracking:0];
+                return event;
+            }
+            [ourDelegate setMostRecentApp:app];
+        }
 
         if([ourDelegate shouldBringWindowToFront]){
-            pid_t PID;
-            if(!AXUIElementGetPid(_clickedWindow, &PID)) {
-                NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
+            if (app != nil) {
                 [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
             }
             AXUIElementPerformAction(_clickedWindow, kAXRaiseAction);
@@ -111,6 +121,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWindow:_clickedWindow];
         if (_clickedWindow != nil) CFRelease(_clickedWindow);
+        handled = YES;
     }
 
     if (type == kCGEventLeftMouseDragged
@@ -133,6 +144,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             if (_position != NULL) CFRelease(_position);
             [moveResize setTracking:CACurrentMediaTime()];
         }
+        handled = YES;
     }
 
     if (type == resizeModifierDown) {
@@ -177,6 +189,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
         [moveResize setWndSize:wndSize];
         [moveResize setResizeSection:resizeSection];
+        handled = YES;
     }
 
     if (type == resizeModifierDragged
@@ -236,15 +249,21 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             CFRelease(_size);
             [moveResize setTracking:CACurrentMediaTime()];
         }
+        handled = YES;
     }
 
-    if (type == kCGEventLeftMouseUp
-            || type == resizeModifierUp) {
+    if ((type == kCGEventLeftMouseUp || type == resizeModifierUp)
+        && [moveResize tracking] > 0) {
         [moveResize setTracking:0];
+        handled = YES;
     }
-
-    // we took ownership of this event, don't pass it along
-    return NULL;
+    
+    if (handled) {
+        return NULL;
+    }
+    else {
+        return event;
+    }
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
@@ -317,6 +336,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             selector:@selector(becameInactive:)
             name:NSWorkspaceSessionDidResignActiveNotification
             object:nil];
+    
+    [self reconstructDisabledAppsSubmenu];
 }
 
 - (void)becameActive:(NSNotification*) notification {
@@ -427,8 +448,31 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 }
 
+- (IBAction)disableLastApp:(id)sender {
+    [preferences setDisabledForApp:[lastApp bundleIdentifier] withLocalizedName:[lastApp localizedName] disabled:YES];
+    [_lastAppMenu setEnabled:FALSE];
+    [self reconstructDisabledAppsSubmenu];
+}
+
+- (IBAction)enableDisabledApp:(id)sender {
+    NSString *bundleId = [sender representedObject];
+    [preferences setDisabledForApp:bundleId withLocalizedName:nil disabled:NO];
+    if (lastApp != nil && [[lastApp bundleIdentifier] isEqualToString:bundleId]) {
+        [_lastAppMenu setEnabled:YES];
+    }
+    [self reconstructDisabledAppsSubmenu];
+}
+
 - (int)modifierFlags {
     return keyModifierFlags;
+}
+- (void) setMostRecentApp:(NSRunningApplication*)app {
+    lastApp = app;
+    [_lastAppMenu setTitle:[NSString stringWithFormat:@"Disable for %@", [app localizedName]]];
+    [_lastAppMenu setEnabled:YES];
+}
+- (NSDictionary*) getDisabledApps {
+    return [preferences getDisabledApps];
 }
 -(BOOL)shouldBringWindowToFront {
     return [preferences shouldBringWindowToFront];
@@ -444,6 +488,17 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_shiftMenu setEnabled:enabled];
     [_bringWindowFrontMenu setEnabled:enabled];
     [_middleClickResizeMenu setEnabled:enabled];
+}
+
+- (void)reconstructDisabledAppsSubmenu {
+    NSMenu *submenu = [[NSMenu alloc] init];
+    NSDictionary *disabledApps = [self getDisabledApps];
+    for (id bundleIdentifier in disabledApps) {
+        NSMenuItem *item = [submenu addItemWithTitle:[disabledApps objectForKey:bundleIdentifier] action:@selector(enableDisabledApp:) keyEquivalent:@""];
+        [item setRepresentedObject:bundleIdentifier];
+    }
+    [_disabledAppsMenu setSubmenu:submenu];
+    [_disabledAppsMenu setEnabled:([disabledApps count] > 0)];
 }
 
 @end
