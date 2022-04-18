@@ -6,6 +6,8 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
 
 **Easy Move+Resize** is based on behavior found in many X11/Linux window managers
 
+![Menu](asset-sources/doc-img/menu.png)
+
 - `Cmd + Ctrl + Left Mouse` anywhere inside a window, then drag to ***move***.
 - `Cmd + Ctrl + Right Mouse` anywhere inside a window, then drag to ***resize***,
     - The resize direction is determined by which region of the window is clicked. *i.e.* a right-click in roughly the top-left corner of a window will act as if you grabbed the top left corner, whereas a right-click in roughly the top-center of a window will act as if you grabbed the top of the window.
@@ -16,6 +18,7 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
 - Behavior can be disabled by toggling the `Disabled` item in the application icon menu.
 - If you are dragging or resizing a window in the background and want it to rise to the top, select the `Bring Window to Front` menu item.
 - To restore application settings, select the `Reset to Defaults` menu item.
+- To disable for a particular app, select `Disable for ...` from the menu after using **Easy Move+Resize** on that app.
 
 ## Installation
 
@@ -35,10 +38,6 @@ If faced with an inability to start the application due to a macOS "cannot check
 ```sh
 xattr -dr com.apple.quarantine /Applications/Easy\ Move+Resize.app
 ```
-
-## Screenshots
-
-![Menu](asset-sources/doc-img/menu.png)
 
 ## Contributing
 
