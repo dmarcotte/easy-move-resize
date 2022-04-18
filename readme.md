@@ -45,7 +45,9 @@ xattr -dr com.apple.quarantine /Applications/Easy\ Move+Resize.app
 
 ## Release process
 
-- `git tag <new semver version number>`
+- Choose a new version number following [semantic versioning guidelines](https://semver.org)
+- Update the version number in [`easy-move-resize/easy-move-resize-Info.plist`](easy-move-resize/easy-move-resize-Info.plist), ([example](https://github.com/dmarcotte/easy-move-resize/commit/18d759dec2caf7a33b0625c17c181a195191bc92)) 
+- `git tag <chosen version number>`
 - `git push origin --tags`
 - In XCode, choose `Product->Archive`
 - Click "Distribute App", select "Copy App", "Next", then "Export"
