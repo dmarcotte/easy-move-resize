@@ -696,6 +696,12 @@
                         <action selector="toggleMiddleClickResize:" target="494" id="gAe-qW-XIr"/>
                     </connections>
                 </menuItem>
+                <menuItem title="Resize only" id="ErU-VJ-PWr">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleResizeOnly:" target="494" id="GYr-Jb-BKv"/>
+                    </connections>
+                </menuItem>
                 <menuItem isSeparatorItem="YES" id="XPE-bb-yrs"/>
                 <menuItem title="Disable for" enabled="NO" id="ZKn-HI-Yq4">
                     <modifierMask key="keyEquivalentModifierMask"/>
@@ -734,6 +740,7 @@
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
                 <outlet property="lastAppMenu" destination="ZKn-HI-Yq4" id="aO7-eG-bLr"/>
                 <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
+                <outlet property="resizeOnlyMenu" destination="ErU-VJ-PWr" id="eXx-DE-rHT"/>
                 <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>
