@@ -220,6 +220,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -449,7 +450,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.dmarcotte.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "Easy Move+Resize";
 				SDKROOT = macosx;
@@ -465,7 +466,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "easy-move-resize/easy-move-resize-Prefix.pch";
 				INFOPLIST_FILE = "easy-move-resize/easy-move-resize-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.dmarcotte.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "Easy Move+Resize";
 				SDKROOT = macosx;
