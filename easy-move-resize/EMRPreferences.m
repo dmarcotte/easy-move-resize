@@ -98,6 +98,7 @@
     [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","]];
     [userDefaults setBool:NO forKey:SHOULD_BRING_WINDOW_TO_FRONT];
     [userDefaults setBool:NO forKey:SHOULD_MIDDLE_CLICK_RESIZE];
+    [userDefaults setBool:NO forKey:RESIZE_ONLY];
     [userDefaults setObject:[NSDictionary dictionary] forKey:DISABLED_APPS_DEFAULTS_KEY];
 }
 
@@ -149,6 +150,13 @@
 }
 -(void)setShouldMiddleClickResize:(BOOL)middleClickResize {
     [userDefaults setBool:middleClickResize forKey:SHOULD_MIDDLE_CLICK_RESIZE];
+}
+
+-(BOOL)resizeOnly {
+    return [userDefaults boolForKey:RESIZE_ONLY];
+}
+-(void)setResizeOnly:(BOOL)resizeOnly {
+    [userDefaults setBool:resizeOnly forKey:RESIZE_ONLY];
 }
 
 @end

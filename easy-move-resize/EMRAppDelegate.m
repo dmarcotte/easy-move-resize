@@ -20,6 +20,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
     int keyModifierFlags = [ourDelegate modifierFlags];
     bool shouldMiddleClickResize = [ourDelegate shouldMiddleClickResize];
+    bool resizeOnly = [ourDelegate resizeOnly];
     CGEventType resizeModifierDown = kCGEventRightMouseDown;
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
@@ -61,7 +62,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         return event;
     }
 
-    if (type == kCGEventLeftMouseDown
+    if ((type == kCGEventLeftMouseDown && !resizeOnly)
             || type == resizeModifierDown) {
         CGPoint mouseLocation = CGEventGetLocation(event);
         [moveResize setTracking:CACurrentMediaTime()];
@@ -378,12 +379,16 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     bool shouldBringWindowToFront = [preferences shouldBringWindowToFront];
     bool shouldMiddleClickResize = [preferences shouldMiddleClickResize];
+    bool resizeOnly = [preferences resizeOnly];
 
     if(shouldBringWindowToFront){
         [_bringWindowFrontMenu setState:1];
     }
     if(shouldMiddleClickResize){
         [_middleClickResizeMenu setState:1];
+    }
+    if(resizeOnly){
+        [_resizeOnlyMenu setState:1];
     }
     
     NSSet* flags = [preferences getFlagStringSet];
@@ -448,6 +453,13 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
 }
 
+- (IBAction)toggleResizeOnly:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setResizeOnly:newState];
+}
+
 - (IBAction)disableLastApp:(id)sender {
     [preferences setDisabledForApp:[lastApp bundleIdentifier] withLocalizedName:[lastApp localizedName] disabled:YES];
     [_lastAppMenu setEnabled:FALSE];
@@ -479,6 +491,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 }
 -(BOOL)shouldMiddleClickResize {
     return [preferences shouldMiddleClickResize];
+}
+-(BOOL)resizeOnly {
+    return [preferences resizeOnly];
 }
 
 - (void)setMenusEnabled:(BOOL)enabled {
