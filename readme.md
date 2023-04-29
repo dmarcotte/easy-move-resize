@@ -33,11 +33,10 @@ brew install --cask easy-move-plus-resize
 * Grab the latest version from the [Releases page](https://github.com/dmarcotte/easy-move-resize/releases)
 * Unzip and run!
 
-If faced with an inability to start the application due to a macOS "cannot check it for malicious software" failure, this can be bypassed:
+### troubleshooting
 
-```sh
-xattr -dr com.apple.quarantine /Applications/Easy\ Move+Resize.app
-```
+- If MacOS refuses to launch **Easy Move+Resize** because it "cannot check it for malicious software": [see here](https://github.com/dmarcotte/easy-move-resize/issues/84#issuecomment-1184946746)
+- If Accessibility permission for **Easy Move+Resize** is not working: [see here](https://github.com/dmarcotte/easy-move-resize/issues/79#issuecomment-1109070242) 
 
 ## Contributing
 
