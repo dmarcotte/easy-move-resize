@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="19455" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19455"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -683,6 +683,12 @@
                         <action selector="modifierToggle:" target="494" id="tw0-HJ-yQk"/>
                     </connections>
                 </menuItem>
+                <menuItem title="Fn" id="3Up-j9-Hdf">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="modifierToggle:" target="494" id="ENl-Hk-exg"/>
+                    </connections>
+                </menuItem>
                 <menuItem isSeparatorItem="YES" id="CnB-BD-kwb"/>
                 <menuItem title="Bring Window to Front" id="gtC-wv-5bN">
                     <modifierMask key="keyEquivalentModifierMask"/>
@@ -738,6 +744,7 @@
                 <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
                 <outlet property="disabledAppsMenu" destination="trL-IE-A9o" id="a5e-LQ-P3b"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
+                <outlet property="fnMenu" destination="3Up-j9-Hdf" id="ans-jZ-8mN"/>
                 <outlet property="lastAppMenu" destination="ZKn-HI-Yq4" id="aO7-eG-bLr"/>
                 <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
                 <outlet property="resizeOnlyMenu" destination="ErU-VJ-PWr" id="eXx-DE-rHT"/>

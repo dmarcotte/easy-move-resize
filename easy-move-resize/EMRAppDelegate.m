@@ -55,7 +55,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         return event;
     }
 
-    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl) ^ keyModifierFlags;
+    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl | kCGEventFlagMaskSecondaryFn) ^ keyModifierFlags;
     
     if (flags & ignoredKeysMask) {
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
@@ -283,6 +283,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if (!AXIsProcessTrustedWithOptions(options)) {
         // don't have permission to do our thing right now... AXIsProcessTrustedWithOptions prompted the user to fix
         // this, so hopefully on next launch we'll be good to go
+        NSLog(@"Missing permissions");
         exit(1);
     }
     
@@ -373,6 +374,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_cmdMenu setState:0];
     [_ctrlMenu setState:0];
     [_shiftMenu setState:0];
+    [_fnMenu setState:0];
     [_disabledMenu setState:0];
     [_bringWindowFrontMenu setState:0];
     [_middleClickResizeMenu setState:0];
@@ -403,6 +405,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
     if ([flags containsObject:SHIFT_KEY]) {
         [_shiftMenu setState:1];
+    }
+    if ([flags containsObject:FN_KEY]) {
+        [_fnMenu setState:1];
     }
 }
 
@@ -501,6 +506,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_cmdMenu setEnabled:enabled];
     [_ctrlMenu setEnabled:enabled];
     [_shiftMenu setEnabled:enabled];
+    [_fnMenu setEnabled:enabled];
     [_bringWindowFrontMenu setEnabled:enabled];
     [_middleClickResizeMenu setEnabled:enabled];
 }
