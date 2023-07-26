@@ -45,7 +45,8 @@ brew install --cask easy-move-plus-resize
 ## Release process
 
 - Choose a new version number following [semantic versioning guidelines](https://semver.org)
-- Update the version number in [`easy-move-resize/easy-move-resize-Info.plist`](easy-move-resize/easy-move-resize-Info.plist), ([example](https://github.com/dmarcotte/easy-move-resize/commit/18d759dec2caf7a33b0625c17c181a195191bc92)) 
+- Update the version number in [`easy-move-resize/easy-move-resize-Info.plist`](easy-move-resize/easy-move-resize-Info.plist), ([example](https://github.com/dmarcotte/easy-move-resize/commit/18d759dec2caf7a33b0625c17c181a195191bc92))
+- Commit and push the version number update
 - `git tag <chosen version number>`
 - `git push origin --tags`
 - In XCode, choose `Product->Archive`
