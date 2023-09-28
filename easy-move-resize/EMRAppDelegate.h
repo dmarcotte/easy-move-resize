@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-// these intervals feel good in experimentation, but maybe in the future we can measure how long
-// the move and resize increments are actually taking and adjust them dynamically for each move/resize?
+// 100hz: refresh every 10ms. Seems like a reasonable default value.
 static const double kMoveFilterInterval = 0.01;
 static const double kResizeFilterInterval = 0.01;
 
