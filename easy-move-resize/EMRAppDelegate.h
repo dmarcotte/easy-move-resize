@@ -2,8 +2,8 @@
 
 // these intervals feel good in experimentation, but maybe in the future we can measure how long
 // the move and resize increments are actually taking and adjust them dynamically for each move/resize?
-static const double kMoveFilterInterval = 0.02;
-static const double kResizeFilterInterval = 0.04;
+static const double kMoveFilterInterval = 0.01;
+static const double kResizeFilterInterval = 0.01;
 
 @interface EMRAppDelegate : NSObject <NSApplicationDelegate> {
     IBOutlet NSMenu *statusMenu;
