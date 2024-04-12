@@ -33,7 +33,7 @@
     _window = window;
 }
 
-- (CFRunLoopSourceRef) runLoopSource {
+- (CFRunLoopSourceRef)runLoopSource {
     return _runLoopSource;
 }
 

@@ -53,7 +53,6 @@
     [userDefaults setObject:flagString forKey:MODIFIER_FLAGS_DEFAULTS_KEY];
 }
 
-
 - (void)setModifierKey:(NSString *)singleFlagString enabled:(BOOL)enabled {
     singleFlagString = [singleFlagString uppercaseString];
     NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
@@ -143,24 +142,27 @@
     return modifierFlags;
 }
 
--(BOOL)shouldBringWindowToFront {
+- (BOOL)shouldBringWindowToFront {
     return [userDefaults boolForKey:SHOULD_BRING_WINDOW_TO_FRONT];
 }
--(void)setShouldBringWindowToFront:(BOOL)bringToFront {
+
+- (void)setShouldBringWindowToFront:(BOOL)bringToFront {
     [userDefaults setBool:bringToFront forKey:SHOULD_BRING_WINDOW_TO_FRONT];
 }
 
--(BOOL)shouldMiddleClickResize {
+- (BOOL)shouldMiddleClickResize {
     return [userDefaults boolForKey:SHOULD_MIDDLE_CLICK_RESIZE];
 }
--(void)setShouldMiddleClickResize:(BOOL)middleClickResize {
+
+- (void)setShouldMiddleClickResize:(BOOL)middleClickResize {
     [userDefaults setBool:middleClickResize forKey:SHOULD_MIDDLE_CLICK_RESIZE];
 }
 
--(BOOL)resizeOnly {
+- (BOOL)resizeOnly {
     return [userDefaults boolForKey:RESIZE_ONLY];
 }
--(void)setResizeOnly:(BOOL)resizeOnly {
+
+- (void)setResizeOnly:(BOOL)resizeOnly {
     [userDefaults setBool:resizeOnly forKey:RESIZE_ONLY];
 }
 
