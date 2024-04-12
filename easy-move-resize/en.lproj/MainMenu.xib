@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22689"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -720,6 +720,31 @@
                     <menu key="submenu" title="Re-enable for" id="yAl-5D-6Ba"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="VPq-PN-NFG"/>
+                <menuItem title="144hz" tag="144" id="kWO-Tq-uKm">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleRefreshRate:" target="494" id="ftY-I7-3v5"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="120hz" tag="120" id="3OS-Kn-Ydz">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleRefreshRate:" target="494" id="xx6-K8-a3K"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="100hz" tag="100" id="N4d-Tv-TSa">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleRefreshRate:" target="494" id="fhy-q2-m5F"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="60hz" tag="60" id="YgX-I2-TPy">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleRefreshRate:" target="494" id="prR-1l-5w9"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="AU4-37-Pfw"/>
                 <menuItem title="Reset to Defaults" id="emi-it-fz4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
@@ -747,8 +772,12 @@
                 <outlet property="fnMenu" destination="3Up-j9-Hdf" id="ans-jZ-8mN"/>
                 <outlet property="lastAppMenu" destination="ZKn-HI-Yq4" id="aO7-eG-bLr"/>
                 <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
+                <outlet property="oneFourtyFourHertz" destination="kWO-Tq-uKm" id="NpD-do-SLj"/>
+                <outlet property="oneHundredHertz" destination="N4d-Tv-TSa" id="Eci-5r-0YB"/>
+                <outlet property="oneTwentyHertz" destination="3OS-Kn-Ydz" id="f5p-ua-UeR"/>
                 <outlet property="resizeOnlyMenu" destination="ErU-VJ-PWr" id="eXx-DE-rHT"/>
                 <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
+                <outlet property="sixtyHertz" destination="YgX-I2-TPy" id="dSN-wt-Qwr"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>
         </customObject>

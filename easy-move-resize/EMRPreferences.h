@@ -8,6 +8,7 @@
 #ifndef EMRPreferences_h
 #define EMRPreferences_h
 
+#define REFRESH_RATE @"RefreshRate"
 #define SHOULD_BRING_WINDOW_TO_FRONT @"BringToFront"
 #define SHOULD_MIDDLE_CLICK_RESIZE @"MiddleClickResize"
 #define RESIZE_ONLY @"ResizeOnly"
@@ -41,10 +42,19 @@
 - (NSSet*) getFlagStringSet;
 
 // returns a dict of disabled apps
-- (NSDictionary*) getDisabledApps;
+- (NSDictionary*)getDisabledApps;
+
+// get current refresh rate
+- (int)getRefreshRate;
+
+// set refresh rate
+- (void)setRefreshRate:(int)refreshRate;
+
+// get current refresh rate
+- (double)refreshInterval;
 
 // add or remove an app from the disabled apps list
-- (void) setDisabledForApp:(NSString*)bundleIdentifier withLocalizedName:(NSString*)localizedName disabled:(BOOL)disabled;
+- (void)setDisabledForApp:(NSString*)bundleIdentifier withLocalizedName:(NSString*)localizedName disabled:(BOOL)disabled;
 
 // reset preferences to the defaults
 - (void)setToDefaults;
