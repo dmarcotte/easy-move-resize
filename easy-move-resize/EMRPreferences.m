@@ -5,7 +5,6 @@
 @implementation EMRPreferences {
 @private
     NSUserDefaults *userDefaults;
-    double refreshInterval;
 }
 
 - (id)init {
@@ -100,7 +99,6 @@
     [userDefaults setBool:NO forKey:SHOULD_MIDDLE_CLICK_RESIZE];
     [userDefaults setBool:NO forKey:RESIZE_ONLY];
     [userDefaults setObject:[NSDictionary dictionary] forKey:DISABLED_APPS_DEFAULTS_KEY];
-    [userDefaults setInteger:60 forKey:REFRESH_RATE];
 }
 
 - (NSMutableSet*)createSetFromFlagString:(NSString*)modifierFlagString {
@@ -164,19 +162,6 @@
 
 - (void)setResizeOnly:(BOOL)resizeOnly {
     [userDefaults setBool:resizeOnly forKey:RESIZE_ONLY];
-}
-
-- (int)getRefreshRate {
-    return (int)[userDefaults integerForKey:REFRESH_RATE];
-}
-
-- (void)setRefreshRate:(int)refreshRate {
-    [userDefaults setInteger:refreshRate forKey:REFRESH_RATE];
-    refreshInterval = (1.0 / refreshRate);
-}
-
-- (double)refreshInterval {
-    return refreshInterval;
 }
 
 @end

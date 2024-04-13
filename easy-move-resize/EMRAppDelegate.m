@@ -11,6 +11,17 @@
     if (self) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"userPrefs"];
         preferences = [[EMRPreferences alloc] initWithUserDefaults:userDefaults];
+
+        // Default to 60hz, but check each connected screen for a faster refresh and use the fastest one we find
+        self.refreshInterval = 0.0167;
+        for (NSScreen *screen in [NSScreen screens]) {
+            if (@available(macOS 12.0, *)) {
+                NSTimeInterval maxRefreshInterval = [screen maximumRefreshInterval];
+                if (maxRefreshInterval < self.refreshInterval) {
+                    self.refreshInterval = maxRefreshInterval;
+                }
+            }
+        }
     }
     return self;
 }
@@ -25,7 +36,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
     bool handled = NO;
 
-    double interval = [ourDelegate refreshInterval];
+    double refreshInterval = [ourDelegate refreshInterval];
 
     if (![ourDelegate sessionActive]) {
         return event;
@@ -140,7 +151,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         CFTypeRef _position;
 
         // actually applying the change is expensive, so only do it every kMoveFilterInterval seconds
-        if (CACurrentMediaTime() - [moveResize tracking] > interval) {
+        if (CACurrentMediaTime() - [moveResize tracking] > refreshInterval) {
             _position = (CFTypeRef) (AXValueCreate(kAXValueCGPointType, (const void *) &thePoint));
             AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef) NSAccessibilityPositionAttribute, (CFTypeRef *) _position);
             if (_position != NULL) CFRelease(_position);
@@ -238,7 +249,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndSize:wndSize];
 
         // actually applying the change is expensive, so only do it every kResizeFilterInterval events
-        if (CACurrentMediaTime() - [moveResize tracking] > interval) {
+        if (CACurrentMediaTime() - [moveResize tracking] > refreshInterval) {
             // only make a call to update the position if we need to
             if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
                 CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
@@ -410,34 +421,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if ([flags containsObject:FN_KEY]) {
         [_fnMenu setState:1];
     }
-
-    [self updateRefreshRate];
-}
-
-- (void)updateRefreshRate {
-    [[self sixtyHertz] setState:0];
-    [[self oneHundredHertz] setState:0];
-    [[self oneTwentyHertz] setState:0];
-    [[self oneFourtyFourHertz] setState:0];
-
-    int refreshRate = [preferences getRefreshRate];
-    if (refreshRate == 0) {
-        refreshRate = 60;
-        [preferences setRefreshRate: 60];
-    }
-    if (refreshRate == 144) {
-        [[self oneFourtyFourHertz] setState: 1];
-    }
-    if (refreshRate == 120) {
-        [[self oneTwentyHertz] setState: 1];
-    }
-    if (refreshRate == 100) {
-        [[self oneHundredHertz] setState: 1];
-    }
-    if (refreshRate == 60) {
-        [[self sixtyHertz] setState: 1];
-    }
-
 }
 
 - (IBAction)modifierToggle:(id)sender {
@@ -509,13 +492,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [self reconstructDisabledAppsSubmenu];
 }
 
-- (IBAction)toggleRefreshRate:(id)sender {
-    NSMenuItem *menu = (NSMenuItem*)sender;
-    int refreshRate = (int)[menu tag];
-    [preferences setRefreshRate:refreshRate];
-    [self updateRefreshRate];
-}
-
 - (int)modifierFlags {
     return keyModifierFlags;
 }
@@ -540,10 +516,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 - (BOOL)resizeOnly {
     return [preferences resizeOnly];
-}
-
-- (double)refreshInterval {
-    return [preferences refreshInterval];
 }
 
 - (void)setMenusEnabled:(BOOL)enabled {
