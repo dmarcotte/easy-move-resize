@@ -1,10 +1,5 @@
 #import <Cocoa/Cocoa.h>
 
-// these intervals feel good in experimentation, but maybe in the future we can measure how long
-// the move and resize increments are actually taking and adjust them dynamically for each move/resize?
-static const double kMoveFilterInterval = 0.02;
-static const double kResizeFilterInterval = 0.04;
-
 @interface EMRAppDelegate : NSObject <NSApplicationDelegate> {
     IBOutlet NSMenu *statusMenu;
     NSStatusItem * statusItem;
@@ -34,5 +29,7 @@ static const double kResizeFilterInterval = 0.04;
 @property (weak) IBOutlet NSMenuItem *disabledAppsMenu;
 @property (weak) IBOutlet NSMenuItem *lastAppMenu;
 @property (nonatomic) BOOL sessionActive;
+@property float moveFilterInterval;
+@property float resizeFilterInterval;
 
 @end
