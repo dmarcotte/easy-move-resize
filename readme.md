@@ -50,7 +50,7 @@ brew install --cask easy-move-plus-resize
 - `git tag <chosen version number>`
 - `git push origin --tags`
 - In XCode, choose `Product->Archive`
-- Click "Distribute App", select "Copy App", "Next", then "Export"
+- Click "Distribute App", select "Custom...", "Next", then "Copy App", "Next" 
 - In a shell, navigate to the directory created, then:
 - `zip -r Easy.Move+Resize.app.zip Easy\ Move+Resize.app`
 - Upload the resulting zip file to the appropriate tag on the [Releases](https://github.com/dmarcotte/easy-move-resize/releases) page
