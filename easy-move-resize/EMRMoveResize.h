@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 
 enum ResizeDirectionX {
     right,
@@ -17,6 +18,17 @@ struct ResizeSection {
     enum ResizeSectionY yResizeDirection;
 };
 
+typedef NS_ENUM(NSInteger, EMRTileZone) {
+    EMRTileZoneNone = 0,
+    EMRTileZoneLeftHalf,
+    EMRTileZoneRightHalf,
+    EMRTileZoneMaximize,
+    EMRTileZoneTopLeftQuarter,
+    EMRTileZoneTopRightQuarter,
+    EMRTileZoneBottomLeftQuarter,
+    EMRTileZoneBottomRightQuarter
+};
+
 @interface EMRMoveResize : NSObject {
     CFMachPortRef _eventTap;
     CFRunLoopSourceRef _runLoopSource;
@@ -25,6 +37,10 @@ struct ResizeSection {
     CFTimeInterval _tracking;
     NSPoint _wndPosition;
     NSSize _wndSize;
+    EMRTileZone _currentTileZone;
+    NSWindow *_tilePreviewWindow;
+    NSRect _preTileFrame;
+    BOOL _isWindowTiled;
 }
 
 + (id) instance;
@@ -36,5 +52,9 @@ struct ResizeSection {
 @property CFTimeInterval tracking;
 @property NSPoint wndPosition;
 @property NSSize wndSize;
+@property EMRTileZone currentTileZone;
+@property (strong) NSWindow *tilePreviewWindow;
+@property NSRect preTileFrame;
+@property BOOL isWindowTiled;
 
 @end
