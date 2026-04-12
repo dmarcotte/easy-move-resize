@@ -109,7 +109,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         NSRunningApplication* app;
         if(!AXUIElementGetPid(_clickedWindow, &PID)) {
             app = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
-            if ([[ourDelegate getDisabledApps] objectForKey:[app bundleIdentifier]] != nil) {
+            NSString *appKey = [app bundleIdentifier] ?: [app localizedName];
+            if (appKey != nil && [[ourDelegate getDisabledApps] objectForKey:appKey] != nil) {
                 [moveResize setTracking:0];
                 return event;
             }
@@ -483,7 +484,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 }
 
 - (IBAction)disableLastApp:(id)sender {
-    [preferences setDisabledForApp:[lastApp bundleIdentifier] withLocalizedName:[lastApp localizedName] disabled:YES];
+    NSString *appKey = [lastApp bundleIdentifier] ?: [lastApp localizedName];
+    [preferences setDisabledForApp:appKey withLocalizedName:[lastApp localizedName] disabled:YES];
     [_lastAppMenu setEnabled:FALSE];
     [self reconstructDisabledAppsSubmenu];
 }
@@ -491,7 +493,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 - (IBAction)enableDisabledApp:(id)sender {
     NSString *bundleId = [sender representedObject];
     [preferences setDisabledForApp:bundleId withLocalizedName:nil disabled:NO];
-    if (lastApp != nil && [[lastApp bundleIdentifier] isEqualToString:bundleId]) {
+    NSString *lastAppKey = [lastApp bundleIdentifier] ?: [lastApp localizedName];
+    if (lastApp != nil && [lastAppKey isEqualToString:bundleId]) {
         [_lastAppMenu setEnabled:YES];
     }
     [self reconstructDisabledAppsSubmenu];
