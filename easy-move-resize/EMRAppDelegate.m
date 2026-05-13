@@ -2,8 +2,196 @@
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
 
-/* Return the minimum refresh interval (1/refresh rate) across all screens. If the user
- * is on a version of MacOS < 12.0 then 60hz refresh rate is assumed. */
+static const CGFloat kEdgeThreshold = 10.0;
+static const CGFloat kCornerThreshold = 50.0;
+
+EMRTileZone detectTileZone(CGPoint mouseLocation) {
+    NSScreen *screen = nil;
+    for (NSScreen *s in [NSScreen screens]) {
+        if (NSPointInRect(NSPointFromCGPoint(mouseLocation), s.frame)) {
+            screen = s;
+            break;
+        }
+    }
+    if (!screen) {
+        screen = [NSScreen mainScreen];
+    }
+    
+    NSRect frame = screen.frame;
+    
+    CGFloat screenLeft = frame.origin.x;
+    CGFloat screenRight = frame.origin.x + frame.size.width;
+    CGFloat screenTop = frame.origin.y + frame.size.height;
+    
+    BOOL nearLeft = mouseLocation.x <= screenLeft + kEdgeThreshold;
+    BOOL nearRight = mouseLocation.x >= screenRight - kEdgeThreshold;
+    BOOL nearTop = mouseLocation.y <= frame.origin.y + kEdgeThreshold;
+    
+    BOOL inTopCornerZone = mouseLocation.y <= frame.origin.y + kCornerThreshold;
+    BOOL inBottomCornerZone = mouseLocation.y >= screenTop - kCornerThreshold - 25;
+    
+    if (nearTop && !nearLeft && !nearRight) {
+        return EMRTileZoneMaximize;
+    }
+    if (nearLeft && inTopCornerZone) {
+        return EMRTileZoneTopLeftQuarter;
+    }
+    if (nearRight && inTopCornerZone) {
+        return EMRTileZoneTopRightQuarter;
+    }
+    if (nearLeft && inBottomCornerZone) {
+        return EMRTileZoneBottomLeftQuarter;
+    }
+    if (nearRight && inBottomCornerZone) {
+        return EMRTileZoneBottomRightQuarter;
+    }
+    if (nearLeft) {
+        return EMRTileZoneLeftHalf;
+    }
+    if (nearRight) {
+        return EMRTileZoneRightHalf;
+    }
+    
+    return EMRTileZoneNone;
+}
+
+NSRect getTileFrame(EMRTileZone zone, CGPoint mouseLocation) {
+    NSScreen *screen = nil;
+    for (NSScreen *s in [NSScreen screens]) {
+        if (NSPointInRect(NSPointFromCGPoint(mouseLocation), s.frame)) {
+            screen = s;
+            break;
+        }
+    }
+    if (!screen) {
+        screen = [NSScreen mainScreen];
+    }
+    
+    NSRect visibleFrame = screen.visibleFrame;
+    CGFloat halfWidth = visibleFrame.size.width / 2;
+    CGFloat halfHeight = visibleFrame.size.height / 2;
+    
+    switch (zone) {
+        case EMRTileZoneLeftHalf:
+            return NSMakeRect(visibleFrame.origin.x, visibleFrame.origin.y,
+                            halfWidth, visibleFrame.size.height);
+        case EMRTileZoneRightHalf:
+            return NSMakeRect(visibleFrame.origin.x + halfWidth, visibleFrame.origin.y,
+                            halfWidth, visibleFrame.size.height);
+        case EMRTileZoneMaximize:
+            return visibleFrame;
+        case EMRTileZoneTopLeftQuarter:
+            return NSMakeRect(visibleFrame.origin.x, visibleFrame.origin.y + halfHeight,
+                            halfWidth, halfHeight);
+        case EMRTileZoneTopRightQuarter:
+            return NSMakeRect(visibleFrame.origin.x + halfWidth, visibleFrame.origin.y + halfHeight,
+                            halfWidth, halfHeight);
+        case EMRTileZoneBottomLeftQuarter:
+            return NSMakeRect(visibleFrame.origin.x, visibleFrame.origin.y,
+                            halfWidth, halfHeight);
+        case EMRTileZoneBottomRightQuarter:
+            return NSMakeRect(visibleFrame.origin.x + halfWidth, visibleFrame.origin.y,
+                            halfWidth, halfHeight);
+        case EMRTileZoneNone:
+        default:
+            return NSZeroRect;
+    }
+}
+
+NSRect convertToScreenCoordinates(NSRect rect) {
+    NSRect mainScreenFrame = [[NSScreen mainScreen] frame];
+    CGFloat mainScreenHeight = mainScreenFrame.size.height;
+    return NSMakeRect(rect.origin.x,
+                     mainScreenHeight - rect.origin.y - rect.size.height,
+                     rect.size.width,
+                     rect.size.height);
+}
+
+void showTilePreview(EMRMoveResize *moveResize, EMRTileZone zone, CGPoint mouseLocation) {
+    if (zone == EMRTileZoneNone) {
+        if ([moveResize tilePreviewWindow]) {
+            [[moveResize tilePreviewWindow] orderOut:nil];
+        }
+        return;
+    }
+    
+    NSRect tileFrame = getTileFrame(zone, mouseLocation);
+    if (NSIsEmptyRect(tileFrame)) {
+        return;
+    }
+    
+    NSWindow *previewWindow = [moveResize tilePreviewWindow];
+    if (!previewWindow) {
+        previewWindow = [[NSWindow alloc] initWithContentRect:tileFrame
+                                                   styleMask:NSWindowStyleMaskBorderless
+                                                     backing:NSBackingStoreBuffered
+                                                       defer:NO];
+        [previewWindow setBackgroundColor:[[NSColor systemBlueColor] colorWithAlphaComponent:0.2]];
+        [previewWindow setOpaque:NO];
+        [previewWindow setLevel:NSFloatingWindowLevel];
+        [previewWindow setIgnoresMouseEvents:YES];
+        [previewWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorStationary];
+        [moveResize setTilePreviewWindow:previewWindow];
+    }
+    
+    [previewWindow setFrame:tileFrame display:YES];
+    [previewWindow orderFront:nil];
+}
+
+void hideTilePreview(EMRMoveResize *moveResize) {
+    if ([moveResize tilePreviewWindow]) {
+        [[moveResize tilePreviewWindow] orderOut:nil];
+    }
+    [moveResize setCurrentTileZone:EMRTileZoneNone];
+}
+
+void applyTileZone(EMRMoveResize *moveResize, EMRTileZone zone, CGPoint mouseLocation) {
+    if (zone == EMRTileZoneNone) {
+        return;
+    }
+    
+    AXUIElementRef window = [moveResize window];
+    if (!window) {
+        return;
+    }
+    
+    NSRect tileFrame = getTileFrame(zone, mouseLocation);
+    if (NSIsEmptyRect(tileFrame)) {
+        return;
+    }
+    
+    if (![moveResize isWindowTiled]) {
+        NSPoint currentPos = [moveResize wndPosition];
+        CFTypeRef sizeRef = nil;
+        CGSize currentSize;
+        if (AXUIElementCopyAttributeValue(window, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &sizeRef) == kAXErrorSuccess) {
+            AXValueGetValue(sizeRef, kAXValueCGSizeType, &currentSize);
+            CFRelease(sizeRef);
+        } else {
+            currentSize = CGSizeMake(800, 600);
+        }
+        
+        NSRect preTileFrame = NSMakeRect(currentPos.x, currentPos.y, currentSize.width, currentSize.height);
+        [moveResize setPreTileFrame:preTileFrame];
+    }
+    
+    NSRect screenCoordFrame = convertToScreenCoordinates(tileFrame);
+    
+    CGPoint position = CGPointMake(screenCoordFrame.origin.x, screenCoordFrame.origin.y);
+    CGSize size = CGSizeMake(screenCoordFrame.size.width, screenCoordFrame.size.height);
+    
+    CFTypeRef positionRef = AXValueCreate(kAXValueCGPointType, &position);
+    CFTypeRef sizeRef = AXValueCreate(kAXValueCGSizeType, &size);
+    
+    AXUIElementSetAttributeValue(window, (__bridge CFStringRef)NSAccessibilityPositionAttribute, positionRef);
+    AXUIElementSetAttributeValue(window, (__bridge CFStringRef)NSAccessibilitySizeAttribute, sizeRef);
+    
+    CFRelease(positionRef);
+    CFRelease(sizeRef);
+    
+    [moveResize setIsWindowTiled:YES];
+}
+
 float getMinRefreshInterval(void) {
     float minInterval = 1.0 / 60;
     for (unsigned i=0; i<NSScreen.screens.count; ++i) {
@@ -147,6 +335,40 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         AXUIElementRef _clickedWindow = [moveResize window];
         double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
         double deltaY = CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
+        
+        if ([moveResize isWindowTiled] && [ourDelegate edgeTilingEnabled]) {
+            NSRect preTileFrame = [moveResize preTileFrame];
+            CGPoint mouseLocation = CGEventGetLocation(event);
+            NSPoint tiledPos = [moveResize wndPosition];
+            
+            CFTypeRef tiledSizeRef = nil;
+            CGSize tiledSize;
+            if (AXUIElementCopyAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &tiledSizeRef) == kAXErrorSuccess) {
+                AXValueGetValue(tiledSizeRef, kAXValueCGSizeType, &tiledSize);
+                CFRelease(tiledSizeRef);
+            } else {
+                tiledSize = CGSizeMake(preTileFrame.size.width, preTileFrame.size.height);
+            }
+            
+            CGFloat relativeX = (mouseLocation.x - tiledPos.x) / tiledSize.width;
+            CGFloat relativeY = (mouseLocation.y - tiledPos.y) / tiledSize.height;
+            
+            CGSize originalSize = CGSizeMake(preTileFrame.size.width, preTileFrame.size.height);
+            CFTypeRef sizeRef = AXValueCreate(kAXValueCGSizeType, &originalSize);
+            AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, sizeRef);
+            CFRelease(sizeRef);
+            
+            CGFloat newX = mouseLocation.x - (relativeX * preTileFrame.size.width);
+            CGFloat newY = mouseLocation.y - (relativeY * preTileFrame.size.height);
+            CGPoint newPosition = CGPointMake(newX, newY);
+            CFTypeRef posRef = AXValueCreate(kAXValueCGPointType, &newPosition);
+            AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, posRef);
+            CFRelease(posRef);
+            
+            [moveResize setWndPosition:NSMakePoint(newX, newY)];
+            [moveResize setIsWindowTiled:NO];
+            [moveResize setPreTileFrame:NSZeroRect];
+        }
 
         NSPoint cTopLeft = [moveResize wndPosition];
         NSPoint thePoint;
@@ -162,6 +384,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             if (_position != NULL) CFRelease(_position);
             [moveResize setTracking:CACurrentMediaTime()];
         }
+        
+        if ([ourDelegate edgeTilingEnabled]) {
+            CGPoint mouseLocation = CGEventGetLocation(event);
+            EMRTileZone zone = detectTileZone(mouseLocation);
+            [moveResize setCurrentTileZone:zone];
+            showTilePreview(moveResize, zone, mouseLocation);
+        }
+        
         handled = YES;
     }
 
@@ -272,6 +502,16 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     if ((type == kCGEventLeftMouseUp || type == resizeModifierUp)
         && [moveResize tracking] > 0) {
+        
+        if (type == kCGEventLeftMouseUp && [ourDelegate edgeTilingEnabled]) {
+            CGPoint mouseLocation = CGEventGetLocation(event);
+            EMRTileZone zone = [moveResize currentTileZone];
+            if (zone != EMRTileZoneNone) {
+                applyTileZone(moveResize, zone, mouseLocation);
+            }
+            hideTilePreview(moveResize);
+        }
+        
         [moveResize setTracking:0];
         handled = YES;
     }
@@ -395,10 +635,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_disabledMenu setState:0];
     [_bringWindowFrontMenu setState:0];
     [_middleClickResizeMenu setState:0];
+    [_edgeTilingMenu setState:0];
 
     bool shouldBringWindowToFront = [preferences shouldBringWindowToFront];
     bool shouldMiddleClickResize = [preferences shouldMiddleClickResize];
     bool resizeOnly = [preferences resizeOnly];
+    bool edgeTilingEnabled = [preferences edgeTilingEnabled];
 
     if(shouldBringWindowToFront){
         [_bringWindowFrontMenu setState:1];
@@ -408,6 +650,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
     if(resizeOnly){
         [_resizeOnlyMenu setState:1];
+    }
+    if(edgeTilingEnabled){
+        [_edgeTilingMenu setState:1];
     }
     
     NSSet* flags = [preferences getFlagStringSet];
@@ -482,6 +727,13 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [preferences setResizeOnly:newState];
 }
 
+- (IBAction)toggleEdgeTiling:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setEdgeTilingEnabled:newState];
+}
+
 - (IBAction)disableLastApp:(id)sender {
     [preferences setDisabledForApp:[lastApp bundleIdentifier] withLocalizedName:[lastApp localizedName] disabled:YES];
     [_lastAppMenu setEnabled:FALSE];
@@ -517,6 +769,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 -(BOOL)resizeOnly {
     return [preferences resizeOnly];
 }
+-(BOOL)edgeTilingEnabled {
+    return [preferences edgeTilingEnabled];
+}
 
 - (void)setMenusEnabled:(BOOL)enabled {
     [_altMenu setEnabled:enabled];
@@ -526,6 +781,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_fnMenu setEnabled:enabled];
     [_bringWindowFrontMenu setEnabled:enabled];
     [_middleClickResizeMenu setEnabled:enabled];
+    [_edgeTilingMenu setEnabled:enabled];
 }
 
 - (void)reconstructDisabledAppsSubmenu {

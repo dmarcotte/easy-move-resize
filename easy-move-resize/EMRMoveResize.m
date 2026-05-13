@@ -6,6 +6,10 @@
 @synthesize tracking = _tracking;
 @synthesize wndPosition = _wndPosition;
 @synthesize wndSize = _wndSize;
+@synthesize currentTileZone = _currentTileZone;
+@synthesize tilePreviewWindow = _tilePreviewWindow;
+@synthesize preTileFrame = _preTileFrame;
+@synthesize isWindowTiled = _isWindowTiled;
 
 + (EMRMoveResize*)instance {
     static EMRMoveResize *instance = nil;
@@ -20,6 +24,10 @@
 - init {
     _window = nil;
     _runLoopSource = nil;
+    _currentTileZone = EMRTileZoneNone;
+    _tilePreviewWindow = nil;
+    _preTileFrame = NSZeroRect;
+    _isWindowTiled = NO;
     return self;
 }
 

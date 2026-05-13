@@ -11,6 +11,7 @@
 #define SHOULD_BRING_WINDOW_TO_FRONT @"BringToFront"
 #define SHOULD_MIDDLE_CLICK_RESIZE @"MiddleClickResize"
 #define RESIZE_ONLY @"ResizeOnly"
+#define EDGE_TILING_ENABLED @"EdgeTilingEnabled"
 #define MODIFIER_FLAGS_DEFAULTS_KEY @"ModifierFlags"
 #define DISABLED_APPS_DEFAULTS_KEY @"DisabledApps"
 #define CTRL_KEY @"CTRL"
@@ -27,6 +28,7 @@
 @property (nonatomic) BOOL shouldBringWindowToFront;
 @property (nonatomic) BOOL shouldMiddleClickResize;
 @property (nonatomic) BOOL resizeOnly;
+@property (nonatomic) BOOL edgeTilingEnabled;
 
 // Initialize an EMRPreferences, persisting settings to the given userDefaults
 - (id)initWithUserDefaults:(NSUserDefaults *)defaults;
