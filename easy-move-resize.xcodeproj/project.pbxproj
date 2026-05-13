@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		52B5E8F61C513E3D0055C181 /* EMRPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 52B5E8F51C513E3D0055C181 /* EMRPreferences.m */; };
 		65CF01651F229C34002259F2 /* EMRPreferencesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 65CF01641F229C34002259F2 /* EMRPreferencesTest.m */; };
+		AA0001011A229C34002259F2 /* EMRMoveResizeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0001021A229C34002259F2 /* EMRMoveResizeTest.m */; };
+		AA0001031A229C34002259F2 /* EMRAppDelegateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0001041A229C34002259F2 /* EMRAppDelegateTest.m */; };
 		6ED47B65183BF3E800859244 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED47B64183BF3E800859244 /* Cocoa.framework */; };
 		6ED47B6F183BF3E800859244 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6ED47B6D183BF3E800859244 /* InfoPlist.strings */; };
 		6ED47B71183BF3E800859244 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED47B70183BF3E800859244 /* main.m */; };
@@ -37,6 +39,8 @@
 		65CF01621F229C34002259F2 /* easy-move-resizeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "easy-move-resizeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		65CF01641F229C34002259F2 /* EMRPreferencesTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRPreferencesTest.m; sourceTree = "<group>"; };
 		65CF01661F229C34002259F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA0001021A229C34002259F2 /* EMRMoveResizeTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRMoveResizeTest.m; sourceTree = "<group>"; };
+		AA0001041A229C34002259F2 /* EMRAppDelegateTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EMRAppDelegateTest.m; sourceTree = "<group>"; };
 		6E238EE0184504BC00E47948 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6ED47B61183BF3E800859244 /* Easy Move+Resize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Easy Move+Resize.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ED47B64183BF3E800859244 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -84,6 +88,8 @@
 			isa = PBXGroup;
 			children = (
 				65CF01641F229C34002259F2 /* EMRPreferencesTest.m */,
+				AA0001021A229C34002259F2 /* EMRMoveResizeTest.m */,
+				AA0001041A229C34002259F2 /* EMRAppDelegateTest.m */,
 				65CF01661F229C34002259F2 /* Info.plist */,
 			);
 			path = "easy-move-resizeTests";
@@ -263,6 +269,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				65CF01651F229C34002259F2 /* EMRPreferencesTest.m in Sources */,
+				AA0001011A229C34002259F2 /* EMRMoveResizeTest.m in Sources */,
+				AA0001031A229C34002259F2 /* EMRAppDelegateTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

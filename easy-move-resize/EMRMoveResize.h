@@ -25,6 +25,7 @@ struct ResizeSection {
     CFTimeInterval _tracking;
     NSPoint _wndPosition;
     NSSize _wndSize;
+    BOOL _isResizing;
 }
 
 + (id) instance;
@@ -36,5 +37,6 @@ struct ResizeSection {
 @property CFTimeInterval tracking;
 @property NSPoint wndPosition;
 @property NSSize wndSize;
+@property BOOL isResizing;
 
 @end

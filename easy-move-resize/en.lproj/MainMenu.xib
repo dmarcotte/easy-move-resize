@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -659,47 +659,10 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="a5T-MQ-31B"/>
-                <menuItem title="Alt" id="toO-ef-6Sa">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="gvG-0m-DpJ"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Cmd" id="yMO-nW-fjN">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="HrM-v0-sYh"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Ctrl" id="cOd-3Z-1Py">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="niS-3l-sN2"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Shift" id="SZL-bI-dng">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="tw0-HJ-yQk"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Fn" id="3Up-j9-Hdf">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="modifierToggle:" target="494" id="ENl-Hk-exg"/>
-                    </connections>
-                </menuItem>
-                <menuItem isSeparatorItem="YES" id="CnB-BD-kwb"/>
                 <menuItem title="Bring Window to Front" id="gtC-wv-5bN">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="toggleBringWindowToFront:" target="494" id="utG-yc-4A0"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Middle Click resize" id="S2R-bI-Azo">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="toggleMiddleClickResize:" target="494" id="gAe-qW-XIr"/>
                     </connections>
                 </menuItem>
                 <menuItem title="Resize only" id="ErU-VJ-PWr">
@@ -738,17 +701,11 @@
         </menu>
         <customObject id="494" customClass="EMRAppDelegate">
             <connections>
-                <outlet property="altMenu" destination="toO-ef-6Sa" id="nQz-2m-M8b"/>
                 <outlet property="bringWindowFrontMenu" destination="gtC-wv-5bN" id="TDw-e0-RDR"/>
-                <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
-                <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
                 <outlet property="disabledAppsMenu" destination="trL-IE-A9o" id="a5e-LQ-P3b"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
-                <outlet property="fnMenu" destination="3Up-j9-Hdf" id="ans-jZ-8mN"/>
                 <outlet property="lastAppMenu" destination="ZKn-HI-Yq4" id="aO7-eG-bLr"/>
-                <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
                 <outlet property="resizeOnlyMenu" destination="ErU-VJ-PWr" id="eXx-DE-rHT"/>
-                <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>
         </customObject>

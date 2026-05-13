@@ -2,6 +2,10 @@
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
 
+#define ALL_MODIFIERS (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | \
+    kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | \
+    kCGEventFlagMaskControl | kCGEventFlagMaskSecondaryFn)
+
 /* Return the minimum refresh interval (1/refresh rate) across all screens. If the user
  * is on a version of MacOS < 12.0 then 60hz refresh rate is assumed. */
 float getMinRefreshInterval(void) {
@@ -32,57 +36,96 @@ float getMinRefreshInterval(void) {
     return self;
 }
 
+- (void)refreshCachedPreferences {
+    keyModifierFlags = [preferences modifierFlags];
+    resizeKeyModifierFlags = [preferences resizeModifierFlags];
+    cachedMoveMouseButton = [preferences moveMouseButton];
+    cachedResizeMouseButton = [preferences resizeMouseButton];
+    cachedHasConflict = [preferences hasConflictingConfig];
+}
+
+#pragma mark - Event callback
+
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
 
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
-    int keyModifierFlags = [ourDelegate modifierFlags];
-    bool shouldMiddleClickResize = [ourDelegate shouldMiddleClickResize];
-    bool resizeOnly = [ourDelegate resizeOnly];
-    CGEventType resizeModifierDown = kCGEventRightMouseDown;
-    CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
-    CGEventType resizeModifierUp = kCGEventRightMouseUp;
-    bool handled = NO;
+
+    // Re-enable tap if it was disabled (usually happens on a slow resizing app)
+    if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput)) {
+        EMRMoveResize* mr = [EMRMoveResize instance];
+        CGEventTapEnable([mr eventTap], true);
+        return event;
+    }
 
     if (![ourDelegate sessionActive]) {
         return event;
     }
 
-    if (keyModifierFlags == 0) {
-        // No modifier keys set. Disable behaviour.
-        return event;
-    }
-    
-    if (shouldMiddleClickResize){
-        resizeModifierDown = kCGEventOtherMouseDown;
-        resizeModifierDragged = kCGEventOtherMouseDragged;
-        resizeModifierUp = kCGEventOtherMouseUp;
-    }
-    
-    EMRMoveResize* moveResize = [EMRMoveResize instance];
+    // Read cached preference values (ivars, not NSUserDefaults)
+    int moveModifiers = ourDelegate->keyModifierFlags;
+    int resizeModifiers = ourDelegate->resizeKeyModifierFlags;
+    int moveBtn = ourDelegate->cachedMoveMouseButton;
+    int resizeBtn = ourDelegate->cachedResizeMouseButton;
+    bool resizeOnly = [ourDelegate resizeOnly];
 
-    if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput)) {
-        // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
-        CGEventTapEnable([moveResize eventTap], true);
+    // Both modifier sets are zero — nothing to do
+    if (moveModifiers == 0 && resizeModifiers == 0) {
         return event;
     }
-    
+
     CGEventFlags flags = CGEventGetFlags(event);
-    if ((flags & (keyModifierFlags)) != (keyModifierFlags)) {
-        // didn't find our expected modifiers; this event isn't for us
+    EMRMoveResize *moveResize = [EMRMoveResize instance];
+
+    // Check if flags match each modifier set with no extra modifiers
+    BOOL moveModifiersMatch = NO;
+    BOOL resizeModifiersMatch = NO;
+
+    if (moveModifiers != 0 && (flags & moveModifiers) == (CGEventFlags)moveModifiers) {
+        int moveIgnored = ALL_MODIFIERS ^ moveModifiers;
+        moveModifiersMatch = !(flags & moveIgnored);
+    }
+    if (resizeModifiers != 0 && (flags & resizeModifiers) == (CGEventFlags)resizeModifiers) {
+        int resizeIgnored = ALL_MODIFIERS ^ resizeModifiers;
+        resizeModifiersMatch = !(flags & resizeIgnored);
+    }
+
+    // Map CGEvent type to button number and event phase
+    int eventButton = -1;
+    BOOL isDown = NO, isDrag = NO, isUp = NO;
+    switch (type) {
+        case kCGEventLeftMouseDown:     eventButton = 0; isDown = YES; break;
+        case kCGEventRightMouseDown:    eventButton = 1; isDown = YES; break;
+        case kCGEventOtherMouseDown:    eventButton = 2; isDown = YES; break;
+        case kCGEventLeftMouseDragged:  eventButton = 0; isDrag = YES; break;
+        case kCGEventRightMouseDragged: eventButton = 1; isDrag = YES; break;
+        case kCGEventOtherMouseDragged: eventButton = 2; isDrag = YES; break;
+        case kCGEventLeftMouseUp:       eventButton = 0; isUp = YES; break;
+        case kCGEventRightMouseUp:      eventButton = 1; isUp = YES; break;
+        case kCGEventOtherMouseUp:      eventButton = 2; isUp = YES; break;
+        default: return event;
+    }
+
+    // Determine if this event matches move, resize, or neither
+    BOOL isForMove = (eventButton == moveBtn && moveModifiersMatch && !resizeOnly);
+    BOOL isForResize = (eventButton == resizeBtn && resizeModifiersMatch);
+
+    // Conflict resolution: if both match, prefer resize
+    if (isForMove && isForResize) {
+        isForMove = NO;
+    }
+
+    // If neither matches and we're not in an active drag, this event isn't for us
+    if (!isForMove && !isForResize && !([moveResize tracking] > 0)) {
         return event;
     }
 
-    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl | kCGEventFlagMaskSecondaryFn) ^ keyModifierFlags;
-    
-    if (flags & ignoredKeysMask) {
-        // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
-        return event;
-    }
+    BOOL handled = NO;
 
-    if ((type == kCGEventLeftMouseDown && !resizeOnly)
-            || type == resizeModifierDown) {
+    // --- MOUSE DOWN: capture window, set isResizing, compute resize direction ---
+    if (isDown && (isForMove || isForResize)) {
         CGPoint mouseLocation = CGEventGetLocation(event);
         [moveResize setTracking:CACurrentMediaTime()];
+        [moveResize setIsResizing:isForResize];
 
         AXUIElementRef _systemWideElement;
         AXUIElementRef _clickedWindow = NULL;
@@ -104,13 +147,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             }
         }
         CFRelease(_systemWideElement);
-        
+
         pid_t PID;
         NSRunningApplication* app;
         if(!AXUIElementGetPid(_clickedWindow, &PID)) {
             app = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
             if ([[ourDelegate getDisabledApps] objectForKey:[app bundleIdentifier]] != nil) {
                 [moveResize setTracking:0];
+                [moveResize setIsResizing:NO];
                 return event;
             }
             [ourDelegate setMostRecentApp:app];
@@ -122,7 +166,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             }
             AXUIElementPerformAction(_clickedWindow, kAXRaiseAction);
         }
-        
+
         CFTypeRef _cPosition = nil;
         NSPoint cTopLeft;
         if (AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, &_cPosition) == kAXErrorSuccess) {
@@ -132,160 +176,157 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             }
             CFRelease(_cPosition);
         }
-        
+
         cTopLeft.x = (int) cTopLeft.x;
         cTopLeft.y = (int) cTopLeft.y;
 
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWindow:_clickedWindow];
         if (_clickedWindow != nil) CFRelease(_clickedWindow);
-        handled = YES;
-    }
 
-    if (type == kCGEventLeftMouseDragged
-            && [moveResize tracking] > 0) {
-        AXUIElementRef _clickedWindow = [moveResize window];
-        double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
-        double deltaY = CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
+        // If this is a resize, compute resize direction from click position in window thirds
+        if (isForResize) {
+            AXUIElementRef _resizeWindow = [moveResize window];
+            struct ResizeSection resizeSection;
 
-        NSPoint cTopLeft = [moveResize wndPosition];
-        NSPoint thePoint;
-        thePoint.x = cTopLeft.x + deltaX;
-        thePoint.y = cTopLeft.y + deltaY;
-        [moveResize setWndPosition:thePoint];
-        CFTypeRef _position;
+            CGPoint clickPoint = mouseLocation;
+            clickPoint.x -= cTopLeft.x;
+            clickPoint.y -= cTopLeft.y;
 
-        // actually applying the change is expensive, so only do it every kMoveFilterInterval seconds
-        if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.moveFilterInterval) {
-            _position = (CFTypeRef) (AXValueCreate(kAXValueCGPointType, (const void *) &thePoint));
-            AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef) NSAccessibilityPositionAttribute, (CFTypeRef *) _position);
-            if (_position != NULL) CFRelease(_position);
-            [moveResize setTracking:CACurrentMediaTime()];
-        }
-        handled = YES;
-    }
+            CFTypeRef _cSize;
+            NSSize cSize;
+            if (!(AXUIElementCopyAttributeValue((AXUIElementRef)_resizeWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess)
+                    || !AXValueGetValue(_cSize, kAXValueCGSizeType, (void *)&cSize)) {
+                NSLog(@"ERROR: Could not decode size");
+                [moveResize setTracking:0];
+                [moveResize setIsResizing:NO];
+                return NULL;
+            }
+            CFRelease(_cSize);
 
-    if (type == resizeModifierDown) {
-        AXUIElementRef _clickedWindow = [moveResize window];
+            NSSize wndSize = cSize;
 
-        // on resizeModifierDown click, record which direction we should resize in on the drag
-        struct ResizeSection resizeSection;
-
-        CGPoint clickPoint = CGEventGetLocation(event);
-
-        NSPoint cTopLeft = [moveResize wndPosition];
-
-        clickPoint.x -= cTopLeft.x;
-        clickPoint.y -= cTopLeft.y;
-
-        CFTypeRef _cSize;
-        NSSize cSize;
-        if (!(AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess)
-                || !AXValueGetValue(_cSize, kAXValueCGSizeType, (void *)&cSize)) {
-            NSLog(@"ERROR: Could not decode size");
-            return NULL;
-        }
-        CFRelease(_cSize);
-
-        NSSize wndSize = cSize;
-
-        if (clickPoint.x < wndSize.width/3) {
-            resizeSection.xResizeDirection = left;
-        } else if (clickPoint.x > 2*wndSize.width/3) {
-            resizeSection.xResizeDirection = right;
-        } else {
-            resizeSection.xResizeDirection = noX;
-        }
-
-        if (clickPoint.y < wndSize.height/3) {
-            resizeSection.yResizeDirection = bottom;
-        } else  if (clickPoint.y > 2*wndSize.height/3) {
-            resizeSection.yResizeDirection = top;
-        } else {
-            resizeSection.yResizeDirection = noY;
-        }
-
-        [moveResize setWndSize:wndSize];
-        [moveResize setResizeSection:resizeSection];
-        handled = YES;
-    }
-
-    if (type == resizeModifierDragged
-            && [moveResize tracking] > 0) {
-        AXUIElementRef _clickedWindow = [moveResize window];
-        struct ResizeSection resizeSection = [moveResize resizeSection];
-        int deltaX = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
-        int deltaY = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
-
-        NSPoint cTopLeft = [moveResize wndPosition];
-        NSSize wndSize = [moveResize wndSize];
-
-        switch (resizeSection.xResizeDirection) {
-            case right:
-                wndSize.width += deltaX;
-                break;
-            case left:
-                wndSize.width -= deltaX;
-                cTopLeft.x += deltaX;
-                break;
-            case noX:
-                // nothing to do
-                break;
-            default:
-                [NSException raise:@"Unknown xResizeSection" format:@"No case for %d", resizeSection.xResizeDirection];
-        }
-
-        switch (resizeSection.yResizeDirection) {
-            case top:
-                wndSize.height += deltaY;
-                break;
-            case bottom:
-                wndSize.height -= deltaY;
-                cTopLeft.y += deltaY;
-                break;
-            case noY:
-                // nothing to do
-                break;
-            default:
-                [NSException raise:@"Unknown yResizeSection" format:@"No case for %d", resizeSection.yResizeDirection];
-        }
-
-        [moveResize setWndPosition:cTopLeft];
-        [moveResize setWndSize:wndSize];
-
-        // actually applying the change is expensive, so only do it every kResizeFilterInterval events
-        if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.resizeFilterInterval) {
-            // only make a call to update the position if we need to
-            if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
-                CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
-                AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
-                CFRelease(_position);
+            if (clickPoint.x < wndSize.width/3) {
+                resizeSection.xResizeDirection = left;
+            } else if (clickPoint.x > 2*wndSize.width/3) {
+                resizeSection.xResizeDirection = right;
+            } else {
+                resizeSection.xResizeDirection = noX;
             }
 
-            CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
-            AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
-            CFRelease(_size);
-            [moveResize setTracking:CACurrentMediaTime()];
+            if (clickPoint.y < wndSize.height/3) {
+                resizeSection.yResizeDirection = bottom;
+            } else if (clickPoint.y > 2*wndSize.height/3) {
+                resizeSection.yResizeDirection = top;
+            } else {
+                resizeSection.yResizeDirection = noY;
+            }
+
+            [moveResize setWndSize:wndSize];
+            [moveResize setResizeSection:resizeSection];
+        }
+
+        handled = YES;
+    }
+
+    // --- MOUSE DRAG: move or resize based on isResizing ---
+    if (isDrag && [moveResize tracking] > 0) {
+        if ([moveResize isResizing]) {
+            // Resize drag
+            AXUIElementRef _clickedWindow = [moveResize window];
+            struct ResizeSection resizeSection = [moveResize resizeSection];
+            int deltaX = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
+            int deltaY = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
+
+            NSPoint cTopLeft = [moveResize wndPosition];
+            NSSize wndSize = [moveResize wndSize];
+
+            switch (resizeSection.xResizeDirection) {
+                case right:
+                    wndSize.width += deltaX;
+                    break;
+                case left:
+                    wndSize.width -= deltaX;
+                    cTopLeft.x += deltaX;
+                    break;
+                case noX:
+                    break;
+                default:
+                    [NSException raise:@"Unknown xResizeSection" format:@"No case for %d", resizeSection.xResizeDirection];
+            }
+
+            switch (resizeSection.yResizeDirection) {
+                case top:
+                    wndSize.height += deltaY;
+                    break;
+                case bottom:
+                    wndSize.height -= deltaY;
+                    cTopLeft.y += deltaY;
+                    break;
+                case noY:
+                    break;
+                default:
+                    [NSException raise:@"Unknown yResizeSection" format:@"No case for %d", resizeSection.yResizeDirection];
+            }
+
+            [moveResize setWndPosition:cTopLeft];
+            [moveResize setWndSize:wndSize];
+
+            if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.resizeFilterInterval) {
+                if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
+                    CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
+                    AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
+                    CFRelease(_position);
+                }
+
+                CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
+                AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
+                CFRelease(_size);
+                [moveResize setTracking:CACurrentMediaTime()];
+            }
+        } else {
+            // Move drag
+            AXUIElementRef _clickedWindow = [moveResize window];
+            double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
+            double deltaY = CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
+
+            NSPoint cTopLeft = [moveResize wndPosition];
+            NSPoint thePoint;
+            thePoint.x = cTopLeft.x + deltaX;
+            thePoint.y = cTopLeft.y + deltaY;
+            [moveResize setWndPosition:thePoint];
+
+            if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.moveFilterInterval) {
+                CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
+                AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
+                if (_position != NULL) CFRelease(_position);
+                [moveResize setTracking:CACurrentMediaTime()];
+            }
         }
         handled = YES;
     }
 
-    if ((type == kCGEventLeftMouseUp || type == resizeModifierUp)
-        && [moveResize tracking] > 0) {
+    // --- MOUSE UP: clear tracking ---
+    if (isUp && [moveResize tracking] > 0) {
         [moveResize setTracking:0];
+        [moveResize setIsResizing:NO];
         handled = YES;
     }
-    
-    if (handled) {
-        return NULL;
-    }
-    else {
-        return event;
-    }
+
+    return handled ? NULL : event;
 }
+
+#pragma mark - Application lifecycle
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    // Skip the entire accessibility check when running under XCTest.
+    // AXIsProcessTrustedWithOptions with kAXTrustedCheckOptionPrompt triggers
+    // a system modal dialog, which blocks the test runner.
+    if (NSClassFromString(@"XCTestCase") != nil) {
+        return;
+    }
+
     const void * keys[] = { kAXTrustedCheckOptionPrompt };
     const void * values[] = { kCFBooleanTrue };
 
@@ -298,17 +339,13 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             &kCFTypeDictionaryValueCallBacks);
 
     if (!AXIsProcessTrustedWithOptions(options)) {
-        // don't have permission to do our thing right now... AXIsProcessTrustedWithOptions prompted the user to fix
-        // this, so hopefully on next launch we'll be good to go
         NSLog(@"Missing permissions");
         exit(1);
     }
-    
-    [self initMenuItems];
 
-    // Retrieve the Key press modifier flags to activate move/resize actions.
-    keyModifierFlags = [preferences modifierFlags];
-    
+    [self buildMenu];
+    [self refreshCachedPreferences];
+
     CFRunLoopSourceRef runLoopSource;
 
     CGEventMask eventMask = CGEventMaskBit( kCGEventLeftMouseDown )
@@ -336,7 +373,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
 
-
     EMRMoveResize *moveResize = [EMRMoveResize instance];
     [moveResize setEventTap:eventTap];
     [moveResize setRunLoopSource:runLoopSource];
@@ -355,7 +391,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             selector:@selector(becameInactive:)
             name:NSWorkspaceSessionDidResignActiveNotification
             object:nil];
-    
+
     [self reconstructDisabledAppsSubmenu];
 }
 
@@ -386,63 +422,260 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), [moveResize runLoopSource], kCFRunLoopCommonModes);
 }
 
-- (void)initMenuItems {
-    [_altMenu setState:0];
-    [_cmdMenu setState:0];
-    [_ctrlMenu setState:0];
-    [_shiftMenu setState:0];
-    [_fnMenu setState:0];
-    [_disabledMenu setState:0];
-    [_bringWindowFrontMenu setState:0];
-    [_middleClickResizeMenu setState:0];
+#pragma mark - Menu construction (programmatic)
 
-    bool shouldBringWindowToFront = [preferences shouldBringWindowToFront];
-    bool shouldMiddleClickResize = [preferences shouldMiddleClickResize];
-    bool resizeOnly = [preferences resizeOnly];
-
-    if(shouldBringWindowToFront){
-        [_bringWindowFrontMenu setState:1];
-    }
-    if(shouldMiddleClickResize){
-        [_middleClickResizeMenu setState:1];
-    }
-    if(resizeOnly){
-        [_resizeOnlyMenu setState:1];
-    }
-    
-    NSSet* flags = [preferences getFlagStringSet];
-    if ([flags containsObject:ALT_KEY]) {
-        [_altMenu setState:1];
-    }
-    if ([flags containsObject:CMD_KEY]) {
-        [_cmdMenu setState:1];
-    }
-    if ([flags containsObject:CTRL_KEY]) {
-        [_ctrlMenu setState:1];
-    }
-    if ([flags containsObject:SHIFT_KEY]) {
-        [_shiftMenu setState:1];
-    }
-    if ([flags containsObject:FN_KEY]) {
-        [_fnMenu setState:1];
-    }
+- (NSMenuItem *)createModifierItem:(NSString *)title action:(SEL)action state:(BOOL)on {
+    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:title action:action keyEquivalent:@""];
+    [item setTarget:self];
+    [item setState:on ? NSControlStateValueOn : NSControlStateValueOff];
+    return item;
 }
+
+- (NSMenuItem *)createMouseButtonSubmenu:(NSString *)label
+                            leftItem:(NSMenuItem **)outLeft
+                           rightItem:(NSMenuItem **)outRight
+                          middleItem:(NSMenuItem **)outMiddle
+                              action:(SEL)action
+                       selectedButton:(int)selected {
+    NSMenu *sub = [[NSMenu alloc] init];
+    NSMenuItem *leftItem = [[NSMenuItem alloc] initWithTitle:@"Left" action:action keyEquivalent:@""];
+    [leftItem setTarget:self];
+    [leftItem setTag:EMRMouseButtonLeft];
+    [leftItem setState:(selected == EMRMouseButtonLeft) ? NSControlStateValueOn : NSControlStateValueOff];
+    [sub addItem:leftItem];
+
+    NSMenuItem *rightItem = [[NSMenuItem alloc] initWithTitle:@"Right" action:action keyEquivalent:@""];
+    [rightItem setTarget:self];
+    [rightItem setTag:EMRMouseButtonRight];
+    [rightItem setState:(selected == EMRMouseButtonRight) ? NSControlStateValueOn : NSControlStateValueOff];
+    [sub addItem:rightItem];
+
+    NSMenuItem *middleItem = [[NSMenuItem alloc] initWithTitle:@"Middle" action:action keyEquivalent:@""];
+    [middleItem setTarget:self];
+    [middleItem setTag:EMRMouseButtonMiddle];
+    [middleItem setState:(selected == EMRMouseButtonMiddle) ? NSControlStateValueOn : NSControlStateValueOff];
+    [sub addItem:middleItem];
+
+    *outLeft = leftItem;
+    *outRight = rightItem;
+    *outMiddle = middleItem;
+
+    NSMenuItem *container = [[NSMenuItem alloc] initWithTitle:label action:nil keyEquivalent:@""];
+    [container setSubmenu:sub];
+    return container;
+}
+
+- (void)buildMenu {
+    // XIB provides: [0] "Easy Move+Resize" (title), [1] "Disabled", [2] separator,
+    //               [3] "Bring Window to Front", [4] "Resize only", ...
+    // We insert programmatic Move/Resize sections at index 3 (before "Bring Window to Front").
+    NSInteger insertIdx = 3;
+
+    // --- Move section ---
+    NSSet *moveFlags = [preferences getFlagStringSet];
+    BOOL moveResizeOnly = [preferences resizeOnly];
+
+    NSMenuItem *moveHeader = [[NSMenuItem alloc] initWithTitle:@"Move:" action:nil keyEquivalent:@""];
+    [moveHeader setEnabled:NO];
+    [statusMenu insertItem:moveHeader atIndex:insertIdx++];
+
+    moveAltMenu = [self createModifierItem:ALT_KEY action:@selector(modifierToggle:) state:[moveFlags containsObject:ALT_KEY]];
+    [moveAltMenu setIndentationLevel:1];
+    [statusMenu insertItem:moveAltMenu atIndex:insertIdx++];
+
+    moveCmdMenu = [self createModifierItem:CMD_KEY action:@selector(modifierToggle:) state:[moveFlags containsObject:CMD_KEY]];
+    [moveCmdMenu setIndentationLevel:1];
+    [statusMenu insertItem:moveCmdMenu atIndex:insertIdx++];
+
+    moveCtrlMenu = [self createModifierItem:CTRL_KEY action:@selector(modifierToggle:) state:[moveFlags containsObject:CTRL_KEY]];
+    [moveCtrlMenu setIndentationLevel:1];
+    [statusMenu insertItem:moveCtrlMenu atIndex:insertIdx++];
+
+    moveShiftMenu = [self createModifierItem:SHIFT_KEY action:@selector(modifierToggle:) state:[moveFlags containsObject:SHIFT_KEY]];
+    [moveShiftMenu setIndentationLevel:1];
+    [statusMenu insertItem:moveShiftMenu atIndex:insertIdx++];
+
+    moveFnMenu = [self createModifierItem:FN_KEY action:@selector(modifierToggle:) state:[moveFlags containsObject:FN_KEY]];
+    [moveFnMenu setIndentationLevel:1];
+    [statusMenu insertItem:moveFnMenu atIndex:insertIdx++];
+
+    int moveBtn = [preferences moveMouseButton];
+    NSMenuItem *tmpLeft, *tmpRight, *tmpMiddle;
+    NSMenuItem *moveBtnContainer = [self createMouseButtonSubmenu:@"Mouse Button"
+                                                        leftItem:&tmpLeft
+                                                       rightItem:&tmpRight
+                                                      middleItem:&tmpMiddle
+                                                          action:@selector(setMoveMouseButton:)
+                                                   selectedButton:moveBtn];
+    moveMouseButtonLeftMenu = tmpLeft;
+    moveMouseButtonRightMenu = tmpRight;
+    moveMouseButtonMiddleMenu = tmpMiddle;
+    [moveBtnContainer setIndentationLevel:1];
+    [statusMenu insertItem:moveBtnContainer atIndex:insertIdx++];
+
+    // Separator between Move and Resize
+    [statusMenu insertItem:[NSMenuItem separatorItem] atIndex:insertIdx++];
+
+    // --- Resize section ---
+    NSSet *resizeFlags = [preferences getResizeFlagStringSet];
+
+    NSMenuItem *resizeHeader = [[NSMenuItem alloc] initWithTitle:@"Resize:" action:nil keyEquivalent:@""];
+    [resizeHeader setEnabled:NO];
+    [statusMenu insertItem:resizeHeader atIndex:insertIdx++];
+
+    resizeAltMenu = [self createModifierItem:ALT_KEY action:@selector(resizeModifierToggle:) state:[resizeFlags containsObject:ALT_KEY]];
+    [resizeAltMenu setIndentationLevel:1];
+    [statusMenu insertItem:resizeAltMenu atIndex:insertIdx++];
+
+    resizeCmdMenu = [self createModifierItem:CMD_KEY action:@selector(resizeModifierToggle:) state:[resizeFlags containsObject:CMD_KEY]];
+    [resizeCmdMenu setIndentationLevel:1];
+    [statusMenu insertItem:resizeCmdMenu atIndex:insertIdx++];
+
+    resizeCtrlMenu = [self createModifierItem:CTRL_KEY action:@selector(resizeModifierToggle:) state:[resizeFlags containsObject:CTRL_KEY]];
+    [resizeCtrlMenu setIndentationLevel:1];
+    [statusMenu insertItem:resizeCtrlMenu atIndex:insertIdx++];
+
+    resizeShiftMenu = [self createModifierItem:SHIFT_KEY action:@selector(resizeModifierToggle:) state:[resizeFlags containsObject:SHIFT_KEY]];
+    [resizeShiftMenu setIndentationLevel:1];
+    [statusMenu insertItem:resizeShiftMenu atIndex:insertIdx++];
+
+    resizeFnMenu = [self createModifierItem:FN_KEY action:@selector(resizeModifierToggle:) state:[resizeFlags containsObject:FN_KEY]];
+    [resizeFnMenu setIndentationLevel:1];
+    [statusMenu insertItem:resizeFnMenu atIndex:insertIdx++];
+
+    int resizeBtn = [preferences resizeMouseButton];
+    NSMenuItem *tmpLeft2, *tmpRight2, *tmpMiddle2;
+    NSMenuItem *resizeBtnContainer = [self createMouseButtonSubmenu:@"Mouse Button"
+                                                           leftItem:&tmpLeft2
+                                                          rightItem:&tmpRight2
+                                                         middleItem:&tmpMiddle2
+                                                             action:@selector(setResizeMouseButton:)
+                                                      selectedButton:resizeBtn];
+    resizeMouseButtonLeftMenu = tmpLeft2;
+    resizeMouseButtonRightMenu = tmpRight2;
+    resizeMouseButtonMiddleMenu = tmpMiddle2;
+    [resizeBtnContainer setIndentationLevel:1];
+    [statusMenu insertItem:resizeBtnContainer atIndex:insertIdx++];
+
+    // Conflict warning (hidden by default, shown when config conflicts)
+    conflictWarningMenu = [[NSMenuItem alloc] initWithTitle:@"\u26A0\uFE0F Move and Resize have identical settings" action:nil keyEquivalent:@""];
+    [conflictWarningMenu setEnabled:NO];
+    [conflictWarningMenu setHidden:YES];
+    [statusMenu insertItem:conflictWarningMenu atIndex:insertIdx++];
+
+    // Separator before "Bring Window to Front"
+    [statusMenu insertItem:[NSMenuItem separatorItem] atIndex:insertIdx++];
+
+    // --- Non-programmatic items (from XIB) follow: Bring Window to Front, Resize only, etc. ---
+    // Set their initial states
+    [_disabledMenu setState:NSControlStateValueOff];
+    [_bringWindowFrontMenu setState:[preferences shouldBringWindowToFront] ? NSControlStateValueOn : NSControlStateValueOff];
+    [_resizeOnlyMenu setState:moveResizeOnly ? NSControlStateValueOn : NSControlStateValueOff];
+
+    // Grey out Move section when resizeOnly is on
+    [self updateMoveMenuEnabled:!moveResizeOnly];
+
+    // Update conflict warning visibility
+    [self updateConflictWarning];
+}
+
+- (void)updateMoveMenuEnabled:(BOOL)enabled {
+    [moveAltMenu setEnabled:enabled];
+    [moveCmdMenu setEnabled:enabled];
+    [moveCtrlMenu setEnabled:enabled];
+    [moveShiftMenu setEnabled:enabled];
+    [moveFnMenu setEnabled:enabled];
+    // Mouse button submenu parent
+    NSMenuItem *moveBtnParent = [moveMouseButtonLeftMenu parentItem];
+    if (moveBtnParent == nil) {
+        // Find parent by traversing — the submenu container is the item whose submenu contains our items
+        for (NSInteger i = 0; i < [statusMenu numberOfItems]; i++) {
+            NSMenuItem *item = [statusMenu itemAtIndex:i];
+            if ([[item submenu] indexOfItem:moveMouseButtonLeftMenu] != -1) {
+                moveBtnParent = item;
+                break;
+            }
+        }
+    }
+    [moveBtnParent setEnabled:enabled];
+}
+
+- (void)updateConflictWarning {
+    BOOL conflict = [preferences hasConflictingConfig];
+    [conflictWarningMenu setHidden:!conflict];
+}
+
+- (void)updateMouseButtonRadioState:(int)selectedButton
+                               left:(NSMenuItem *)leftItem
+                              right:(NSMenuItem *)rightItem
+                             middle:(NSMenuItem *)middleItem {
+    [leftItem setState:(selectedButton == EMRMouseButtonLeft) ? NSControlStateValueOn : NSControlStateValueOff];
+    [rightItem setState:(selectedButton == EMRMouseButtonRight) ? NSControlStateValueOn : NSControlStateValueOff];
+    [middleItem setState:(selectedButton == EMRMouseButtonMiddle) ? NSControlStateValueOn : NSControlStateValueOff];
+}
+
+- (void)syncMenuStatesFromPreferences {
+    // Move modifier checkmarks
+    NSSet *moveFlags = [preferences getFlagStringSet];
+    [moveAltMenu setState:[moveFlags containsObject:ALT_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [moveCmdMenu setState:[moveFlags containsObject:CMD_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [moveCtrlMenu setState:[moveFlags containsObject:CTRL_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [moveShiftMenu setState:[moveFlags containsObject:SHIFT_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [moveFnMenu setState:[moveFlags containsObject:FN_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+
+    // Resize modifier checkmarks
+    NSSet *resizeFlags = [preferences getResizeFlagStringSet];
+    [resizeAltMenu setState:[resizeFlags containsObject:ALT_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [resizeCmdMenu setState:[resizeFlags containsObject:CMD_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [resizeCtrlMenu setState:[resizeFlags containsObject:CTRL_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [resizeShiftMenu setState:[resizeFlags containsObject:SHIFT_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+    [resizeFnMenu setState:[resizeFlags containsObject:FN_KEY] ? NSControlStateValueOn : NSControlStateValueOff];
+
+    // Mouse button radio states
+    [self updateMouseButtonRadioState:[preferences moveMouseButton]
+                                 left:moveMouseButtonLeftMenu right:moveMouseButtonRightMenu middle:moveMouseButtonMiddleMenu];
+    [self updateMouseButtonRadioState:[preferences resizeMouseButton]
+                                 left:resizeMouseButtonLeftMenu right:resizeMouseButtonRightMenu middle:resizeMouseButtonMiddleMenu];
+
+    // Other toggles
+    [_bringWindowFrontMenu setState:[preferences shouldBringWindowToFront] ? NSControlStateValueOn : NSControlStateValueOff];
+    [_resizeOnlyMenu setState:[preferences resizeOnly] ? NSControlStateValueOn : NSControlStateValueOff];
+    [_disabledMenu setState:NSControlStateValueOff];
+
+    // Resize-only greys out Move section
+    [self updateMoveMenuEnabled:![preferences resizeOnly]];
+
+    // Conflict warning
+    [self updateConflictWarning];
+}
+
+#pragma mark - IBActions
 
 - (IBAction)modifierToggle:(id)sender {
     NSMenuItem *menu = (NSMenuItem*)sender;
     BOOL newState = ![menu state];
     [menu setState:newState];
     [preferences setModifierKey:[menu title] enabled:newState];
-    keyModifierFlags = [preferences modifierFlags];
+    [self refreshCachedPreferences];
+    [self updateConflictWarning];
+}
+
+- (IBAction)resizeModifierToggle:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setResizeModifierKey:[menu title] enabled:newState];
+    [self refreshCachedPreferences];
+    [self updateConflictWarning];
 }
 
 - (IBAction)resetToDefaults:(id)sender {
     EMRMoveResize* moveResize = [EMRMoveResize instance];
     [preferences setToDefaults];
-    [self initMenuItems];
+    [self syncMenuStatesFromPreferences];
     [self setMenusEnabled:YES];
     [self enableRunLoopSource:moveResize];
-    keyModifierFlags = [preferences modifierFlags];
+    [self refreshCachedPreferences];
 }
 
 - (IBAction)toggleBringWindowToFront:(id)sender {
@@ -452,23 +685,15 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [preferences setShouldBringWindowToFront:newState];
 }
 
-- (IBAction)toggleMiddleClickResize:(id)sender {
-    NSMenuItem *menu = (NSMenuItem*)sender;
-    BOOL newState = ![menu state];
-    [menu setState:newState];
-    [preferences setShouldMiddleClickResize:newState];
-}
 
 - (IBAction)toggleDisabled:(id)sender {
     EMRMoveResize* moveResize = [EMRMoveResize instance];
     if ([_disabledMenu state] == 0) {
-        // We are enabled, disable
         [_disabledMenu setState:YES];
         [self setMenusEnabled:NO];
         [self disableRunLoopSource:moveResize];
     }
     else {
-        // We are disabled, enable
         [_disabledMenu setState:NO];
         [self setMenusEnabled:YES];
         [self enableRunLoopSource:moveResize];
@@ -480,6 +705,25 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     BOOL newState = ![menu state];
     [menu setState:newState];
     [preferences setResizeOnly:newState];
+    [self updateMoveMenuEnabled:!newState];
+}
+
+- (IBAction)setMoveMouseButton:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    int button = (int)[menu tag];
+    [preferences setMoveMouseButton:button];
+    [self updateMouseButtonRadioState:button left:moveMouseButtonLeftMenu right:moveMouseButtonRightMenu middle:moveMouseButtonMiddleMenu];
+    [self refreshCachedPreferences];
+    [self updateConflictWarning];
+}
+
+- (IBAction)setResizeMouseButton:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    int button = (int)[menu tag];
+    [preferences setResizeMouseButton:button];
+    [self updateMouseButtonRadioState:button left:resizeMouseButtonLeftMenu right:resizeMouseButtonRightMenu middle:resizeMouseButtonMiddleMenu];
+    [self refreshCachedPreferences];
+    [self updateConflictWarning];
 }
 
 - (IBAction)disableLastApp:(id)sender {
@@ -497,8 +741,19 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [self reconstructDisabledAppsSubmenu];
 }
 
+#pragma mark - Accessor methods
+
 - (int)modifierFlags {
     return keyModifierFlags;
+}
+- (int)resizeModifierFlags {
+    return resizeKeyModifierFlags;
+}
+- (int)moveMouseButton {
+    return cachedMoveMouseButton;
+}
+- (int)resizeMouseButton {
+    return cachedResizeMouseButton;
 }
 - (void) setMostRecentApp:(NSRunningApplication*)app {
     lastApp = app;
@@ -511,21 +766,33 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 -(BOOL)shouldBringWindowToFront {
     return [preferences shouldBringWindowToFront];
 }
--(BOOL)shouldMiddleClickResize {
-    return [preferences shouldMiddleClickResize];
-}
 -(BOOL)resizeOnly {
     return [preferences resizeOnly];
 }
 
 - (void)setMenusEnabled:(BOOL)enabled {
-    [_altMenu setEnabled:enabled];
-    [_cmdMenu setEnabled:enabled];
-    [_ctrlMenu setEnabled:enabled];
-    [_shiftMenu setEnabled:enabled];
-    [_fnMenu setEnabled:enabled];
+    // Move section
+    [moveAltMenu setEnabled:enabled];
+    [moveCmdMenu setEnabled:enabled];
+    [moveCtrlMenu setEnabled:enabled];
+    [moveShiftMenu setEnabled:enabled];
+    [moveFnMenu setEnabled:enabled];
+
+    // Resize section
+    [resizeAltMenu setEnabled:enabled];
+    [resizeCmdMenu setEnabled:enabled];
+    [resizeCtrlMenu setEnabled:enabled];
+    [resizeShiftMenu setEnabled:enabled];
+    [resizeFnMenu setEnabled:enabled];
+
+    // Other items
     [_bringWindowFrontMenu setEnabled:enabled];
-    [_middleClickResizeMenu setEnabled:enabled];
+    [_resizeOnlyMenu setEnabled:enabled];
+
+    // When re-enabling, respect resizeOnly state for Move section
+    if (enabled && [preferences resizeOnly]) {
+        [self updateMoveMenuEnabled:NO];
+    }
 }
 
 - (void)reconstructDisabledAppsSubmenu {
