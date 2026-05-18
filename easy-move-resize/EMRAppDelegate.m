@@ -2,18 +2,6 @@
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
 
-/* Return the minimum refresh interval (1/refresh rate) across all screens. If the user
- * is on a version of MacOS < 12.0 then 60hz refresh rate is assumed. */
-float getMinRefreshInterval(void) {
-    float minInterval = 1.0 / 60;
-    for (unsigned i=0; i<NSScreen.screens.count; ++i) {
-        if (@available(macOS 12.0, *)) {
-            minInterval = MIN(minInterval, NSScreen.screens[i].minimumRefreshInterval);
-        }
-    }
-    return minInterval;
-}
-
 @implementation EMRAppDelegate {
     EMRPreferences *preferences;
 }
@@ -23,11 +11,6 @@ float getMinRefreshInterval(void) {
     if (self) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"userPrefs"];
         preferences = [[EMRPreferences alloc] initWithUserDefaults:userDefaults];
-
-        // Window move and resize based on minimum refresh interval across all screens
-        const float refreshRate = getMinRefreshInterval();
-        self.moveFilterInterval = refreshRate;
-        self.resizeFilterInterval = refreshRate;
     }
     return self;
 }
@@ -46,7 +29,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if (![ourDelegate sessionActive]) {
         return event;
     }
-
     if (keyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
         return event;
@@ -139,12 +121,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWindow:_clickedWindow];
         if (_clickedWindow != nil) CFRelease(_clickedWindow);
+        [moveResize startDisplayLink];
         handled = YES;
     }
 
     if (type == kCGEventLeftMouseDragged
             && [moveResize tracking] > 0) {
-        AXUIElementRef _clickedWindow = [moveResize window];
         double deltaX = CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
         double deltaY = CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
 
@@ -153,15 +135,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         thePoint.x = cTopLeft.x + deltaX;
         thePoint.y = cTopLeft.y + deltaY;
         [moveResize setWndPosition:thePoint];
-        CFTypeRef _position;
-
-        // actually applying the change is expensive, so only do it every kMoveFilterInterval seconds
-        if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.moveFilterInterval) {
-            _position = (CFTypeRef) (AXValueCreate(kAXValueCGPointType, (const void *) &thePoint));
-            AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef) NSAccessibilityPositionAttribute, (CFTypeRef *) _position);
-            if (_position != NULL) CFRelease(_position);
-            [moveResize setTracking:CACurrentMediaTime()];
-        }
+        [moveResize updatePosition:thePoint];
         handled = YES;
     }
 
@@ -212,7 +186,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
     if (type == resizeModifierDragged
             && [moveResize tracking] > 0) {
-        AXUIElementRef _clickedWindow = [moveResize window];
         struct ResizeSection resizeSection = [moveResize resizeSection];
         int deltaX = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaX);
         int deltaY = (int) CGEventGetDoubleValueField(event, kCGMouseEventDeltaY);
@@ -252,26 +225,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWndSize:wndSize];
-
-        // actually applying the change is expensive, so only do it every kResizeFilterInterval events
-        if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.resizeFilterInterval) {
-            // only make a call to update the position if we need to
-            if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
-                CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
-                AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, (CFTypeRef *)_position);
-                CFRelease(_position);
-            }
-
-            CFTypeRef _size = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&wndSize));
-            AXUIElementSetAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, (CFTypeRef *)_size);
-            CFRelease(_size);
-            [moveResize setTracking:CACurrentMediaTime()];
-        }
+        [moveResize updatePositionAndSize:cTopLeft size:wndSize resizeSection:resizeSection];
         handled = YES;
     }
 
     if ((type == kCGEventLeftMouseUp || type == resizeModifierUp)
         && [moveResize tracking] > 0) {
+        [moveResize applyPendingChanges];
+        [moveResize stopDisplayLink];
         [moveResize setTracking:0];
         handled = YES;
     }
@@ -342,6 +303,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [moveResize setRunLoopSource:runLoopSource];
     [self enableRunLoopSource:moveResize];
     CFRelease(runLoopSource);
+    [moveResize setupDisplayLink];
 
     _sessionActive = true;
     [[[NSWorkspace sharedWorkspace] notificationCenter]
@@ -355,6 +317,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             selector:@selector(becameInactive:)
             name:NSWorkspaceSessionDidResignActiveNotification
             object:nil];
+
+    [[NSNotificationCenter defaultCenter]
+            addObserver:self
+            selector:@selector(screensDidChange:)
+            name:NSApplicationDidChangeScreenParametersNotification
+            object:nil];
     
     [self reconstructDisabledAppsSubmenu];
 }
@@ -365,6 +333,10 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
 - (void)becameInactive:(NSNotification*) notification {
     _sessionActive = false;
+}
+
+- (void)screensDidChange:(NSNotification*) notification {
+    [[EMRMoveResize instance] setupDisplayLink];
 }
 
 -(void)awakeFromNib{

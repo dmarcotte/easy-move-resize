@@ -29,7 +29,5 @@
 @property (weak) IBOutlet NSMenuItem *disabledAppsMenu;
 @property (weak) IBOutlet NSMenuItem *lastAppMenu;
 @property (nonatomic) BOOL sessionActive;
-@property float moveFilterInterval;
-@property float resizeFilterInterval;
 
 @end
