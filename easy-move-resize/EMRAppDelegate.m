@@ -38,6 +38,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     int keyModifierFlags = [ourDelegate modifierFlags];
     bool shouldMiddleClickResize = [ourDelegate shouldMiddleClickResize];
     bool resizeOnly = [ourDelegate resizeOnly];
+    bool resizeFromNearestCorner = [ourDelegate resizeFromNearestCorner];
     CGEventType resizeModifierDown = kCGEventRightMouseDown;
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
@@ -189,20 +190,26 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 
         NSSize wndSize = cSize;
 
-        if (clickPoint.x < wndSize.width/3) {
-            resizeSection.xResizeDirection = left;
-        } else if (clickPoint.x > 2*wndSize.width/3) {
-            resizeSection.xResizeDirection = right;
+        if (resizeFromNearestCorner) {
+            // always resize from the corner closest to the click
+            resizeSection.xResizeDirection = clickPoint.x < wndSize.width/2 ? left : right;
+            resizeSection.yResizeDirection = clickPoint.y < wndSize.height/2 ? bottom : top;
         } else {
-            resizeSection.xResizeDirection = noX;
-        }
+            if (clickPoint.x < wndSize.width/3) {
+                resizeSection.xResizeDirection = left;
+            } else if (clickPoint.x > 2*wndSize.width/3) {
+                resizeSection.xResizeDirection = right;
+            } else {
+                resizeSection.xResizeDirection = noX;
+            }
 
-        if (clickPoint.y < wndSize.height/3) {
-            resizeSection.yResizeDirection = bottom;
-        } else  if (clickPoint.y > 2*wndSize.height/3) {
-            resizeSection.yResizeDirection = top;
-        } else {
-            resizeSection.yResizeDirection = noY;
+            if (clickPoint.y < wndSize.height/3) {
+                resizeSection.yResizeDirection = bottom;
+            } else  if (clickPoint.y > 2*wndSize.height/3) {
+                resizeSection.yResizeDirection = top;
+            } else {
+                resizeSection.yResizeDirection = noY;
+            }
         }
 
         [moveResize setWndSize:wndSize];
@@ -395,10 +402,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_disabledMenu setState:0];
     [_bringWindowFrontMenu setState:0];
     [_middleClickResizeMenu setState:0];
+    [_resizeFromNearestCornerMenu setState:0];
 
     bool shouldBringWindowToFront = [preferences shouldBringWindowToFront];
     bool shouldMiddleClickResize = [preferences shouldMiddleClickResize];
     bool resizeOnly = [preferences resizeOnly];
+    bool resizeFromNearestCorner = [preferences resizeFromNearestCorner];
 
     if(shouldBringWindowToFront){
         [_bringWindowFrontMenu setState:1];
@@ -408,6 +417,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
     if(resizeOnly){
         [_resizeOnlyMenu setState:1];
+    }
+    if(resizeFromNearestCorner){
+        [_resizeFromNearestCornerMenu setState:1];
     }
     
     NSSet* flags = [preferences getFlagStringSet];
@@ -482,6 +494,13 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [preferences setResizeOnly:newState];
 }
 
+- (IBAction)toggleResizeFromNearestCorner:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setResizeFromNearestCorner:newState];
+}
+
 - (IBAction)disableLastApp:(id)sender {
     [preferences setDisabledForApp:[lastApp bundleIdentifier] withLocalizedName:[lastApp localizedName] disabled:YES];
     [_lastAppMenu setEnabled:FALSE];
@@ -517,6 +536,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 -(BOOL)resizeOnly {
     return [preferences resizeOnly];
 }
+-(BOOL)resizeFromNearestCorner {
+    return [preferences resizeFromNearestCorner];
+}
 
 - (void)setMenusEnabled:(BOOL)enabled {
     [_altMenu setEnabled:enabled];
@@ -526,6 +548,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_fnMenu setEnabled:enabled];
     [_bringWindowFrontMenu setEnabled:enabled];
     [_middleClickResizeMenu setEnabled:enabled];
+    [_resizeFromNearestCornerMenu setEnabled:enabled];
 }
 
 - (void)reconstructDisabledAppsSubmenu {

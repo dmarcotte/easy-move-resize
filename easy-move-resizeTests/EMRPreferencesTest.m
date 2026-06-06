@@ -40,4 +40,15 @@
     XCTAssertEqualObjects(flagStringSet, expectedSet, "Should contain the restored defaults");
 }
 
+- (void)testResizeFromNearestCorner {
+    [preferences setToDefaults];
+    XCTAssertFalse([preferences resizeFromNearestCorner], "Should default to disabled");
+
+    [preferences setResizeFromNearestCorner:YES];
+    XCTAssertTrue([preferences resizeFromNearestCorner], "Should persist the enabled setting");
+
+    [preferences setToDefaults];
+    XCTAssertFalse([preferences resizeFromNearestCorner], "Should be disabled after reset");
+}
+
 @end
