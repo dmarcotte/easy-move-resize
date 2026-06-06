@@ -26,6 +26,7 @@
 @property (weak) IBOutlet NSMenuItem *bringWindowFrontMenu;
 @property (weak) IBOutlet NSMenuItem *middleClickResizeMenu;
 @property (weak) IBOutlet NSMenuItem *resizeOnlyMenu;
+@property (weak) IBOutlet NSMenuItem *resizeFromNearestCornerMenu;
 @property (weak) IBOutlet NSMenuItem *disabledAppsMenu;
 @property (weak) IBOutlet NSMenuItem *lastAppMenu;
 @property (nonatomic) BOOL sessionActive;
