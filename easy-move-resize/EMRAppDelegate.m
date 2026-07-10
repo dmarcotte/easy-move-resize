@@ -14,6 +14,11 @@ float getMinRefreshInterval(void) {
     return minInterval;
 }
 
+static void stopTracking(EMRMoveResize *moveResize) {
+    [moveResize setTracking:0];
+    [moveResize restoreEnhancedUserInterface];
+}
+
 @implementation EMRAppDelegate {
     EMRPreferences *preferences;
 }
@@ -42,13 +47,20 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
     bool handled = NO;
+    EMRMoveResize* moveResize = [EMRMoveResize instance];
 
     if (![ourDelegate sessionActive]) {
+        if ([moveResize tracking] > 0) {
+            stopTracking(moveResize);
+        }
         return event;
     }
 
     if (keyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
+        if ([moveResize tracking] > 0) {
+            stopTracking(moveResize);
+        }
         return event;
     }
     
@@ -58,12 +70,19 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         resizeModifierUp = kCGEventOtherMouseUp;
     }
     
-    EMRMoveResize* moveResize = [EMRMoveResize instance];
-
     if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput)) {
         // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
+        stopTracking(moveResize);
         CGEventTapEnable([moveResize eventTap], true);
         return event;
+    }
+
+    // Always finish a gesture on mouse-up, even if the user released the modifier keys first.
+    // This is especially important while AXEnhancedUserInterface is temporarily disabled.
+    if ((type == kCGEventLeftMouseUp || type == resizeModifierUp)
+        && [moveResize tracking] > 0) {
+        stopTracking(moveResize);
+        return NULL;
     }
     
     CGEventFlags flags = CGEventGetFlags(event);
@@ -114,6 +133,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
                 return event;
             }
             [ourDelegate setMostRecentApp:app];
+
+            // Firefox and some other applications animate AXPosition/AXSize changes while
+            // AXEnhancedUserInterface is enabled. Rapid updates then interrupt one another,
+            // producing sluggish movement and incorrect top/left resizing. Keep it disabled
+            // for the complete gesture and restore its previous enabled state on mouse-up.
+            AXUIElementRef applicationElement = AXUIElementCreateApplication(PID);
+            [moveResize temporarilyDisableEnhancedUserInterfaceForApplication:applicationElement];
+            CFRelease(applicationElement);
         }
 
         if([ourDelegate shouldBringWindowToFront]){
@@ -183,6 +210,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         if (!(AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilitySizeAttribute, &_cSize) == kAXErrorSuccess)
                 || !AXValueGetValue(_cSize, kAXValueCGSizeType, (void *)&cSize)) {
             NSLog(@"ERROR: Could not decode size");
+            stopTracking(moveResize);
             return NULL;
         }
         CFRelease(_cSize);
@@ -270,12 +298,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         handled = YES;
     }
 
-    if ((type == kCGEventLeftMouseUp || type == resizeModifierUp)
-        && [moveResize tracking] > 0) {
-        [moveResize setTracking:0];
-        handled = YES;
-    }
-    
     if (handled) {
         return NULL;
     }

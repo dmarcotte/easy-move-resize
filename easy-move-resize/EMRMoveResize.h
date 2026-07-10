@@ -25,6 +25,7 @@ struct ResizeSection {
     CFTimeInterval _tracking;
     NSPoint _wndPosition;
     NSSize _wndSize;
+    AXUIElementRef _enhancedUserInterfaceApplication;
 }
 
 + (id) instance;
@@ -36,5 +37,8 @@ struct ResizeSection {
 @property CFTimeInterval tracking;
 @property NSPoint wndPosition;
 @property NSSize wndSize;
+
+- (void)temporarilyDisableEnhancedUserInterfaceForApplication:(AXUIElementRef)application;
+- (void)restoreEnhancedUserInterface;
 
 @end
