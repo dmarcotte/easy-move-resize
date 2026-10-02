@@ -1,6 +1,7 @@
 #import "EMRAppDelegate.h"
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
+#import "EMRLaunchAtLogin.h"
 
 /* Return the minimum refresh interval (1/refresh rate) across all screens. If the user
  * is on a version of MacOS < 12.0 then 60hz refresh rate is assumed. */
@@ -16,11 +17,13 @@ float getMinRefreshInterval(void) {
 
 @implementation EMRAppDelegate {
     EMRPreferences *preferences;
+    EMRLaunchAtLogin *launchAtLogin;
 }
 
 - (id) init  {
     self = [super init];
     if (self) {
+        launchAtLogin = [[EMRLaunchAtLogin alloc] init];
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"userPrefs"];
         preferences = [[EMRPreferences alloc] initWithUserDefaults:userDefaults];
 
@@ -373,6 +376,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [statusItem setMenu:statusMenu];
     [statusItem setImage:icon];
     [statusMenu setAutoenablesItems:NO];
+    [statusMenu setDelegate:self];
     [[statusMenu itemAtIndex:0] setEnabled:NO];
 }
 
@@ -387,6 +391,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 }
 
 - (void)initMenuItems {
+    [self updateLaunchAtLoginMenu];
     [_altMenu setState:0];
     [_cmdMenu setState:0];
     [_ctrlMenu setState:0];
@@ -425,6 +430,31 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
     if ([flags containsObject:FN_KEY]) {
         [_fnMenu setState:1];
+    }
+}
+
+- (void)menuWillOpen:(NSMenu *)menu {
+    if (menu == statusMenu) {
+        [self updateLaunchAtLoginMenu];
+    }
+}
+
+- (void)updateLaunchAtLoginMenu {
+    [launchAtLogin updateMenuItem:_launchAtLoginMenu];
+}
+
+- (IBAction)toggleLaunchAtLogin:(id)sender {
+    if (@available(macOS 13.0, *)) {
+        NSAlert *alert = [launchAtLogin toggleWithAlert];
+        [self updateLaunchAtLoginMenu];
+
+        if (alert != nil) {
+            BOOL offersSettings = alert.buttons.count > 1;
+            [NSApp activateIgnoringOtherApps:YES];
+            if ([alert runModal] == NSAlertFirstButtonReturn && offersSettings) {
+                [SMAppService openSystemSettingsLoginItems];
+            }
+        }
     }
 }
 

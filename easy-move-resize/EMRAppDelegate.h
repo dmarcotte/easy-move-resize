@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-@interface EMRAppDelegate : NSObject <NSApplicationDelegate> {
+@interface EMRAppDelegate : NSObject <NSApplicationDelegate, NSMenuDelegate> {
     IBOutlet NSMenu *statusMenu;
     NSStatusItem * statusItem;
     int keyModifierFlags;
@@ -12,6 +12,7 @@
 - (void)initMenuItems;
 - (IBAction)modifierToggle:(id)sender;
 - (IBAction)resetToDefaults:(id)sender;
+- (IBAction)toggleLaunchAtLogin:(id)sender;
 - (IBAction)toggleDisabled:(id)sender;
 - (IBAction)toggleBringWindowToFront:(id)sender;
 - (IBAction)disableLastApp:(id)sender;
@@ -28,6 +29,7 @@
 @property (weak) IBOutlet NSMenuItem *resizeOnlyMenu;
 @property (weak) IBOutlet NSMenuItem *disabledAppsMenu;
 @property (weak) IBOutlet NSMenuItem *lastAppMenu;
+@property (weak) IBOutlet NSMenuItem *launchAtLoginMenu;
 @property (nonatomic) BOOL sessionActive;
 @property float moveFilterInterval;
 @property float resizeFilterInterval;

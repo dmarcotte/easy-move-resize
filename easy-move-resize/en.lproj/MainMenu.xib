@@ -720,6 +720,12 @@
                     <menu key="submenu" title="Re-enable for" id="yAl-5D-6Ba"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="VPq-PN-NFG"/>
+                <menuItem title="Launch at Login" id="login-menu-item">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleLaunchAtLogin:" target="494" id="login-menu-action"/>
+                    </connections>
+                </menuItem>
                 <menuItem title="Reset to Defaults" id="emi-it-fz4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
@@ -746,6 +752,7 @@
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
                 <outlet property="fnMenu" destination="3Up-j9-Hdf" id="ans-jZ-8mN"/>
                 <outlet property="lastAppMenu" destination="ZKn-HI-Yq4" id="aO7-eG-bLr"/>
+                <outlet property="launchAtLoginMenu" destination="login-menu-item" id="login-menu-outlet"/>
                 <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
                 <outlet property="resizeOnlyMenu" destination="ErU-VJ-PWr" id="eXx-DE-rHT"/>
                 <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
