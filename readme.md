@@ -20,6 +20,15 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
 - To restore application settings, select the `Reset to Defaults` menu item.
 - To disable for a particular app, select `Disable for ...` from the menu after using **Easy Move+Resize** on that app.
 
+---
+
+If you want the same edge-snapping behavior as dragging the menu bar, use the native support for move:
+
+1. In a terminal, run: `defaults write -g NSWindowShouldDragOnGesture -bool true` \
+   (enables native `Ctrl+Cmd+left-mouse` move)
+2. Logout for this to have an effect
+3. In Easy Move+Resize settings, enable `Resize only` OR choose different modifiers.
+
 ## Installation
 
 ### brew
