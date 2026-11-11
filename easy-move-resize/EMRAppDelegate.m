@@ -89,22 +89,36 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         _systemWideElement = AXUIElementCreateSystemWide();
 
         AXUIElementRef _element;
+        bool overMenuBar = NO;
         if ((AXUIElementCopyElementAtPosition(_systemWideElement, (float) mouseLocation.x, (float) mouseLocation.y, &_element) == kAXErrorSuccess) && _element) {
             CFTypeRef _role;
             if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityRoleAttribute, &_role) == kAXErrorSuccess) {
-                if ([(__bridge NSString *)_role isEqualToString:NSAccessibilityWindowRole]) {
+                NSString *role = (__bridge NSString *)_role;
+                if ([role isEqualToString:NSAccessibilityWindowRole]) {
                     _clickedWindow = _element;
                 }
+                // app menus and status items; Cmd+drag on the menu bar is how macOS reorders/removes status items
+                overMenuBar = [role isEqualToString:NSAccessibilityMenuBarItemRole]
+                    || [role isEqualToString:NSAccessibilityMenuBarRole];
                 if (_role != NULL) CFRelease(_role);
             }
             CFTypeRef _window;
             if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityWindowAttribute, &_window) == kAXErrorSuccess) {
                 if (_element != NULL) CFRelease(_element);
                 _clickedWindow = (AXUIElementRef)_window;
+            } else if (_clickedWindow != _element) {
+                CFRelease(_element);
             }
         }
         CFRelease(_systemWideElement);
-        
+
+        if (overMenuBar || _clickedWindow == NULL) {
+            // nothing for us to move/resize under the pointer (e.g. the menu bar): leave the event alone
+            if (_clickedWindow != NULL) CFRelease(_clickedWindow);
+            [moveResize setTracking:0];
+            return event;
+        }
+
         pid_t PID;
         NSRunningApplication* app;
         if(!AXUIElementGetPid(_clickedWindow, &PID)) {
