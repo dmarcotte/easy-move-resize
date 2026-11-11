@@ -40,4 +40,15 @@
     XCTAssertEqualObjects(flagStringSet, expectedSet, "Should contain the restored defaults");
 }
 
+- (void)testPassThroughClicks {
+    [preferences setToDefaults];
+    XCTAssertFalse([preferences shouldPassThroughClicks], "Should be off by default");
+
+    [preferences setShouldPassThroughClicks:YES];
+    XCTAssertTrue([preferences shouldPassThroughClicks], "Should persist the enabled state");
+
+    [preferences setToDefaults];
+    XCTAssertFalse([preferences shouldPassThroughClicks], "Should be reset by defaults");
+}
+
 @end

@@ -99,6 +99,7 @@
     [userDefaults setBool:NO forKey:SHOULD_BRING_WINDOW_TO_FRONT];
     [userDefaults setBool:NO forKey:SHOULD_MIDDLE_CLICK_RESIZE];
     [userDefaults setBool:NO forKey:RESIZE_ONLY];
+    [userDefaults setBool:NO forKey:PASS_THROUGH_CLICKS];
     [userDefaults setObject:[NSDictionary dictionary] forKey:DISABLED_APPS_DEFAULTS_KEY];
 }
 
@@ -160,6 +161,13 @@
 }
 -(void)setResizeOnly:(BOOL)resizeOnly {
     [userDefaults setBool:resizeOnly forKey:RESIZE_ONLY];
+}
+
+-(BOOL)shouldPassThroughClicks {
+    return [userDefaults boolForKey:PASS_THROUGH_CLICKS];
+}
+-(void)setShouldPassThroughClicks:(BOOL)passThroughClicks {
+    [userDefaults setBool:passThroughClicks forKey:PASS_THROUGH_CLICKS];
 }
 
 @end

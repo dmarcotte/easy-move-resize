@@ -14,6 +14,7 @@
 - (IBAction)resetToDefaults:(id)sender;
 - (IBAction)toggleDisabled:(id)sender;
 - (IBAction)toggleBringWindowToFront:(id)sender;
+- (IBAction)togglePassThroughClicks:(id)sender;
 - (IBAction)disableLastApp:(id)sender;
 - (IBAction)enableDisabledApp:(id)sender;
 
@@ -26,6 +27,7 @@
 @property (weak) IBOutlet NSMenuItem *bringWindowFrontMenu;
 @property (weak) IBOutlet NSMenuItem *middleClickResizeMenu;
 @property (weak) IBOutlet NSMenuItem *resizeOnlyMenu;
+@property (weak) IBOutlet NSMenuItem *passThroughClicksMenu;
 @property (weak) IBOutlet NSMenuItem *disabledAppsMenu;
 @property (weak) IBOutlet NSMenuItem *lastAppMenu;
 @property (nonatomic) BOOL sessionActive;
