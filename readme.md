@@ -17,6 +17,7 @@ Adds easy `modifier key + mouse drag` move and resize to OSX
     - All keys toggled to selected must be held down for activation.
 - Behavior can be disabled by toggling the `Disabled` item in the application icon menu.
 - If you are dragging or resizing a window in the background and want it to rise to the top, select the `Bring Window to Front` menu item.
+- By default, clicks made while holding the modifier keys are swallowed. To have a modifier+click that doesn't drag passed through to the app instead (e.g. `Cmd` + click to open a link in a new tab when `Cmd` is your modifier), select the `Pass Through Clicks` menu item. The window only starts moving/resizing once the pointer moves a few pixels.
 - To restore application settings, select the `Reset to Defaults` menu item.
 - To disable for a particular app, select `Disable for ...` from the menu after using **Easy Move+Resize** on that app.
 

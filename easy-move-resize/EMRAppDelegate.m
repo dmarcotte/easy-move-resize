@@ -14,6 +14,26 @@ float getMinRefreshInterval(void) {
     return minInterval;
 }
 
+// With Pass Through Clicks enabled, the pointer must move at least this far (in points) after a
+// modifier+mouse-down before it's treated as a move/resize instead of a click
+static const double kClickDragThreshold = 4.0;
+
+static CGEventType mouseUpTypeFor(CGEventType mouseDownType) {
+    switch (mouseDownType) {
+        case kCGEventLeftMouseDown: return kCGEventLeftMouseUp;
+        case kCGEventRightMouseDown: return kCGEventRightMouseUp;
+        default: return kCGEventOtherMouseUp;
+    }
+}
+
+static void bringWindowToFront(AXUIElementRef window) {
+    pid_t PID;
+    if (window != NULL && !AXUIElementGetPid(window, &PID)) {
+        [[NSRunningApplication runningApplicationWithProcessIdentifier:PID] activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+    }
+    AXUIElementPerformAction(window, kAXRaiseAction);
+}
+
 @implementation EMRAppDelegate {
     EMRPreferences *preferences;
 }
@@ -32,12 +52,13 @@ float getMinRefreshInterval(void) {
     return self;
 }
 
-CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
+CGEventRef myCGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
 
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
     int keyModifierFlags = [ourDelegate modifierFlags];
     bool shouldMiddleClickResize = [ourDelegate shouldMiddleClickResize];
     bool resizeOnly = [ourDelegate resizeOnly];
+    bool passThroughClicks = [ourDelegate shouldPassThroughClicks];
     CGEventType resizeModifierDown = kCGEventRightMouseDown;
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
@@ -63,9 +84,38 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if ((type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput)) {
         // need to re-enable our eventTap (We got disabled.  Usually happens on a slow resizing app)
         CGEventTapEnable([moveResize eventTap], true);
+        // we may have missed the mouse-up while disabled; don't let a held-back click linger
+        [moveResize setPendingMouseDown:NULL];
+        [moveResize setTracking:0];
         return event;
     }
-    
+
+    CGEventRef pendingMouseDown = [moveResize pendingMouseDown];
+    bool isPendingMouseUp = pendingMouseDown != NULL && type == mouseUpTypeFor(CGEventGetType(pendingMouseDown));
+    if (isPendingMouseUp && CGEventGetIntegerValueField(event, kCGMouseEventNumber)
+            != CGEventGetIntegerValueField(pendingMouseDown, kCGMouseEventNumber)) {
+        // not the up for our held-back down (we missed that one): drop it and handle this event normally
+        [moveResize setPendingMouseDown:NULL];
+        [moveResize setTracking:0];
+        isPendingMouseUp = false;
+    }
+    if (isPendingMouseUp) {
+        // Pass Through Clicks: the button was released. If the pointer never moved far enough to start a
+        // move/resize, replay the held-back mouse-down so the app under the pointer receives the whole click.
+        // Handled before the modifier check so the click isn't lost if the modifier is released first.
+        CGPoint start = [moveResize mouseDownLocation];
+        CGPoint end = CGEventGetLocation(event);
+        bool wasClick = ![moveResize dragStarted]
+            && hypot(end.x - start.x, end.y - start.y) < kClickDragThreshold;
+        if (wasClick) {
+            // events posted here enter the system before the event this callback returns
+            CGEventTapPostEvent(proxy, pendingMouseDown);
+        }
+        [moveResize setPendingMouseDown:NULL];
+        [moveResize setTracking:0];
+        return wasClick ? event : NULL;
+    }
+
     CGEventFlags flags = CGEventGetFlags(event);
     if ((flags & (keyModifierFlags)) != (keyModifierFlags)) {
         // didn't find our expected modifiers; this event isn't for us
@@ -111,16 +161,15 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             app = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
             if ([[ourDelegate getDisabledApps] objectForKey:[app bundleIdentifier]] != nil) {
                 [moveResize setTracking:0];
+                [moveResize setPendingMouseDown:NULL];
                 return event;
             }
             [ourDelegate setMostRecentApp:app];
         }
 
-        if([ourDelegate shouldBringWindowToFront]){
-            if (app != nil) {
-                [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
-            }
-            AXUIElementPerformAction(_clickedWindow, kAXRaiseAction);
+        // with Pass Through Clicks, wait until we know this is a drag (a click activates the window anyway)
+        if ([ourDelegate shouldBringWindowToFront] && !passThroughClicks) {
+            bringWindowToFront(_clickedWindow);
         }
         
         CFTypeRef _cPosition = nil;
@@ -139,7 +188,26 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndPosition:cTopLeft];
         [moveResize setWindow:_clickedWindow];
         if (_clickedWindow != nil) CFRelease(_clickedWindow);
+
+        // Pass Through Clicks: hold the mouse-down back until we know whether this is a click or a drag
+        [moveResize setPendingMouseDown:(passThroughClicks ? event : NULL)];
+        [moveResize setMouseDownLocation:mouseLocation];
+        [moveResize setDragStarted:!passThroughClicks];
         handled = YES;
+    }
+
+    if ((type == kCGEventLeftMouseDragged || type == resizeModifierDragged)
+            && [moveResize tracking] > 0 && ![moveResize dragStarted]) {
+        // Pass Through Clicks: only start moving/resizing once the pointer has moved past the threshold.
+        // Deltas are still accumulated below, so the window catches up with the pointer when it starts.
+        CGPoint start = [moveResize mouseDownLocation];
+        CGPoint current = CGEventGetLocation(event);
+        if (hypot(current.x - start.x, current.y - start.y) >= kClickDragThreshold) {
+            [moveResize setDragStarted:YES];
+            if ([ourDelegate shouldBringWindowToFront]) {
+                bringWindowToFront([moveResize window]);
+            }
+        }
     }
 
     if (type == kCGEventLeftMouseDragged
@@ -156,7 +224,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         CFTypeRef _position;
 
         // actually applying the change is expensive, so only do it every kMoveFilterInterval seconds
-        if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.moveFilterInterval) {
+        if ([moveResize dragStarted] && CACurrentMediaTime() - [moveResize tracking] > ourDelegate.moveFilterInterval) {
             _position = (CFTypeRef) (AXValueCreate(kAXValueCGPointType, (const void *) &thePoint));
             AXUIElementSetAttributeValue(_clickedWindow, (__bridge CFStringRef) NSAccessibilityPositionAttribute, (CFTypeRef *) _position);
             if (_position != NULL) CFRelease(_position);
@@ -254,7 +322,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [moveResize setWndSize:wndSize];
 
         // actually applying the change is expensive, so only do it every kResizeFilterInterval events
-        if (CACurrentMediaTime() - [moveResize tracking] > ourDelegate.resizeFilterInterval) {
+        if ([moveResize dragStarted] && CACurrentMediaTime() - [moveResize tracking] > ourDelegate.resizeFilterInterval) {
             // only make a call to update the position if we need to
             if (resizeSection.xResizeDirection == left || resizeSection.yResizeDirection == bottom) {
                 CFTypeRef _position = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&cTopLeft));
@@ -395,6 +463,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_disabledMenu setState:0];
     [_bringWindowFrontMenu setState:0];
     [_middleClickResizeMenu setState:0];
+    [_passThroughClicksMenu setState:0];
 
     bool shouldBringWindowToFront = [preferences shouldBringWindowToFront];
     bool shouldMiddleClickResize = [preferences shouldMiddleClickResize];
@@ -408,6 +477,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
     if(resizeOnly){
         [_resizeOnlyMenu setState:1];
+    }
+    if([preferences shouldPassThroughClicks]){
+        [_passThroughClicksMenu setState:1];
     }
     
     NSSet* flags = [preferences getFlagStringSet];
@@ -439,6 +511,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 - (IBAction)resetToDefaults:(id)sender {
     EMRMoveResize* moveResize = [EMRMoveResize instance];
     [preferences setToDefaults];
+    [moveResize setPendingMouseDown:NULL];
     [self initMenuItems];
     [self setMenusEnabled:YES];
     [self enableRunLoopSource:moveResize];
@@ -459,6 +532,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [preferences setShouldMiddleClickResize:newState];
 }
 
+- (IBAction)togglePassThroughClicks:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setShouldPassThroughClicks:newState];
+    [[EMRMoveResize instance] setPendingMouseDown:NULL];
+}
+
 - (IBAction)toggleDisabled:(id)sender {
     EMRMoveResize* moveResize = [EMRMoveResize instance];
     if ([_disabledMenu state] == 0) {
@@ -466,6 +547,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         [_disabledMenu setState:YES];
         [self setMenusEnabled:NO];
         [self disableRunLoopSource:moveResize];
+        [moveResize setPendingMouseDown:NULL];
     }
     else {
         // We are disabled, enable
@@ -517,6 +599,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 -(BOOL)resizeOnly {
     return [preferences resizeOnly];
 }
+-(BOOL)shouldPassThroughClicks {
+    return [preferences shouldPassThroughClicks];
+}
 
 - (void)setMenusEnabled:(BOOL)enabled {
     [_altMenu setEnabled:enabled];
@@ -526,6 +611,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [_fnMenu setEnabled:enabled];
     [_bringWindowFrontMenu setEnabled:enabled];
     [_middleClickResizeMenu setEnabled:enabled];
+    [_passThroughClicksMenu setEnabled:enabled];
 }
 
 - (void)reconstructDisabledAppsSubmenu {

@@ -6,6 +6,8 @@
 @synthesize tracking = _tracking;
 @synthesize wndPosition = _wndPosition;
 @synthesize wndSize = _wndSize;
+@synthesize mouseDownLocation = _mouseDownLocation;
+@synthesize dragStarted = _dragStarted;
 
 + (EMRMoveResize*)instance {
     static EMRMoveResize *instance = nil;
@@ -20,6 +22,7 @@
 - init {
     _window = nil;
     _runLoopSource = nil;
+    _pendingMouseDown = NULL;
     return self;
 }
 
@@ -31,6 +34,15 @@
     if (_window != nil) CFRelease(_window);
     if (window != nil) CFRetain(window);
     _window = window;
+}
+
+- (CGEventRef)pendingMouseDown {
+    return _pendingMouseDown;
+}
+
+- (void)setPendingMouseDown:(CGEventRef)event {
+    if (_pendingMouseDown != NULL) CFRelease(_pendingMouseDown);
+    _pendingMouseDown = (event != NULL) ? CGEventCreateCopy(event) : NULL;
 }
 
 - (CFRunLoopSourceRef) runLoopSource {
@@ -45,6 +57,7 @@
 
 - (void)dealloc {
     if (_window != nil) CFRelease(_window);
+    if (_pendingMouseDown != NULL) CFRelease(_pendingMouseDown);
 }
 
 @end
