@@ -2,6 +2,111 @@
 #import "EMRMoveResize.h"
 #import "EMRPreferences.h"
 
+static BOOL EMRGetValue(AXUIElementRef element, CFStringRef attribute, AXValueType type, void *result) {
+    CFTypeRef value = NULL;
+    BOOL ok = AXUIElementCopyAttributeValue(element, attribute, &value) == kAXErrorSuccess && value
+        && CFGetTypeID(value) == AXValueGetTypeID() && AXValueGetValue(value, type, result);
+    if (value) CFRelease(value);
+    return ok;
+}
+
+// Returns the single AX window of `pid` whose frame matches `frame`, or NULL if none or ambiguous.
+static AXUIElementRef EMRCopyAXWindowWithFrame(pid_t pid, CGRect frame) {
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+    CFTypeRef windows = NULL;
+    AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, &windows);
+    CFRelease(app);
+    AXUIElementRef result = NULL;
+    if (windows && CFGetTypeID(windows) == CFArrayGetTypeID()) {
+        for (id entry in (__bridge NSArray *)windows) {
+            AXUIElementRef window = (__bridge AXUIElementRef)entry;
+            CGPoint origin;
+            CGSize size;
+            if (CFGetTypeID(window) != AXUIElementGetTypeID()
+                || !EMRGetValue(window, kAXPositionAttribute, kAXValueCGPointType, &origin)
+                || !EMRGetValue(window, kAXSizeAttribute, kAXValueCGSizeType, &size)
+                || fabs(origin.x - frame.origin.x) > 2 || fabs(origin.y - frame.origin.y) > 2
+                || fabs(size.width - frame.size.width) > 2 || fabs(size.height - frame.size.height) > 2) continue;
+            if (result) { // Several windows share this frame; picking one would be a guess.
+                CFRelease(result);
+                result = NULL;
+                break;
+            }
+            result = (AXUIElementRef)CFRetain(window);
+        }
+    }
+    if (windows) CFRelease(windows);
+    return result;
+}
+
+// Fallback for apps (e.g. WeChat, Telegram) whose clicked element has no window ancestor:
+// take the topmost window under the pointer and, if it is a normal window, match it to its
+// owner's AX windows. Any other window in front (menus, panels, notifications) cancels, so
+// a window behind an overlay is never moved. The one exception is the Dock's backing
+// window, which can span the whole screen without covering anything; clicks on actual Dock
+// icons are still rejected because the hit-tested element then belongs to the Dock, and a
+// window from a different app than the hit-tested element is never accepted.
+static AXUIElementRef EMRCopyWindowFromList(CGPoint point, pid_t hitPid) {
+    CFArrayRef list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
+                                                 kCGNullWindowID);
+    if (!list) return NULL;
+    AXUIElementRef result = NULL;
+    for (NSDictionary *info in (__bridge NSArray *)list) {
+        NSDictionary *boundsInfo = info[(__bridge NSString *)kCGWindowBounds];
+        CGRect bounds;
+        NSNumber *alpha = info[(__bridge NSString *)kCGWindowAlpha];
+        if (!boundsInfo || !CGRectMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)boundsInfo, &bounds)
+            || !CGRectContainsPoint(bounds, point) || (alpha && alpha.doubleValue <= 0)) continue;
+        int layer = [info[(__bridge NSString *)kCGWindowLayer] intValue];
+        pid_t pid = [info[(__bridge NSString *)kCGWindowOwnerPID] intValue];
+        if (layer == CGWindowLevelForKey(kCGDockWindowLevelKey)
+            && [[NSRunningApplication runningApplicationWithProcessIdentifier:pid].bundleIdentifier
+                isEqualToString:@"com.apple.dock"]) continue;
+        if (layer == 0 && (hitPid == 0 || pid == hitPid)) result = EMRCopyAXWindowWithFrame(pid, bounds);
+        NSLog(@"[EMR] window list fallback: hit pid=%d, window pid=%d, layer=%d, matched=%d",
+              hitPid, pid, layer, result != NULL);
+        break;
+    }
+    CFRelease(list);
+    return result;
+}
+
+// Returns an owned reference to the window under `point`, or NULL.
+static AXUIElementRef EMRCopyWindowAtPoint(CGPoint point) {
+    AXUIElementRef systemWide = AXUIElementCreateSystemWide();
+    AXUIElementRef element = NULL;
+    AXError error = AXUIElementCopyElementAtPosition(systemWide, point.x, point.y, &element);
+    CFRelease(systemWide);
+    pid_t hitPid = 0;
+    if (error == kAXErrorSuccess && element) {
+        AXUIElementGetPid(element, &hitPid);
+        // Walk up the tree: the element itself, its AXWindow, or an ancestor's. Bounded
+        // in case an app exposes a cyclic hierarchy.
+        AXUIElementRef current = (AXUIElementRef)CFRetain(element);
+        for (int depth = 0; current && depth < 10; ++depth) {
+            CFTypeRef role = NULL, window = NULL, parent = NULL;
+            AXUIElementCopyAttributeValue(current, kAXRoleAttribute, &role);
+            BOOL isWindow = role && CFEqual(role, kAXWindowRole);
+            if (role) CFRelease(role);
+            if (isWindow) window = CFRetain(current);
+            else AXUIElementCopyAttributeValue(current, kAXWindowAttribute, &window);
+            if (window && CFGetTypeID(window) == AXUIElementGetTypeID()) {
+                CFRelease(current);
+                CFRelease(element);
+                return (AXUIElementRef)window;
+            }
+            if (window) CFRelease(window);
+            AXUIElementCopyAttributeValue(current, kAXParentAttribute, &parent);
+            CFRelease(current);
+            current = parent && CFGetTypeID(parent) == AXUIElementGetTypeID() ? (AXUIElementRef)parent : NULL;
+            if (parent && !current) CFRelease(parent);
+        }
+        if (current) CFRelease(current);
+        CFRelease(element);
+    }
+    return EMRCopyWindowFromList(point, hitPid);
+}
+
 /* Return the minimum refresh interval (1/refresh rate) across all screens. If the user
  * is on a version of MacOS < 12.0 then 60hz refresh rate is assumed. */
 float getMinRefreshInterval(void) {
@@ -82,35 +187,25 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     if ((type == kCGEventLeftMouseDown && !resizeOnly)
             || type == resizeModifierDown) {
         CGPoint mouseLocation = CGEventGetLocation(event);
+        [moveResize setTracking:0];
+
+        // If no window (or its position) can be found, let the click through untouched.
+        AXUIElementRef _clickedWindow = EMRCopyWindowAtPoint(mouseLocation);
+        NSPoint cTopLeft;
+        if (!_clickedWindow || !EMRGetValue(_clickedWindow, kAXPositionAttribute, kAXValueCGPointType, &cTopLeft)) {
+            NSLog(@"[EMR] no movable window under pointer; passing click through");
+            if (_clickedWindow) CFRelease(_clickedWindow);
+            return event;
+        }
         [moveResize setTracking:CACurrentMediaTime()];
 
-        AXUIElementRef _systemWideElement;
-        AXUIElementRef _clickedWindow = NULL;
-        _systemWideElement = AXUIElementCreateSystemWide();
-
-        AXUIElementRef _element;
-        if ((AXUIElementCopyElementAtPosition(_systemWideElement, (float) mouseLocation.x, (float) mouseLocation.y, &_element) == kAXErrorSuccess) && _element) {
-            CFTypeRef _role;
-            if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityRoleAttribute, &_role) == kAXErrorSuccess) {
-                if ([(__bridge NSString *)_role isEqualToString:NSAccessibilityWindowRole]) {
-                    _clickedWindow = _element;
-                }
-                if (_role != NULL) CFRelease(_role);
-            }
-            CFTypeRef _window;
-            if (AXUIElementCopyAttributeValue(_element, (__bridge CFStringRef)NSAccessibilityWindowAttribute, &_window) == kAXErrorSuccess) {
-                if (_element != NULL) CFRelease(_element);
-                _clickedWindow = (AXUIElementRef)_window;
-            }
-        }
-        CFRelease(_systemWideElement);
-        
         pid_t PID;
-        NSRunningApplication* app;
+        NSRunningApplication* app = nil;
         if(!AXUIElementGetPid(_clickedWindow, &PID)) {
             app = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
-            if ([[ourDelegate getDisabledApps] objectForKey:[app bundleIdentifier]] != nil) {
+            if ([app bundleIdentifier] && [[ourDelegate getDisabledApps] objectForKey:[app bundleIdentifier]] != nil) {
                 [moveResize setTracking:0];
+                CFRelease(_clickedWindow);
                 return event;
             }
             [ourDelegate setMostRecentApp:app];
@@ -122,17 +217,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
             }
             AXUIElementPerformAction(_clickedWindow, kAXRaiseAction);
         }
-        
-        CFTypeRef _cPosition = nil;
-        NSPoint cTopLeft;
-        if (AXUIElementCopyAttributeValue((AXUIElementRef)_clickedWindow, (__bridge CFStringRef)NSAccessibilityPositionAttribute, &_cPosition) == kAXErrorSuccess) {
-            if (!AXValueGetValue(_cPosition, kAXValueCGPointType, (void *)&cTopLeft)) {
-                NSLog(@"ERROR: Could not decode position");
-                cTopLeft = NSMakePoint(0, 0);
-            }
-            CFRelease(_cPosition);
-        }
-        
+
         cTopLeft.x = (int) cTopLeft.x;
         cTopLeft.y = (int) cTopLeft.y;
 
